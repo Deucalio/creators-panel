@@ -8,6 +8,7 @@ import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 import { isValidEmail } from "@/lib/email-format";
 import { checkLoginAllowed, describeWait, recordFailedLogin } from "@/lib/rate-limit";
 import { uniqueViolationTargets } from "@/lib/unique-violation";
+import { matchPayoutMethod } from "@/lib/payout-methods";
 
 /**
  * A "use server" module may only export async functions. Constants — including
@@ -184,8 +185,10 @@ export async function updatePassword(
 }
 
 /**
- * How this creator wants to be paid. Free text, because payout practice varies
- * by country and there is no payment provider in V1 to constrain the shape.
+ * How this creator wants to be paid. Merchants pay by hand, through Easypaisa,
+ * JazzCash or a bank transfer, so the method must be one of those and is stored
+ * in its listed spelling. The details stay free text: a wallet number and an
+ * IBAN don't share a shape.
  */
 export async function updatePayoutDetails(
   _previous: FormState,
@@ -194,8 +197,17 @@ export async function updatePayoutDetails(
   const accountId = await getSessionAccountId();
   if (!accountId) return NOT_SIGNED_IN;
 
-  const method = text(formData, "payoutMethod");
+  const submittedMethod = text(formData, "payoutMethod");
+  const method = matchPayoutMethod(submittedMethod);
   const details = text(formData, "payoutDetails");
+
+  if (submittedMethod && !method) {
+    return {
+      status: "error",
+      message: "Choose Easypaisa, JazzCash or Bank transfer.",
+      field: "payoutMethod",
+    };
+  }
 
   if (details && !method) {
     return {

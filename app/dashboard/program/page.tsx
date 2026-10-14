@@ -65,7 +65,7 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
           <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-xs">
             <div className="border-b border-line-soft bg-surface-muted/30 p-6">
               <span className="text-[11px] font-bold uppercase tracking-wider text-ink-subtle">
-                Standard Commission Rate
+                Standard commission rate
               </span>
               <div className="mt-2 flex flex-wrap items-baseline gap-3">
                 <span className="text-3xl font-extrabold tracking-tight text-ink">
@@ -114,12 +114,12 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
                                   : describeRate(rule.type, rule.amount, currency)}
                               </span>
                               {comparison === "higher" && (
-                                <span className="rounded bg-ok-surface px-1.5 py-0.5 text-[10px] font-bold text-ok">
+                                <span className="rounded bg-ok-surface px-1.5 py-0.5 text-[10px] font-bold text-ok-ink">
                                   Higher
                                 </span>
                               )}
                               {comparison === "lower" && (
-                                <span className="rounded bg-warn-surface px-1.5 py-0.5 text-[10px] font-bold text-warn">
+                                <span className="rounded bg-warn-surface px-1.5 py-0.5 text-[10px] font-bold text-warn-ink">
                                   Lower
                                 </span>
                               )}
@@ -169,12 +169,12 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
                                   : describeRate(rule.type, rule.amount, currency)}
                               </span>
                               {comparison === "higher" && (
-                                <span className="rounded bg-ok-surface px-1.5 py-0.5 text-[10px] font-bold text-ok">
+                                <span className="rounded bg-ok-surface px-1.5 py-0.5 text-[10px] font-bold text-ok-ink">
                                   Higher
                                 </span>
                               )}
                               {comparison === "lower" && (
-                                <span className="rounded bg-warn-surface px-1.5 py-0.5 text-[10px] font-bold text-warn">
+                                <span className="rounded bg-warn-surface px-1.5 py-0.5 text-[10px] font-bold text-warn-ink">
                                   Lower
                                 </span>
                               )}
@@ -229,7 +229,7 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
                 <Icon name="sparkles" className="h-3.5 w-3.5" />
               </span>
               <h2 className="text-sm font-bold tracking-tight text-ink">
-                Example Calculation
+                Example calculation
               </h2>
             </div>
             <div className="mt-4 rounded-xl border border-line bg-surface p-4">
@@ -316,24 +316,28 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
               <li className="flex items-start gap-3 rounded-xl border border-line-soft bg-surface-muted/20 p-3 text-[11px] text-ink-muted">
                 <Icon name="info" className="mt-0.5 h-3.5 w-3.5 flex-none text-ink-subtle" />
                 <span>
-                  <strong className="text-ink">Checkout code precedence:</strong> If a shopper clicks your link but completes checkout using another creator&apos;s discount code or an exclusive coupon, the checkout code takes precedence for attribution.
+                  <strong className="text-ink">When a code beats your link:</strong> If a shopper clicks your link but then enters another creator&apos;s code at checkout, that creator gets the credit. Ordinary store discount codes, like a sale code, never take the credit from you.
                 </span>
               </li>
             </ul>
           </section>
 
-          {/* Section 4: Getting Paid (HE-2) */}
+          {/* Section 4: Getting paid (HE-2) */}
           <section className="rounded-2xl border border-line bg-surface p-6 shadow-xs">
             <h2 className="text-xs font-bold uppercase tracking-wider text-ink-subtle">
-              Getting Paid
+              Getting paid
             </h2>
             <div className="mt-3 flex flex-col gap-3 text-xs leading-relaxed text-ink-muted">
               <p>
-                Commissions are reviewed and paid out directly by {storeName} according to their payout schedule.
+                {storeName} reviews each commission and sends approved earnings to you by hand, through
+                Easypaisa, JazzCash or a bank transfer. There&apos;s no fixed schedule: each payment appears
+                in Payouts, with its reference, once it&apos;s sent.
+                {/* The hold is shown to the merchant but approval isn't blocked
+                    on it, so describe it as their usual practice, not a rule. */}
                 {config.holdDays ? (
                   <>
-                    {" "}Newly referred orders have a standard hold period of{" "}
-                    <strong className="text-ink">{config.holdDays} days</strong> before becoming payable. This window allows time for any shopper returns, exchanges, or cancellations to be processed.
+                    {" "}{storeName} usually waits{" "}
+                    <strong className="text-ink">{config.holdDays} days</strong> after an order before approving its commission, so returns, exchanges and cancellations can come through first.
                   </>
                 ) : null}
               </p>
@@ -343,14 +347,14 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
                     Verify your payment method
                   </span>
                   <span className="text-[11px] text-ink-muted">
-                    Make sure your Bank transfer, Wise, or preferred details are up to date.
+                    Make sure your Easypaisa, JazzCash or bank details are up to date.
                   </span>
                 </div>
                 <Link
                   href={`/dashboard/settings?program=${membership.id}`}
                   className="rounded-xl border border-line bg-surface px-3.5 py-1.5 text-xs font-semibold text-ink hover:border-line-strong hover:bg-surface-muted transition-colors shadow-2xs"
                 >
-                  Manage Payout Settings →
+                  Manage payout details →
                 </Link>
               </div>
             </div>

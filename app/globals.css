@@ -5,6 +5,11 @@
  *
  * Components reference roles — `surface`, `ink-muted`, `brand`, `ok-ink` —
  * ensuring cohesive light/dark theming and accessible contrast across all viewports.
+ *
+ * Status colours come in three parts: `-surface` for fills, `-line` for borders,
+ * `-ink` for text, icons and dots (as the Badge does). There is no bare `ok`,
+ * `warn` or `danger`, and Tailwind drops an unknown name without a warning — a
+ * class like `text-danger` simply renders in the inherited colour.
  */
 :root {
   color-scheme: light;
@@ -15,6 +20,7 @@
 
   --line: #e5e7eb;
   --line-soft: #f1f3f5;
+  --line-strong: #d1d5db;
 
   --ink: #111827;
   --ink-muted: #4b5563;
@@ -31,10 +37,12 @@
   /* Status roles (tinted surface + readable ink) */
   --warn-surface: #fef3c7;
   --warn-ink: #92400e;
+  --warn-line: #fde68a;
   --info-surface: #e0e7ff;
   --info-ink: #3730a3;
   --ok-surface: #d1fae5;
   --ok-ink: #065f46;
+  --ok-line: #a7f3d0;
   --bad-surface: #ffe4e6;
   --bad-ink: #9f1239;
   --neutral-surface: #f3f4f6;
@@ -59,6 +67,7 @@
 
     --line: #2a2d3d;
     --line-soft: #232533;
+    --line-strong: #3b3f54;
 
     --ink: #f9fafb;
     --ink-muted: #9ca3af;
@@ -73,10 +82,12 @@
 
     --warn-surface: #3a2a08;
     --warn-ink: #fcd34d;
+    --warn-line: #5c4310;
     --info-surface: #1e1e3f;
     --info-ink: #a5b4fc;
     --ok-surface: #0b2f24;
     --ok-ink: #6ee7b7;
+    --ok-line: #134e3a;
     --bad-surface: #3d1521;
     --bad-ink: #fda4af;
     --neutral-surface: #262836;
@@ -100,6 +111,7 @@
 
   --line: #2a2d3d;
   --line-soft: #232533;
+  --line-strong: #3b3f54;
 
   --ink: #f9fafb;
   --ink-muted: #9ca3af;
@@ -114,10 +126,12 @@
 
   --warn-surface: #3a2a08;
   --warn-ink: #fcd34d;
+  --warn-line: #5c4310;
   --info-surface: #1e1e3f;
   --info-ink: #a5b4fc;
   --ok-surface: #0b2f24;
   --ok-ink: #6ee7b7;
+  --ok-line: #134e3a;
   --bad-surface: #3d1521;
   --bad-ink: #fda4af;
   --neutral-surface: #262836;
@@ -137,6 +151,7 @@
 
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);
+  --color-line-strong: var(--line-strong);
 
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
@@ -151,10 +166,12 @@
 
   --color-warn-surface: var(--warn-surface);
   --color-warn-ink: var(--warn-ink);
+  --color-warn-line: var(--warn-line);
   --color-info-surface: var(--info-surface);
   --color-info-ink: var(--info-ink);
   --color-ok-surface: var(--ok-surface);
   --color-ok-ink: var(--ok-ink);
+  --color-ok-line: var(--ok-line);
   --color-bad-surface: var(--bad-surface);
   --color-bad-ink: var(--bad-ink);
   --color-neutral-surface: var(--neutral-surface);

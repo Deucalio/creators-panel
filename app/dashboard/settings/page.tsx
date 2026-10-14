@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireCreatorAccount } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { Badge } from "@/components/badge";
+import { matchPayoutMethod } from "@/lib/payout-methods";
 import {
   ProfileForm,
   EmailForm,
@@ -37,7 +38,13 @@ export default async function SettingsPage({ searchParams }: PageProps<"/dashboa
     select: { payoutMethod: true, payoutDetails: true },
   });
 
-  const hasPayoutConfigured = Boolean(payout?.payoutMethod && payout?.payoutDetails);
+  // Configured means a merchant could actually pay: a method they send through
+  // (not an older "Wise") and the details for it. Removal is offered for
+  // anything stored, payable or not.
+  const hasPayoutConfigured = Boolean(
+    matchPayoutMethod(payout?.payoutMethod) && payout?.payoutDetails,
+  );
+  const hasStoredPayout = Boolean(payout?.payoutMethod || payout?.payoutDetails);
 
   return (
     <div className="flex flex-col gap-6">
@@ -75,7 +82,7 @@ export default async function SettingsPage({ searchParams }: PageProps<"/dashboa
           payoutMethod={payout?.payoutMethod ?? ""}
           payoutDetails={payout?.payoutDetails ?? ""}
         />
-        <RemovePayoutForm hasDetails={hasPayoutConfigured} />
+        <RemovePayoutForm hasDetails={hasStoredPayout} />
       </Section>
 
       <Section

@@ -19,6 +19,7 @@ import { HeroEarningsPanel } from "@/components/hero-earnings-panel";
 import { NextActionCard } from "@/components/next-action-card";
 import { PerformanceMetrics } from "@/components/performance-metrics";
 import { RecentEarningsPreview } from "@/components/recent-earnings-preview";
+import { matchPayoutMethod } from "@/lib/payout-methods";
 
 // Earnings must never be served stale.
 export const dynamic = "force-dynamic";
@@ -70,7 +71,10 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
     currency,
   );
 
-  const hasPayoutDetails = Boolean(account.payoutMethod?.trim() && account.payoutDetails?.trim());
+  // A method no merchant pays through (an older "Wise") counts as missing.
+  const hasPayoutDetails = Boolean(
+    matchPayoutMethod(account.payoutMethod) && account.payoutDetails?.trim(),
+  );
   const newcomer = stats.orders === 0;
 
   const shareSection = (
@@ -183,7 +187,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       {/* Row 1: Hero Earnings Panel (8 cols) + Next Action Card (4 cols) (OV-1, OV-2, OV-5) */}
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-8">
-          <HeroEarningsPanel stats={stats} currency={currency} />
+          <HeroEarningsPanel stats={stats} currency={currency} storeName={storeName} />
         </div>
         <div className="col-span-12 lg:col-span-4">
           <NextActionCard

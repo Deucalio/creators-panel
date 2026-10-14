@@ -16,9 +16,11 @@ function unpaidBreakdown(stats: MembershipStats, currency: string): string {
 export function HeroEarningsPanel({
   stats,
   currency,
+  storeName,
 }: {
   stats: MembershipStats;
   currency: string;
+  storeName: string;
 }) {
   const notPaidYet = stats.commissionPending + stats.commissionApproved;
 
@@ -31,7 +33,7 @@ export function HeroEarningsPanel({
               <Icon name="commission" className="h-4 w-4" />
             </span>
             <span className="text-xs font-semibold text-ink-muted">
-              Lifetime Commission Earned
+              Lifetime commission earned
             </span>
           </div>
           <span className="text-[11px] font-medium text-ink-subtle">
@@ -77,7 +79,7 @@ export function HeroEarningsPanel({
             {formatMoney(stats.commissionPaid, currency)}
           </p>
           <p className="mt-0.5 text-[11px] text-ink-subtle">
-            Sent to your payout account
+            Sent to you by {storeName}
           </p>
         </div>
       </div>

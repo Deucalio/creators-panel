@@ -14,13 +14,13 @@ The product spans **two separate applications** that share one Postgres database
 | | |
 |---|---|
 | Features | Phases 1–18 built. Open: password reset (B1) and email verification (F2), both blocked on a sending domain. |
-| Automated tests | `npm test` in each app — 52 merchant, 22 portal, no database needed. See "Automated review — 2026-10-13". |
+| Automated tests | `npm test` in each app — 56 merchant, 26 portal, no database needed. See "Automated review — 2026-10-13". |
 | Database | Schema in sync: `Commission.terms`, `Store.primaryDomain` and `Store.name` were pushed on 2026-10-14. |
 | Creator portal | Reviewed screen by screen on 2026-10-14 — see "Creator portal review — 2026-10-14". Roughly 85% feature-complete; the gaps are password reset, email, and creator-facing privacy terms and account deletion. |
-| Portal redesign | In progress (sidebar shell, new Overview, filters, payouts grouping). UI/UX audit: [PartnerLoop Creator Portal — UI/UX Audit](https://claude.ai/code/artifact/f332c46f-9fda-4ffd-a867-e3de5353f8a5). Issues found in testing it: `tests.md`, "Found in testing, not fixed yet". |
+| Portal redesign | In progress (sidebar shell, new Overview, filters, payouts grouping). UI/UX audit: [PartnerLoop Creator Portal — UI/UX Audit](https://claude.ai/code/artifact/f332c46f-9fda-4ffd-a867-e3de5353f8a5). Reviewed again on 2026-10-14 after the latest redesign commits — see "Redesign review — 2026-10-14". Issues: `tests.md`, "Found in testing, not fixed yet". |
 | Manual testing | Live run on 2026-10-14 with both apps up — see "Live testing — 2026-10-14". Setup done; storefront click tracking and the creator-facing pages pass. Left for you: the coupon (A3), the Shopify admin checks (B), real orders and refunds (C). |
 | Launch blockers | `application_url` placeholder, no hosting for either app, Protected Customer Data access not requested, billing gate off. See `tests.md`, "Open decisions". |
-| Version control | Both repos committed on 2026-10-14. Uncommitted since: the click-tracking fix and its test (Shopify app) and the hydration fix (portal). `dev.log` should not be committed. |
+| Version control | Both repos committed on 2026-10-14, including the click-tracking and hydration fixes. The docs now live in `creators-panel/docs/`. `dev.log` should not be committed. |
 ---
 
 ## Repository layout
@@ -1578,6 +1578,55 @@ Portal: `npm test` now 22 (store naming and rate comparison added); typecheck, l
 | Account deletion | A creator has no way to delete their account; only an uninstall removes it | A decision on what happens to their payout history |
 | Leaving a program | Only the merchant can end a membership | Decision |
 | Trend days follow the server's timezone | On a UTC host, a day in Pakistan splits at 5 a.m. | Small; not changed |
+
+---
+
+## Redesign review — 2026-10-14
+
+Checked after commits 98522af and 9cf9bf1 on the private local database. Every page rendered at 390
+and 1440px with no console errors and no sideways scroll. The findings are listed in `tests.md`, "Found in
+testing, not fixed yet". The headlines:
+
+- **Payout wording overpromises.** Payouts are manual, through Easypaisa or JazzCash. Both apps still
+  talk like a payment gateway:
+  - the Shopify app's Commission Lifecycle modal: "Queued for processing", "#PAY-5521… prepared for
+    settlement", "funds were successfully transferred";
+  - the portal: "Payment failed", "automatically deducted from your next payout", "payout schedule",
+    "scheduled or processing", "Sent to your payout account".
+
+  Nothing ever sets the PROCESSING or FAILED payout statuses.
+- **Wrong payment methods.** Bank transfer, Wise, PayPal and IBAN are suggested in the portal's Settings,
+  next-action card and How you earn, and in the Shopify app's Record payout default and placeholder.
+- **Made-up content:** a "3x higher" conversion statistic, and a sample order and payout batch in the
+  lifecycle modal.
+- **Six undefined colour tokens** (`danger`, `warn`, `ok`, `ok-line`, `warn-line`, `line-strong`; 34 uses).
+  Tailwind drops them silently. The worst result: Settings' "Yes, remove details" confirm button is
+  white on cream, and field errors aren't red.
+
+**Fixed the same day:**
+- **Colour tokens.** Text, dots and tints moved to the `-ink` tokens, and `ok-line`, `warn-line` and
+  `line-strong` were added for both themes. `globals.css` now says why there is no bare `ok`, `warn`
+  or `danger`.
+- **Payment methods are Easypaisa, JazzCash or Bank transfer**, in both apps:
+  - portal Settings: radio buttons, validated on save;
+  - Shopify app, Mark as paid: a dropdown pre-filled from the creator's choice, validated in the
+    action;
+  - the privacy page, the next-action card and How you earn now name only these.
+
+  A creator whose saved method is one nobody can pay to ("Wise") now sees "Action needed".
+
+  The shared list is `lib/payout-methods.ts` / `app/payout-methods.js`; 8 new tests.
+- **Portal wording no longer promises a gateway:**
+  - Payouts shows only "Not sent yet" and "Paid"; the "Payment failed" panel is gone.
+  - The owed-back box says the store decides how to settle it.
+  - The Overview says the store will send a prepared payout.
+  - How you earn describes hand payment with no schedule, softens the hold, and states the code rule
+    correctly.
+  - The "3x higher" statistic is gone.
+  - Six title-case labels are now sentence case.
+
+  The Settings save was exercised through the real form on the private DB.
+- **Kept by decision:** the Commission Lifecycle pop-up and its sample order.
 
 ---
 

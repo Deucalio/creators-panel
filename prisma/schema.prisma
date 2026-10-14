@@ -244,13 +244,14 @@ model CreatorAccount {
   passwordHash    String
   firstName       String
   lastName        String
-  /// How this creator wants to be paid — free text mirroring `Payout.method`
-  /// ("Bank transfer", "Wise", "Easypaisa"), because payout practice varies by
-  /// country and V1 has no payment provider to constrain it.
+  /// How this creator wants to be paid: "Easypaisa", "JazzCash" or "Bank transfer",
+  /// mirroring `Payout.method`. Merchants pay by hand, so both apps offer only that
+  /// list (`app/payout-methods.js`, and `lib/payout-methods.ts` in the portal). A
+  /// column of text, not an enum, because older accounts saved free text.
   payoutMethod    String?
-  /// Whatever the method needs: an IBAN, an account number, a Wise email. Free
-  /// text for the same reason — a fixed set of bank columns breaks for any
-  /// country whose details don't fit them.
+  /// Whatever the method needs: a name and mobile wallet number, or an account
+  /// title, bank and IBAN. Free text, because a wallet and a bank account don't
+  /// share a shape.
   ///
   /// The creator owns this: they enter and change it in the portal, and the
   /// merchant only reads it when recording a payment. It is the first
@@ -452,7 +453,7 @@ model Payout {
   creatorId       String
   amount          Float
   status          PayoutStatus @default(PENDING)
-  /// Free text: "Bank transfer", "Wise", "Cash". No payment provider in V1.
+  /// "Easypaisa", "JazzCash" or "Bank transfer" — see `app/payout-methods.js`. No payment provider in V1.
   method          String?
   /// The merchant's own transaction reference — the actual audit trail.
   reference       String?

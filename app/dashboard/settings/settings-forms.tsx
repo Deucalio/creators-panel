@@ -10,6 +10,7 @@ import {
   type FormState,
 } from "./actions";
 import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
+import { PAYOUT_DETAILS_PROMPT, PAYOUT_METHODS, matchPayoutMethod } from "@/lib/payout-methods";
 import { Field } from "@/components/field";
 
 // Lives here, not in actions.ts: a "use server" module can only export async
@@ -41,8 +42,8 @@ function Feedback({ state }: { state: FormState }) {
           tabIndex={-1}
           className={`rounded-xl border px-4 py-3 text-xs font-medium outline-none shadow-2xs ${
             error
-              ? "border-danger-line bg-danger-surface text-danger"
-              : "border-ok-line bg-ok-surface text-ok"
+              ? "border-danger-line bg-danger-surface text-danger-ink"
+              : "border-ok-line bg-ok-surface text-ok-ink"
           }`}
         >
           {state.message}
@@ -159,21 +160,62 @@ export function PayoutForm({
   payoutDetails: string;
 }) {
   const [state, action, pending] = useActionState(updatePayoutDetails, idle);
+  const [method, setMethod] = useState(() => matchPayoutMethod(payoutMethod));
+  const methodError = errorFor(state, "payoutMethod");
+  // Saved before the list existed and not one of its methods ("Wise"). Kept in
+  // the database until the creator picks a real one, but said out loud, because
+  // no merchant can pay to it.
+  const unsupported = payoutMethod && !matchPayoutMethod(payoutMethod) ? payoutMethod : null;
 
   return (
     <form action={action} className="flex flex-col gap-5" noValidate>
       <Feedback state={state} />
-      <Field
-        name="payoutMethod"
-        label="Payment method"
-        defaultValue={payoutMethod}
-        error={errorFor(state, "payoutMethod")}
-        hint="For example: Bank transfer, Wise, Easypaisa, or PayPal."
-      />
+      <fieldset
+        className="flex flex-col gap-1.5"
+        aria-describedby={methodError ? "payoutMethod-error" : "payoutMethod-hint"}
+      >
+        <legend className="mb-1.5 text-xs font-semibold text-ink">Payment method</legend>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {PAYOUT_METHODS.map((option) => (
+            <label
+              key={option}
+              className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-xs font-semibold shadow-2xs transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand/30 ${
+                method === option
+                  ? "border-brand bg-brand-surface text-brand-text"
+                  : "border-line bg-surface text-ink hover:border-line-strong"
+              }`}
+            >
+              <input
+                type="radio"
+                name="payoutMethod"
+                value={option}
+                checked={method === option}
+                onChange={() => setMethod(option)}
+                className="accent-brand"
+              />
+              {option}
+            </label>
+          ))}
+        </div>
+        {methodError ? (
+          <p id="payoutMethod-error" className="text-xs font-medium text-danger-ink">
+            {methodError}
+          </p>
+        ) : unsupported && !method ? (
+          <p id="payoutMethod-hint" className="text-xs leading-relaxed text-warn-ink">
+            You saved &ldquo;{unsupported}&rdquo;, which merchants can&apos;t pay to. Choose one of
+            these and save again.
+          </p>
+        ) : (
+          <p id="payoutMethod-hint" className="text-xs leading-relaxed text-ink-subtle">
+            Merchants send your earnings themselves, through one of these.
+          </p>
+        )}
+      </fieldset>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="payoutDetails" className="text-xs font-semibold text-ink">
-          Account & payment details
+          Account details
         </label>
         <textarea
           id="payoutDetails"
@@ -181,13 +223,7 @@ export function PayoutForm({
           rows={4}
           defaultValue={payoutDetails}
           className="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-xs text-ink outline-none transition placeholder:text-ink-subtle shadow-2xs focus:border-brand focus:ring-2 focus:ring-brand/30"
-          placeholder="For bank accounts:
-Bank Name: 
-Account Title: 
-IBAN / Account Number: 
-
-For Wise / digital wallets:
-Account Email or Wallet ID: "
+          placeholder={method ? PAYOUT_DETAILS_PROMPT[method] : "Choose a payment method first."}
         />
         <p className="text-xs leading-relaxed text-ink-subtle">
           Only merchants running programs you belong to can view this information, and only when preparing your payout.
@@ -222,7 +258,7 @@ export function RemovePayoutForm({ hasDetails }: { hasDetails: boolean }) {
             <button
               type="submit"
               disabled={pending}
-              className="inline-flex items-center justify-center rounded-xl bg-danger px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center justify-center rounded-xl bg-danger-ink px-4 py-2 text-xs font-semibold text-surface transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             >
               {pending ? "Removing…" : "Yes, remove them"}
             </button>
@@ -239,7 +275,7 @@ export function RemovePayoutForm({ hasDetails }: { hasDetails: boolean }) {
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="w-fit text-xs font-semibold text-danger transition hover:underline cursor-pointer"
+          className="w-fit text-xs font-semibold text-danger-ink transition hover:underline cursor-pointer"
         >
           Remove payout details
         </button>

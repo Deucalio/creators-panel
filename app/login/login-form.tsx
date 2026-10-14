@@ -15,7 +15,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
       {/* The region is always present; only its content changes */}
       <div aria-live="polite" aria-atomic="true">
         {state.status === "error" ? (
-          <p className="rounded-xl border border-danger-line bg-danger-surface px-4 py-3 text-xs font-medium text-danger shadow-2xs">
+          <p className="rounded-xl border border-danger-line bg-danger-surface px-4 py-3 text-xs font-medium text-danger-ink shadow-2xs">
             {state.message}
           </p>
         ) : null}

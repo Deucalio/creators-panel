@@ -21,7 +21,7 @@ check the log and the database.
 | Creator portal, desktop | D1, D2, D7, D8, D14, D18, D22, D23 | 15 items, live and on a private copy |
 | Creator portal, phone | E2, E3, E5 | E1, E4 |
 
-Automated tests: `npm test` in either app — 52 in the Shopify app, 22 in the portal, about a second
+Automated tests: `npm test` in either app — 56 in the Shopify app, 26 in the portal, about a second
 each, no database needed. Run them after any change to the money code.
 
 ---
@@ -274,17 +274,76 @@ and **the redesigned Overview threw a React hydration error on every load** (fix
 
 ## Found in testing, not fixed yet
 
-Small issues in the in-progress portal redesign, for whoever is building it.
+From the redesign review on 14 October 2026, for whoever is building it. Payouts are manual: the
+merchant sends the money through **Easypaisa, JazzCash or a bank transfer**. There is no payment
+gateway, no schedule, and no automatic transfer or deduction, so any copy that suggests otherwise
+must go. The portal's wording was fixed on 14 October; see "Fixed" below.
 
-- **A wrong rule on How you earn.** "Checkout code precedence" says a checkout code beats the link if
-  it's "another creator's discount code *or an exclusive coupon*". Only another creator's code does;
-  an ordinary store coupon never takes the credit from the link. Drop "or an exclusive coupon".
+**Kept by decision (14 October 2026):** the Shopify app's "Commission Lifecycle" pop-up stays, with
+its sample order, as an illustration of how a commission moves. If it's ever reworded, three lines
+read like a payment provider: "Queued for processing… prepared for settlement", "funds were
+successfully transferred to the creator's payout account", and "return window passed".
+
+### Visual bugs
+
+- **A password error shows twice:** once in the banner, then again under the field.
+- **The join page uses Tailwind's own blues** (`text-blue-50` … `text-blue-200`) instead of theme
+  tokens.
 - **The theme switcher is clipped.** Light / Auto / Dark don't fit beside Settings in the 256px
-  sidebar.
+  sidebar; "Dark" is cut off.
 - **"New" on a zero.** The trend labels PKR 0 commission "New" when there's no previous period.
+- **Shopify app, Payouts: "Mark as paid" says nothing afterwards.** The action returns "Payout marked
+  as paid." or an error, but the page never shows it.
+
+### UX
+
+- **Day one on a phone is a long scroll of zeros.** Ali's Overview is about 3,500px tall:
+  - five buttons all lead to "get your link" (header Share, Share links, Get my link, Get my referral link, Get your link);
+  - after that come four zero metric cards and an empty chart.
+
+  For a creator with no sales, show the how-it-works card and the link, and collapse the rest.
+- **The paused screen says "Inactive"** in its badge (sidebar and card) but "This membership is
+  paused" in its heading. Use one word for both.
 - **The worked example is generic.** "PKR 100 → 13%" never shows the 15% or 20% rule winning.
-- **"Filter" submits the order search.** It should say "Search".
-- **"according to their payout schedule".** There's no schedule; payouts are manual.
+- **"Filter" submits the order search** (`earnings-filter-bar.tsx:191`). It should say "Search".
+
+### Fixed on 14 October 2026
+
+- **Six undefined colour tokens** (`danger`, `warn`, `ok`, `ok-line`, `warn-line`, `line-strong`; 34 uses).
+  Text, dots and tints now use the `-ink` tokens, and `ok-line`, `warn-line` and `line-strong` were
+  added to `globals.css` for both themes. Visible results:
+  - Settings' "Yes, remove them" button is readable in both themes.
+  - Errors and the Remove link are red.
+  - The black borders on the Payouts cards and the remove-confirm box are now amber.
+  - The Payouts section dots now show.
+- **Payment methods are Easypaisa, JazzCash and Bank transfer only.**
+  - Portal Settings: three radio buttons, and the details prompt follows the choice. The save
+    action rejects anything else.
+  - An older free-text method ("Wise") is flagged on Settings and shows "Action needed", and
+    the Overview asks for payout details again.
+  - The next-action card and How you earn mention only these methods.
+  - Shopify app, Mark as paid: the method is a dropdown pre-filled from the creator's choice, with
+    no default guess, and the action rejects anything else.
+  - The privacy page lists the three methods and the details each needs.
+  - Both apps share the list (`lib/payout-methods.ts` and `app/payout-methods.js`), and a test
+    keeps the two in step.
+- **Portal copy no longer promises a payment gateway:**
+  - Payouts:
+    - the "Payment failed" panel and section are gone;
+    - anything not marked paid is grouped as "Not sent yet";
+    - "scheduled or processing", "On its way" and "Pending delivery" are gone;
+    - the method and reference of an unsent payout read "Recorded when sent" / "Added when sent";
+    - the owed-back box says the store decides how to settle it, with no automatic deduction.
+  - Overview:
+    - "Payment being prepared" says the store will send it;
+    - "Paid out" reads "Sent to you by {store}";
+    - the made-up "3x higher" statistic is gone.
+  - How you earn:
+    - payments are by hand through Easypaisa, JazzCash or bank transfer, with no fixed schedule;
+    - the hold reads as the store's usual wait, not a rule;
+    - the code rule is accurate: another creator's code beats your link, a store sale code never does.
+- **Sentence case** for "Getting paid", "Manage payout details", "Example calculation", "Owed back
+  from refunds", "Lifetime commission earned" and "Standard commission rate".
 
 ---
 

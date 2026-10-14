@@ -25,7 +25,7 @@ export function NextActionCard({
 }: NextActionProps) {
   type ActionState = {
     title: string;
-    body: string;
+    body: React.ReactNode;
     actionLabel: string;
     actionHref: string;
     icon: IconName;
@@ -48,7 +48,7 @@ export function NextActionCard({
   } else if (!hasPayoutDetails && !newcomer) {
     state = {
       title: "Add your payout details",
-      body: `You've earned commissions, but haven't saved payout details yet. Add your bank account, Wise, or PayPal details so ${storeName} can pay you.`,
+      body: `You've earned commissions, but haven't saved payout details yet. Add your Easypaisa, JazzCash or bank details so ${storeName} can pay you.`,
       actionLabel: "Add payout details",
       actionHref: "/dashboard/settings",
       icon: "settings",
@@ -57,12 +57,21 @@ export function NextActionCard({
     };
   } else if (pendingPayout) {
     state = {
-      title: "Payment on its way",
-      body: `${formatMoney(pendingPayout.amount, currency)} is queued in payout ${formatPayoutNumber(pendingPayout.number)}. Check the payment reference and orders covered.`,
+      // A payout exists but hasn't been sent: the merchant pays by hand, so say
+      // who sends it rather than implying it is already moving.
+      title: "Payment being prepared",
+      body: (
+        <>
+          {storeName} has put {formatMoney(pendingPayout.amount, currency)} into payout{" "}
+          {/* Kept whole: "PL-" and "0004" otherwise wrap onto separate lines. */}
+          <span className="whitespace-nowrap">{formatPayoutNumber(pendingPayout.number)}</span> and
+          will send it to you. Once it&apos;s sent, the date and payment reference appear in Payouts.
+        </>
+      ),
       actionLabel: "View payout details",
       actionHref: `/dashboard/payouts?program=${programId}`,
       icon: "paid",
-      badgeText: "In progress",
+      badgeText: "Not sent yet",
       badgeStyle: "bg-info-surface text-info-ink border-info-ink/20",
     };
   } else if (newcomer) {
@@ -77,8 +86,8 @@ export function NextActionCard({
     };
   } else {
     state = {
-      title: "Boost your conversions",
-      body: `Direct product links convert up to 3x higher than general home page links. Pick specific products to promote to your audience.`,
+      title: "Link straight to products",
+      body: `A product link takes your followers to the exact item you're talking about, one step closer to buying than the home page. Pick the products you actually use.`,
       actionLabel: "Browse product links",
       actionHref: `/dashboard/links?program=${programId}`,
       icon: "sparkles",

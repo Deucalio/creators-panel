@@ -38,12 +38,12 @@ export function Field({
         aria-describedby={error ? errorId : hint ? hintId : undefined}
         className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-xs text-ink outline-none transition placeholder:text-ink-subtle shadow-2xs focus:ring-2 ${
           error
-            ? "border-danger-line focus:border-danger focus:ring-danger-surface"
+            ? "border-danger-line focus:border-danger-ink focus:ring-danger-surface"
             : "border-line focus:border-brand focus:ring-brand/30"
         }`}
       />
       {error ? (
-        <p id={errorId} className="text-xs font-medium text-danger">
+        <p id={errorId} className="text-xs font-medium text-danger-ink">
           {error}
         </p>
       ) : hint ? (

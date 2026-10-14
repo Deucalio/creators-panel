@@ -34,9 +34,11 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
     getOwedBack(membership.id),
   ]);
 
+  // Paid, or not sent yet. The merchant sends every payout by hand and marks it
+  // paid, so there is no "processing" or "failed" in between: anything not
+  // marked paid is still waiting on them.
   const paidPayouts = payouts.filter((p) => p.status === "PAID");
-  const pendingPayouts = payouts.filter((p) => p.status === "PENDING" || p.status === "PROCESSING");
-  const failedPayouts = payouts.filter((p) => p.status === "FAILED");
+  const pendingPayouts = payouts.filter((p) => p.status !== "PAID");
 
   const totalPaid = paidPayouts.reduce((sum, p) => sum + p.amount, 0);
   const totalPending = pendingPayouts.reduce((sum, p) => sum + p.amount, 0);
@@ -48,7 +50,8 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-extrabold tracking-tight text-ink">Payouts</h1>
         <p className="text-sm text-ink-muted">
-          Payments from {storeName} — sent and on their way — and what each one covered.
+          Payments from {storeName}: what&apos;s been sent, what&apos;s still to come, and which orders
+          each one covered.
         </p>
       </div>
 
@@ -59,7 +62,7 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
             <span className="text-[11px] font-bold uppercase tracking-wider text-ink-subtle">
               Paid to date
             </span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ok-surface text-ok">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ok-surface text-ok-ink">
               <Icon name="check" className="h-3.5 w-3.5" />
             </span>
           </div>
@@ -80,7 +83,7 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
             <span className="text-[11px] font-bold uppercase tracking-wider text-ink-subtle">
               Awaiting payment
             </span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-warn-surface text-warn">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-warn-surface text-warn-ink">
               <Icon name="pending" className="h-3.5 w-3.5" />
             </span>
           </div>
@@ -90,41 +93,16 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
             </p>
             <p className="mt-1 text-xs text-ink-muted">
               {pendingPayouts.length === 0
-                ? "No payouts currently in progress"
-                : `${pendingPayouts.length} payout${pendingPayouts.length === 1 ? "" : "s"} scheduled or processing`}
+                ? "Nothing waiting to be sent"
+                : `${pendingPayouts.length} payout${pendingPayouts.length === 1 ? "" : "s"} not sent yet`}
             </p>
           </div>
         </div>
       </div>
 
       {/* Softened Owed Back Notice (PA-3) */}
-      {owedBack > 0 ? <OwedBackNotice amount={owedBack} currency={currency} /> : null}
-
-      {/* Failed Payouts Notice if any */}
-      {failedPayouts.length > 0 ? (
-        <div className="rounded-2xl border border-danger-line bg-danger-surface p-5 text-ink">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-danger/15 text-danger">
-              <Icon name="info" className="h-4 w-4" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <h2 className="text-sm font-bold text-danger">Payment failed</h2>
-              <p className="text-xs text-ink-muted leading-relaxed">
-                {failedPayouts.length === 1
-                  ? "A recent payout could not be completed."
-                  : `${failedPayouts.length} payouts could not be completed.`}{" "}
-                Please check your payout details in{" "}
-                <Link
-                  href={`/dashboard/settings?program=${membership.id}`}
-                  className="font-semibold underline underline-offset-2 hover:text-ink"
-                >
-                  Settings
-                </Link>{" "}
-                and contact {storeName} if needed.
-              </p>
-            </div>
-          </div>
-        </div>
+      {owedBack > 0 ? (
+        <OwedBackNotice amount={owedBack} currency={currency} storeName={storeName} />
       ) : null}
 
       {payouts.length === 0 ? (
@@ -141,13 +119,13 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
         </div>
       ) : (
         <div className="flex flex-col gap-8">
-          {/* Section: On its way (PA-1) */}
+          {/* Section: Not sent yet (PA-1) */}
           {pendingPayouts.length > 0 ? (
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-warn" />
+                <span className="h-2 w-2 rounded-full bg-warn-ink" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-ink-subtle">
-                  On its way ({pendingPayouts.length})
+                  Not sent yet ({pendingPayouts.length})
                 </h2>
               </div>
               <div className="flex flex-col gap-4">
@@ -169,36 +147,13 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
           {paidPayouts.length > 0 ? (
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-ok" />
+                <span className="h-2 w-2 rounded-full bg-ok-ink" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-ink-subtle">
                   Completed payments ({paidPayouts.length})
                 </h2>
               </div>
               <div className="flex flex-col gap-4">
                 {paidPayouts.map((payout) => (
-                  <PayoutCard
-                    key={payout.id}
-                    payout={payout}
-                    currency={currency}
-                    storeName={storeName}
-                    programId={membership.id}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {/* Section: Failed payments if any */}
-          {failedPayouts.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-danger" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-ink-subtle">
-                  Failed payments ({failedPayouts.length})
-                </h2>
-              </div>
-              <div className="flex flex-col gap-4">
-                {failedPayouts.map((payout) => (
                   <PayoutCard
                     key={payout.id}
                     payout={payout}
@@ -218,25 +173,36 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
 
 /**
  * Calm, informative warning notice for debt created by refunds after payment (PA-3).
+ * Nothing deducts this automatically: the merchant settles it by hand, and the
+ * copy must not promise otherwise.
  */
-function OwedBackNotice({ amount, currency }: { amount: number; currency: string }) {
+function OwedBackNotice({
+  amount,
+  currency,
+  storeName,
+}: {
+  amount: number;
+  currency: string;
+  storeName: string;
+}) {
   return (
     <div className="flex items-start gap-3.5 rounded-2xl border border-warn-line bg-warn-surface p-5 text-ink shadow-2xs">
-      <div className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-warn/15 text-warn">
+      <div className="mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-warn-ink/15 text-warn-ink">
         <Icon name="info" className="h-4 w-4" />
       </div>
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wide text-warn">
-            Adjustment Balance
+          <span className="text-[11px] font-bold uppercase tracking-wide text-warn-ink">
+            Owed back from refunds
           </span>
           <span className="text-base font-extrabold tabular-nums text-ink">
             {formatMoney(amount, currency)}
           </span>
         </div>
         <p className="max-w-xl text-xs leading-relaxed text-ink-muted">
-          An order you were already paid for was later refunded or cancelled. Because completed payments
-          cannot be reversed, this amount will be automatically deducted from your next payout.
+          An order you&apos;d already been paid for was later refunded or cancelled, so this much of an
+          earlier payment is owed back. Money already sent can&apos;t be pulled back, so {storeName} decides
+          how to settle it — usually by taking it off a future payout.
         </p>
       </div>
     </div>
@@ -267,7 +233,7 @@ function PayoutCard({
       id={payoutCode}
       className={`scroll-mt-6 overflow-hidden rounded-2xl border bg-surface shadow-xs transition-shadow ${
         isPending
-          ? "border-warn/40 bg-linear-to-b from-warn-surface/20 to-surface"
+          ? "border-warn-line bg-linear-to-b from-warn-surface/20 to-surface"
           : "border-line"
       }`}
     >
@@ -278,7 +244,7 @@ function PayoutCard({
               {payoutCode}
             </h3>
             {isPending ? (
-              <Badge tone="warn">In progress — not sent yet</Badge>
+              <Badge tone="warn">Not sent yet</Badge>
             ) : (
               <Badge tone={payoutTone(payout.status)}>{titleCase(payout.status)}</Badge>
             )}
@@ -294,9 +260,6 @@ function PayoutCard({
           <p className="text-2xl font-extrabold tracking-tight tabular-nums text-ink">
             {formatMoney(payout.amount, currency)}
           </p>
-          {isPending ? (
-            <span className="text-[11px] font-medium text-warn">Pending delivery</span>
-          ) : null}
         </div>
       </div>
 
@@ -305,7 +268,7 @@ function PayoutCard({
         <div className="bg-surface px-6 py-3.5">
           <dt className="text-[11px] font-bold uppercase tracking-wider text-ink-subtle">Method</dt>
           <dd className="mt-1 text-xs break-words text-ink">
-            {payout.method ?? "Not recorded"}
+            {payout.method ?? (isPending ? "Recorded when sent" : "Not recorded")}
           </dd>
         </div>
 
@@ -316,7 +279,7 @@ function PayoutCard({
               payout.reference ? "font-mono font-medium text-ink" : "text-ink-subtle"
             }`}
           >
-            {payout.reference ?? "None given"}
+            {payout.reference ?? (isPending ? "Added when sent" : "None given")}
           </dd>
         </div>
 
