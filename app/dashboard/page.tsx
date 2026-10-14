@@ -1,374 +1,228 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireCreatorAccount, type Membership } from "@/lib/auth";
-import { getMembershipStats, type MembershipStats } from "@/lib/creator-stats";
-import { formatMoney } from "@/lib/money";
-import { signOut } from "@/lib/auth-actions";
+import prisma from "@/lib/db";
+import { requestedProgramId } from "@/lib/auth";
+import { getMembershipStats } from "@/lib/creator-stats";
+import { getEarnings } from "@/lib/earnings";
+import { getEarningsTrend } from "@/lib/trend";
 import { CopyField } from "@/components/copy-field";
+import { Icon } from "@/components/icon";
+import { GettingStarted } from "@/components/getting-started";
+import { describeShopperDiscount, membershipTone, titleCase } from "@/lib/earning-status";
+import { storeLink } from "@/lib/share-links";
+import { TrendSection, TREND_PERIODS } from "@/components/trend-section";
+import { resolveMembership } from "./guard";
+import { storeDisplayName } from "@/lib/store-name";
+import { PageHeader } from "@/components/page-header";
+import { Badge } from "@/components/badge";
+import { HeroEarningsPanel } from "@/components/hero-earnings-panel";
+import { NextActionCard } from "@/components/next-action-card";
+import { PerformanceMetrics } from "@/components/performance-metrics";
+import { RecentEarningsPreview } from "@/components/recent-earnings-preview";
 
 // Earnings must never be served stale.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Dashboard · PartnerLoop",
+  title: "Overview",
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-800",
-  APPROVED: "bg-blue-100 text-blue-800",
-  ACTIVE: "bg-emerald-100 text-emerald-800",
-  PAID: "bg-emerald-100 text-emerald-800",
-  REJECTED: "bg-rose-100 text-rose-800",
-  INACTIVE: "bg-zinc-100 text-zinc-700",
-};
+/** How much of the earnings history the overview previews before handing off. */
+const PREVIEW_LIMIT = 5;
 
-function Badge({ status }: { status: string }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-        STATUS_STYLES[status] ?? "bg-zinc-100 text-zinc-700"
-      }`}
-    >
-      {status.charAt(0) + status.slice(1).toLowerCase()}
-    </span>
-  );
-}
-
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short", year: "numeric" }).format(
-    value,
-  );
+/** `?days=` comes from the URL, so only the offered periods are honoured. */
+function parseDays(value: string | string[] | undefined): number {
+  const raw = Number(typeof value === "string" ? value : 30);
+  return (TREND_PERIODS as readonly number[]).includes(raw) ? raw : 30;
 }
 
 export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
-  const account = await requireCreatorAccount();
-  const { program } = await searchParams;
+  const { program, days } = await searchParams;
+  const resolved = await resolveMembership(requestedProgramId(program));
 
-  const requested = typeof program === "string" ? program : undefined;
-  // Default to the first approved membership so an active creator lands on
-  // something useful rather than a pending application.
-  const selected =
-    account.memberships.find((m) => m.id === requested) ??
-    account.memberships.find((m) => m.status === "ACTIVE") ??
-    account.memberships[0];
+  if (!resolved.ok) return resolved.screen;
 
-  return (
-    <div className="flex min-h-full flex-1 flex-col bg-zinc-50 font-sans">
-      <header className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-blue-900 text-sm font-extrabold text-white">
-              P
-            </span>
-            <span className="font-bold tracking-tight text-zinc-900">PartnerLoop</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="hidden text-sm text-zinc-600 sm:inline">
-              {account.firstName} {account.lastName}
-            </span>
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400"
-              >
-                Sign out
-              </button>
-            </form>
-          </div>
+  const { account, membership } = resolved;
+  const { program: prog, referralCode } = membership;
+  const storeName = storeDisplayName(prog.store);
+  const currency = prog.store.currencyCode;
+
+  const [stats, earnings, trend, pendingPayout] = await Promise.all([
+    getMembershipStats(membership.id),
+    getEarnings(membership.id, { perPage: PREVIEW_LIMIT }),
+    getEarningsTrend(membership.id, parseDays(days)),
+    prisma.payout.findFirst({
+      where: {
+        creatorId: membership.id,
+        status: { in: ["PENDING", "PROCESSING"] },
+      },
+      select: { number: true, amount: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const referralLink = storeLink(prog.store, referralCode);
+  const couponEnabled = prog.trackingConfig?.couponTrackingEnabled ?? false;
+  const paused = prog.status !== "ACTIVE";
+  const shopperDiscount = describeShopperDiscount(
+    prog.trackingConfig?.couponDiscountType,
+    prog.trackingConfig?.couponDiscountValue,
+    currency,
+  );
+
+  const hasPayoutDetails = Boolean(account.payoutMethod?.trim() && account.payoutDetails?.trim());
+  const newcomer = stats.orders === 0;
+
+  const shareSection = (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-base font-bold tracking-tight text-ink">Share and earn</h2>
+          <p className="text-xs text-ink-subtle">
+            Promote {storeName} with your custom link or checkout code
+          </p>
         </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8">
-        {!selected ? (
-          <EmptyState />
-        ) : (
-          <div className="flex flex-col gap-6">
-            {account.memberships.length > 1 ? (
-              <ProgramSwitcher memberships={account.memberships} selectedId={selected.id} />
-            ) : null}
-
-            <MembershipView membership={selected} firstName={account.firstName} />
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
-      <h1 className="text-xl font-bold tracking-tight text-zinc-900">No programs yet</h1>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-zinc-600">
-        You aren&apos;t part of any creator program. Use the signup link a merchant shared with you
-        to apply.
-      </p>
-    </div>
-  );
-}
-
-function ProgramSwitcher({
-  memberships,
-  selectedId,
-}: {
-  memberships: Membership[];
-  selectedId: string;
-}) {
-  return (
-    <nav className="flex flex-wrap gap-2" aria-label="Your programs">
-      {memberships.map((membership) => {
-        const active = membership.id === selectedId;
-        return (
-          <Link
-            key={membership.id}
-            href={`/dashboard?program=${membership.id}`}
-            aria-current={active ? "page" : undefined}
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
-              active
-                ? "bg-blue-700 text-white"
-                : "border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400"
-            }`}
-          >
-            {membership.program.name}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
-async function MembershipView({
-  membership,
-  firstName,
-}: {
-  membership: Membership;
-  firstName: string;
-}) {
-  const { program, status, referralCode } = membership;
-  const storeName = program.store.shop.replace(/\.myshopify\.com$/, "");
-
-  if (status !== "ACTIVE") {
-    return <NotActive status={status} storeName={storeName} programName={program.name} firstName={firstName} />;
-  }
-
-  const stats = await getMembershipStats(membership.id);
-  const currency = program.store.currencyCode;
-  const referralLink = `https://${program.store.shop}/?ref=${referralCode}`;
-  const couponEnabled = program.trackingConfig?.couponTrackingEnabled ?? false;
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900">
-          Welcome back, {firstName}
-        </h1>
-        <p className="text-sm text-zinc-600">
-          {program.name} · {storeName}
-        </p>
+        <Link
+          href={`/dashboard/links?program=${membership.id}`}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-text hover:underline"
+        >
+          <span>Product links &amp; QR</span>
+          <Icon name="arrow" className="h-3 w-3" />
+        </Link>
       </div>
 
-      <StatGrid stats={stats} currency={currency} />
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-line bg-surface p-6 shadow-xs">
           <CopyField
             label="My referral link"
             value={referralLink}
-            hint="Share this anywhere. Sales from people who click it are credited to you."
+            shareable
+            hint={
+              paused
+                ? "Paused for now — clicks still work, but new orders won't be credited until the merchant reopens the program."
+                : "Share this anywhere. Anyone who clicks is credited to you for 30 days."
+            }
           />
         </div>
 
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-line bg-surface p-6 shadow-xs">
           {couponEnabled ? (
             <CopyField
               label="My coupon code"
               value={referralCode}
               emphasis
-              hint="For followers who won't click a link — they enter this at checkout instead."
+              hint={
+                shopperDiscount
+                  ? `Your followers get ${shopperDiscount} with this code, and the sale is credited to you.`
+                  : "For followers who won't click a link — they enter this at checkout instead."
+              }
             />
           ) : (
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-zinc-500">
+              <label className="text-xs font-semibold text-ink-muted">
                 My coupon code
-              </p>
-              <p className="text-sm leading-relaxed text-zinc-600">
+              </label>
+              <p className="text-xs leading-relaxed text-ink-subtle">
                 {storeName} hasn&apos;t enabled coupon tracking for this program. Use your referral
-                link to earn commission.
+                link above to earn commissions.
               </p>
             </div>
           )}
         </div>
-      </section>
-
-      <ReferralsTable stats={stats} currency={currency} />
-      <CommissionsTable stats={stats} currency={currency} />
-    </div>
-  );
-}
-
-function NotActive({
-  status,
-  storeName,
-  programName,
-  firstName,
-}: {
-  status: string;
-  storeName: string;
-  programName: string;
-  firstName: string;
-}) {
-  const copy: Record<string, { title: string; body: string }> = {
-    PENDING: {
-      title: `Your application is under review, ${firstName}`,
-      body: `${storeName} is reviewing your application to ${programName}. Once it's approved, your referral link and coupon code appear here and you can start earning.`,
-    },
-    REJECTED: {
-      title: "This application wasn't approved",
-      body: `${storeName} didn't approve your application to ${programName}. If you think that's a mistake, contact them directly.`,
-    },
-    INACTIVE: {
-      title: "This membership is paused",
-      body: `${storeName} has paused your membership of ${programName}. Your existing earnings are unaffected, but new referrals won't be tracked.`,
-    },
-  };
-
-  const { title, body } = copy[status] ?? copy.PENDING;
-
-  return (
-    <div className="rounded-2xl bg-white p-8 shadow-sm">
-      <div className="flex flex-col gap-3">
-        <Badge status={status} />
-        <h1 className="text-xl font-bold tracking-tight text-zinc-900">{title}</h1>
-        <p className="max-w-xl text-sm leading-relaxed text-zinc-600">{body}</p>
       </div>
     </div>
   );
-}
-
-function StatGrid({ stats, currency }: { stats: MembershipStats; currency: string }) {
-  const tiles = [
-    { label: "Total sales", value: formatMoney(stats.totalSales, currency) },
-    { label: "Orders", value: String(stats.orders) },
-    { label: "Commission earned", value: formatMoney(stats.commissionEarned, currency) },
-    { label: "Pending", value: formatMoney(stats.commissionPending, currency) },
-    { label: "Paid out", value: formatMoney(stats.commissionPaid, currency) },
-    {
-      label: "Conversion rate",
-      value: stats.conversionRate === null ? "—" : `${stats.conversionRate}%`,
-      note: stats.conversionRate === null ? "Not tracked yet" : undefined,
-    },
-  ];
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {tiles.map((tile) => (
-        <div key={tile.label} className="rounded-2xl bg-white p-5 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-zinc-500">
-            {tile.label}
+    <div className="flex flex-col gap-6">
+      {resolved.notice}
+
+      {/* Page Header (OV-6) */}
+      <PageHeader
+        title={`Welcome back, ${account.firstName}`}
+        description={`Track your referred orders, commissions, and performance in ${prog.name}.`}
+        badge={
+          <Badge tone={membershipTone(membership.status)}>
+            {titleCase(membership.status)}
+          </Badge>
+        }
+        actions={
+          <Link
+            href={`/dashboard/links?program=${membership.id}`}
+            className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-brand-ink transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          >
+            <Icon name="share" className="h-3.5 w-3.5" />
+            <span>Share links</span>
+          </Link>
+        }
+        meta={
+          <p className="text-xs text-ink-subtle">
+            Partner store: <span className="font-semibold text-ink">{storeName}</span> ·{" "}
+            <Link
+              href={`/dashboard/program?program=${membership.id}`}
+              className="font-medium text-brand-text hover:underline"
+            >
+              View commission rules
+            </Link>
           </p>
-          <p className="mt-1.5 text-2xl font-extrabold tracking-tight text-zinc-900">
-            {tile.value}
-          </p>
-          {tile.note ? <p className="mt-1 text-xs text-zinc-500">{tile.note}</p> : null}
+        }
+      />
+
+      {/* Day-one Onboarding checklist (OV-9) */}
+      {newcomer && !paused ? (
+        <GettingStarted
+          programId={membership.id}
+          couponEnabled={couponEnabled}
+          referralCode={referralCode}
+        />
+      ) : null}
+
+      {/* For newcomers, put the sharing strip right under getting started */}
+      {newcomer ? shareSection : null}
+
+      {/* Row 1: Hero Earnings Panel (8 cols) + Next Action Card (4 cols) (OV-1, OV-2, OV-5) */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-8">
+          <HeroEarningsPanel stats={stats} currency={currency} />
         </div>
-      ))}
-    </section>
-  );
-}
-
-function ReferralsTable({ stats, currency }: { stats: MembershipStats; currency: string }) {
-  return (
-    <section className="overflow-hidden rounded-2xl bg-white shadow-sm">
-      <h2 className="px-6 pt-5 pb-3 text-base font-bold tracking-tight text-zinc-900">
-        Recent referrals
-      </h2>
-
-      {stats.recentReferrals.length === 0 ? (
-        <p className="px-6 pb-8 pt-2 text-sm text-zinc-600">
-          No referred orders yet. Share your link or coupon to get started — orders appear here
-          within minutes of a sale.
-        </p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-y border-zinc-100 bg-zinc-50/70 text-left text-[11px] font-bold uppercase tracking-wide text-zinc-500">
-                <th className="px-6 py-2.5">Order</th>
-                <th className="px-6 py-2.5">Date</th>
-                <th className="px-6 py-2.5 text-right">Order value</th>
-                <th className="px-6 py-2.5 text-right">Your commission</th>
-                <th className="px-6 py-2.5">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.recentReferrals.map((referral) => (
-                <tr key={referral.id} className="border-b border-zinc-100 last:border-0">
-                  <td className="px-6 py-3.5 font-medium text-zinc-900">
-                    {referral.orderNumber ?? "—"}
-                  </td>
-                  <td className="px-6 py-3.5 text-zinc-600">{formatDate(referral.createdAt)}</td>
-                  <td className="px-6 py-3.5 text-right tabular-nums text-zinc-900">
-                    {formatMoney(referral.orderAmount, currency)}
-                  </td>
-                  <td className="px-6 py-3.5 text-right tabular-nums text-zinc-900">
-                    {referral.commission
-                      ? formatMoney(referral.commission.amount, currency)
-                      : "—"}
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <Badge status={referral.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="col-span-12 lg:col-span-4">
+          <NextActionCard
+            hasPayoutDetails={hasPayoutDetails}
+            pendingPayout={pendingPayout}
+            paused={paused}
+            newcomer={newcomer}
+            currency={currency}
+            programId={membership.id}
+            storeName={storeName}
+          />
         </div>
-      )}
-    </section>
-  );
-}
+      </div>
 
-function CommissionsTable({ stats, currency }: { stats: MembershipStats; currency: string }) {
-  return (
-    <section className="overflow-hidden rounded-2xl bg-white shadow-sm">
-      <h2 className="px-6 pt-5 pb-3 text-base font-bold tracking-tight text-zinc-900">
-        Commission history
-      </h2>
+      {/* Row 2: Balanced 4-Metric Grid (3 cols each = 12 cols, nothing stranded) (OV-1) */}
+      <div>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-subtle">
+          Reach &amp; Conversion Metrics
+        </h2>
+        <PerformanceMetrics stats={stats} currency={currency} />
+      </div>
 
-      {stats.recentCommissions.length === 0 ? (
-        <p className="px-6 pb-8 pt-2 text-sm text-zinc-600">
-          Nothing here yet. Commissions are created automatically when a referred order comes in.
-        </p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-y border-zinc-100 bg-zinc-50/70 text-left text-[11px] font-bold uppercase tracking-wide text-zinc-500">
-                <th className="px-6 py-2.5">Order</th>
-                <th className="px-6 py-2.5">Date</th>
-                <th className="px-6 py-2.5 text-right">Amount</th>
-                <th className="px-6 py-2.5">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.recentCommissions.map((commission) => (
-                <tr key={commission.id} className="border-b border-zinc-100 last:border-0">
-                  <td className="px-6 py-3.5 font-medium text-zinc-900">
-                    {commission.referral?.orderNumber ?? "—"}
-                  </td>
-                  <td className="px-6 py-3.5 text-zinc-600">{formatDate(commission.createdAt)}</td>
-                  <td className="px-6 py-3.5 text-right tabular-nums text-zinc-900">
-                    {formatMoney(commission.amount, currency)}
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <Badge status={commission.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Row 3: Trend Section (8 cols) + Recent Earnings (4 cols) (OV-3, OV-4, OV-8) */}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-8">
+          <TrendSection trend={trend} currency={currency} programId={membership.id} />
         </div>
-      )}
-    </section>
+        <div className="col-span-12 lg:col-span-4">
+          <RecentEarningsPreview
+            rows={earnings.rows}
+            currency={currency}
+            total={earnings.total}
+            programId={membership.id}
+          />
+        </div>
+      </div>
+
+      {/* Row 4: Share strip for established creators */}
+      {!newcomer ? shareSection : null}
+    </div>
   );
 }

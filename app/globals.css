@@ -1,26 +1,184 @@
 @import "tailwindcss";
 
+/*
+ * Semantic design tokens — PartnerLoop Creator Portal
+ *
+ * Components reference roles — `surface`, `ink-muted`, `brand`, `ok-ink` —
+ * ensuring cohesive light/dark theming and accessible contrast across all viewports.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  --canvas: #f8f9fa;
+  --surface: #ffffff;
+  --surface-muted: #f3f4f6;
+
+  --line: #e5e7eb;
+  --line-soft: #f1f3f5;
+
+  --ink: #111827;
+  --ink-muted: #4b5563;
+  --ink-subtle: #6b7280;
+
+  /* Restrained indigo / violet brand accent (replaces raw blue) */
+  --brand: #4f46e5;
+  --brand-hover: #4338ca;
+  --brand-ink: #ffffff;
+  --brand-text: #4f46e5;
+  --brand-surface: #eef2ff;
+  --brand-line: #e0e7ff;
+
+  /* Status roles (tinted surface + readable ink) */
+  --warn-surface: #fef3c7;
+  --warn-ink: #92400e;
+  --info-surface: #e0e7ff;
+  --info-ink: #3730a3;
+  --ok-surface: #d1fae5;
+  --ok-ink: #065f46;
+  --bad-surface: #ffe4e6;
+  --bad-ink: #9f1239;
+  --neutral-surface: #f3f4f6;
+  --neutral-ink: #374151;
+
+  --danger-surface: #fff1f2;
+  --danger-line: #fecdd3;
+  --danger-ink: #9f1239;
+
+  --ring: #4f46e5;
+}
+
+/* System dark preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    /* Lifted dark mode surfaces (slate/charcoal, not pure pitch-black) */
+    --canvas: #0e0f15;
+    --surface: #171822;
+    --surface-muted: #1f212e;
+
+    --line: #2a2d3d;
+    --line-soft: #232533;
+
+    --ink: #f9fafb;
+    --ink-muted: #9ca3af;
+    --ink-subtle: #6b7280;
+
+    --brand: #6366f1;
+    --brand-hover: #818cf8;
+    --brand-ink: #ffffff;
+    --brand-text: #a5b4fc;
+    --brand-surface: #1e1e38;
+    --brand-line: #312e81;
+
+    --warn-surface: #3a2a08;
+    --warn-ink: #fcd34d;
+    --info-surface: #1e1e3f;
+    --info-ink: #a5b4fc;
+    --ok-surface: #0b2f24;
+    --ok-ink: #6ee7b7;
+    --bad-surface: #3d1521;
+    --bad-ink: #fda4af;
+    --neutral-surface: #262836;
+    --neutral-ink: #d1d5db;
+
+    --danger-surface: #2c1119;
+    --danger-line: #4d1f2e;
+    --danger-ink: #fda4af;
+
+    --ring: #818cf8;
+  }
+}
+
+/* Explicit user-toggled dark theme */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #0e0f15;
+  --surface: #171822;
+  --surface-muted: #1f212e;
+
+  --line: #2a2d3d;
+  --line-soft: #232533;
+
+  --ink: #f9fafb;
+  --ink-muted: #9ca3af;
+  --ink-subtle: #6b7280;
+
+  --brand: #6366f1;
+  --brand-hover: #818cf8;
+  --brand-ink: #ffffff;
+  --brand-text: #a5b4fc;
+  --brand-surface: #1e1e38;
+  --brand-line: #312e81;
+
+  --warn-surface: #3a2a08;
+  --warn-ink: #fcd34d;
+  --info-surface: #1e1e3f;
+  --info-ink: #a5b4fc;
+  --ok-surface: #0b2f24;
+  --ok-ink: #6ee7b7;
+  --bad-surface: #3d1521;
+  --bad-ink: #fda4af;
+  --neutral-surface: #262836;
+  --neutral-ink: #d1d5db;
+
+  --danger-surface: #2c1119;
+  --danger-line: #4d1f2e;
+  --danger-ink: #fda4af;
+
+  --ring: #818cf8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-text: var(--brand-text);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-line: var(--brand-line);
+
+  --color-warn-surface: var(--warn-surface);
+  --color-warn-ink: var(--warn-ink);
+  --color-info-surface: var(--info-surface);
+  --color-info-ink: var(--info-ink);
+  --color-ok-surface: var(--ok-surface);
+  --color-ok-ink: var(--ok-ink);
+  --color-bad-surface: var(--bad-surface);
+  --color-bad-ink: var(--bad-ink);
+  --color-neutral-surface: var(--neutral-surface);
+  --color-neutral-ink: var(--neutral-ink);
+
+  --color-danger-surface: var(--danger-surface);
+  --color-danger-line: var(--danger-line);
+  --color-danger-ink: var(--danger-ink);
+
+  --color-ring: var(--ring);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Reduced motion preference support (AX-4) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}

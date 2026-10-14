@@ -10,7 +10,7 @@ type FieldProps = {
   hint?: string;
 };
 
-/** Labelled input with inline validation messaging, shared by the auth forms. */
+/** Labelled input with inline validation messaging, shared across forms. */
 export function Field({
   name,
   label,
@@ -25,7 +25,7 @@ export function Field({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-medium text-zinc-800">
+      <label htmlFor={name} className="text-xs font-semibold text-ink">
         {label}
       </label>
       <input
@@ -36,18 +36,18 @@ export function Field({
         defaultValue={defaultValue}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : hint ? hintId : undefined}
-        className={`w-full rounded-lg border px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:ring-2 ${
+        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-xs text-ink outline-none transition placeholder:text-ink-subtle shadow-2xs focus:ring-2 ${
           error
-            ? "border-rose-400 focus:border-rose-500 focus:ring-rose-100"
-            : "border-zinc-300 focus:border-blue-600 focus:ring-blue-100"
+            ? "border-danger-line focus:border-danger focus:ring-danger-surface"
+            : "border-line focus:border-brand focus:ring-brand/30"
         }`}
       />
       {error ? (
-        <p id={errorId} className="text-xs font-medium text-rose-600">
+        <p id={errorId} className="text-xs font-medium text-danger">
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="text-xs text-zinc-500">
+        <p id={hintId} className="text-xs text-ink-subtle">
           {hint}
         </p>
       ) : null}

@@ -35,14 +35,15 @@ export function RegistrationForm({ programId, storeName }: Props) {
     <form action={formAction} className="flex flex-col gap-5" noValidate>
       <input type="hidden" name="programId" value={programId} />
 
-      {formMessage ? (
-        <p
-          aria-live="polite"
-          className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
-        >
-          {formMessage}
-        </p>
-      ) : null}
+      {/* The region is always present; only its content changes. A live region
+          created at the same instant as its message is usually not announced. */}
+      <div aria-live="polite" aria-atomic="true">
+        {formMessage ? (
+          <p className="rounded-lg border border-danger-line bg-danger-surface px-4 py-3 text-sm text-danger-ink">
+            {formMessage}
+          </p>
+        ) : null}
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
@@ -82,17 +83,22 @@ export function RegistrationForm({ programId, storeName }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="mt-1 inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 inline-flex items-center justify-center rounded-lg bg-brand px-5 py-3 text-sm font-semibold text-brand-ink shadow-sm transition hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
       >
         {pending ? "Submitting…" : "Apply to join"}
       </button>
 
-      <p className="text-xs leading-relaxed text-zinc-500">
+      <p className="text-xs leading-relaxed text-ink-subtle">
         Your application goes to {storeName} for review. Already have a PartnerLoop account?{" "}
-        <Link href="/login" className="font-semibold text-blue-700 hover:underline">
-          Sign in
-        </Link>{" "}
-        — use the same password above to join this program.
+        {/* Back to this page after signing in, where joining is one click. It
+            used to land on the dashboard, which has no way to join anything. */}
+        <Link
+          href={`/login?redirectTo=${encodeURIComponent(`/join/${programId}`)}`}
+          className="font-semibold text-brand-text hover:underline"
+        >
+          Sign in to join with it
+        </Link>
+        .
       </p>
     </form>
   );

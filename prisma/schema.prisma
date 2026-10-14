@@ -46,6 +46,26 @@ model Store {
   // Mirrored from the Shopify Admin API so the creators-panel can format money
   // without holding Admin API credentials of its own.
   currencyCode        String   @default("USD")
+  /// The shop's customer-facing contact address, mirrored for the same reason.
+  ///
+  /// Shopify's `Shop.contactEmail` is already the address used for talking to
+  /// customers, so it is appropriate to show a creator — unlike the account
+  /// owner's email. It exists so the portal can stop telling people to contact
+  /// the merchant without ever saying how.
+  supportEmail        String?
+  /// The shop's name as shoppers see it (`Shop.name`), mirrored the same way.
+  /// Without it the portal could only name the store by its myshopify handle —
+  /// "by quickstart-65d173cf" on the first page a creator ever sees.
+  name                String?
+  /// The storefront's primary domain host, e.g. "brand.com", mirrored the same
+  /// way. Live stores sell on their own domain, so that is what a creator copies
+  /// out of the address bar; without it the portal could only accept and build
+  /// `*.myshopify.com` links. Null until the merchant's dashboard first loads.
+  primaryDomain       String?
+  /// Last known state of the storefront tracking embed: "active" | "inactive" |
+  /// "unknown". Mirrored by the dashboard so the attention centre can flag a
+  /// broken setup on every page without paying for a theme query each time.
+  embedStatus         String?
   programs            Program[]
   businessInfo        BusinessInfo?
   createdAt           DateTime @default(now())
@@ -116,6 +136,12 @@ model ProductCommissionRule {
   productId    String
   /// Denormalised for the merchant UI so listing rules needs no Admin API call.
   productTitle String
+  /// Storefront handle, so the creator portal can build a shareable product URL
+  /// (`/products/<handle>?ref=CODE`) without Admin API credentials of its own.
+  /// The resource picker already returns it; it simply was not stored before.
+  /// Nullable because rules saved before Phase 13 have none — those degrade to
+  /// a named product with no ready-made link until the program is saved again.
+  productHandle String?
   type         CommissionType
   amount       Float
   createdAt    DateTime @default(now())
@@ -126,6 +152,14 @@ model ProductCommissionRule {
   /// One rule per product per program; re-adding a product edits its rule.
   @@unique([programId, productId])
   @@index([programId])
+}
+
+/// Customer-facing discount on a creator's coupon. Deliberately not
+/// `CommissionType`, whose FIXED_PER_ITEM has no meaning for a Shopify discount
+/// code and whose values mean money owed rather than money off.
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
 }
 
 enum CustomerType {
@@ -160,6 +194,15 @@ model TrackingConfig {
   programId             String   @unique
   linkTrackingEnabled   Boolean  @default(true)
   couponTrackingEnabled Boolean  @default(false)
+  /// What the *shopper* gets for entering a creator's code — nothing to do with
+  /// what the creator earns, which is `CommissionConfig`. Without it a coupon
+  /// gives a shopper no reason to type anything, and tracks nothing.
+  ///
+  /// Per program rather than per creator: one negotiated rate for everyone in a
+  /// program is how these are normally run, and it keeps approval a one-click
+  /// decision.
+  couponDiscountType    DiscountType?
+  couponDiscountValue   Float?
 
   program               Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
 }
@@ -176,12 +219,45 @@ model BusinessInfo {
 /// One human identity, independent of any program. Credentials live here so a
 /// creator has a single login even when they promote several merchants — email
 /// is unique globally, which is what makes sign-in unambiguous.
+/// A single failed creator sign-in, kept only long enough to throttle guessing.
+///
+/// Database-backed rather than an in-memory counter on purpose: the creator
+/// portal is a Next app that may run as several instances or as serverless
+/// functions, where a per-process Map resets constantly and throttles nothing.
+///
+/// Rows are pruned on every check, so the table stays roughly
+/// (attempts within the window) in size rather than growing forever.
+model LoginAttempt {
+  id        String   @id @default(uuid())
+  /// Either `email:<address>` or `ip:<address>`. Two buckets: the email bucket
+  /// stops one account being ground down, the IP bucket stops one attacker
+  /// sweeping many accounts.
+  scope     String
+  createdAt DateTime @default(now())
+
+  @@index([scope, createdAt])
+}
+
 model CreatorAccount {
   id              String   @id @default(uuid())
   email           String   @unique
   passwordHash    String
   firstName       String
   lastName        String
+  /// How this creator wants to be paid — free text mirroring `Payout.method`
+  /// ("Bank transfer", "Wise", "Easypaisa"), because payout practice varies by
+  /// country and V1 has no payment provider to constrain it.
+  payoutMethod    String?
+  /// Whatever the method needs: an IBAN, an account number, a Wise email. Free
+  /// text for the same reason — a fixed set of bank columns breaks for any
+  /// country whose details don't fit them.
+  ///
+  /// The creator owns this: they enter and change it in the portal, and the
+  /// merchant only reads it when recording a payment. It is the first
+  /// financial detail this app stores about anyone, so the privacy policy names
+  /// it explicitly, and it is per-account rather than per-membership — a
+  /// creator is paid the same way by every merchant they work with.
+  payoutDetails   String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -197,7 +273,23 @@ model Creator {
   // Public tracking slug used in share links (?ref=<code>) and as the creator's
   // coupon code. Per-membership, so earnings never cross between merchants.
   referralCode    String   @unique
+  /// Shopify GID of the discount code created for this creator, when the
+  /// program has coupon tracking on. Held so the code can be deactivated when
+  /// the creator is, and reactivated if they come back — rather than orphaning
+  /// a live discount in the merchant's store that nobody can trace.
+  discountNodeId  String?
   status          CreatorStatus @default(PENDING)
+  /// Why this membership is not active, shown to the creator in their portal.
+  ///
+  /// Deliberately not named `rejectionReason` like the one on `Commission`:
+  /// this covers being paused as well as being turned down, and a creator
+  /// reading "This membership is paused" deserves the same explanation as one
+  /// reading "wasn't approved". Required when rejecting, optional when pausing —
+  /// rejection is the decision someone cannot appeal without knowing the cause.
+  ///
+  /// Cleared on approval, so a reinstated creator is not left staring at the
+  /// reason they were once turned down.
+  statusReason    String?
   approvedAt      DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -298,6 +390,17 @@ model Commission {
   /// Surfaced in the UI but **not enforced** in V1 — the field exists so adding
   /// enforcement later is a check, not a migration.
   eligibleAt      DateTime?
+  /// The pricing terms this commission was earned under, frozen at attribution:
+  /// `{ customerType, config, productRules, customerRules }` (see
+  /// `pricingTerms` in commission.server.js). A refund re-prices the order
+  /// through these rather than the program's current rules, for the same reason
+  /// `eligibleAt` is stamped rather than derived — changing a rate today must not
+  /// retroactively move money promised under yesterday's. It also pins the
+  /// customer type: Shopify only exposes a *lifetime* order count, so asked again
+  /// at refund time a first-time buyer who has since reordered reads as returning.
+  /// Null for commissions created before this existed; those fall back to the
+  /// program's current rules.
+  terms           Json?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

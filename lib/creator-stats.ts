@@ -2,54 +2,32 @@ import "server-only";
 
 import prisma from "@/lib/db";
 
-const RECENT_LIMIT = 10;
-
 /**
- * Earnings for one program membership.
+ * Headline totals for one program membership.
  *
- * Conversion rate is reported as null rather than 0: it needs attributed clicks
- * and there is no Click model yet, so any number here would be unsupported.
- * Once click tracking lands this becomes orders / clicks.
+ * The recent-activity lists that used to live here moved to `lib/earnings.ts`:
+ * they were two queries rendering the same 1:1 events, and the pages that show
+ * them want different lengths of the same list.
+ *
+ * Conversion rate stays nullable, but only because a creator with no recorded
+ * clicks has no rate — showing 0% would tell them their audience isn't buying,
+ * when in fact nobody has visited yet. Those are very different messages to put
+ * in front of someone whose income depends on the number.
  */
 export async function getMembershipStats(creatorId: string) {
-  const [referralTotals, commissionsByStatus, recentReferrals, recentCommissions] =
-    await Promise.all([
-      prisma.referral.aggregate({
-        where: { creatorId, status: { not: "REJECTED" } },
-        _sum: { orderAmount: true },
-        _count: { _all: true },
-      }),
-      prisma.commission.groupBy({
-        by: ["status"],
-        where: { creatorId },
-        _sum: { amount: true },
-      }),
-      prisma.referral.findMany({
-        where: { creatorId },
-        orderBy: { createdAt: "desc" },
-        take: RECENT_LIMIT,
-        select: {
-          id: true,
-          orderNumber: true,
-          orderAmount: true,
-          status: true,
-          createdAt: true,
-          commission: { select: { amount: true, status: true } },
-        },
-      }),
-      prisma.commission.findMany({
-        where: { creatorId },
-        orderBy: { createdAt: "desc" },
-        take: RECENT_LIMIT,
-        select: {
-          id: true,
-          amount: true,
-          status: true,
-          createdAt: true,
-          referral: { select: { orderNumber: true } },
-        },
-      }),
-    ]);
+  const [referralTotals, commissionsByStatus, clicks] = await Promise.all([
+    prisma.referral.aggregate({
+      where: { creatorId, status: { not: "REJECTED" } },
+      _sum: { orderAmount: true },
+      _count: { _all: true },
+    }),
+    prisma.commission.groupBy({
+      by: ["status"],
+      where: { creatorId },
+      _sum: { amount: true },
+    }),
+    prisma.click.count({ where: { creatorId } }),
+  ]);
 
   const byStatus = Object.fromEntries(
     commissionsByStatus.map((row) => [row.status, row._sum.amount ?? 0]),
@@ -67,9 +45,11 @@ export async function getMembershipStats(creatorId: string) {
     commissionPending: pending,
     commissionApproved: approved,
     commissionPaid: paid,
-    conversionRate: null as number | null,
-    recentReferrals,
-    recentCommissions,
+    clicks,
+    conversionRate:
+      clicks > 0
+        ? Number(((referralTotals._count._all / clicks) * 100).toFixed(1))
+        : (null as number | null),
   };
 }
 
