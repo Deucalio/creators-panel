@@ -258,6 +258,110 @@ export function AddPayoutDetailsArt({
 
 export const PendingPayoutArt = AddPayoutDetailsArt;
 
+/**
+ * Upgraded Urgent "No Payout Details Attached" Art (Empty Open Wallet + Highlighted Missing Ghost Card + Attention Spark Rays + Bold Urgent "!" Badge)
+ * Used in NextActionCard when creator has no payout method connected.
+ */
+export function UrgentPayoutDetailsArt({
+  className = "h-22 sm:h-24 w-auto select-none shrink-0",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 120 105"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* Urgent Two-Tone Background Halo */}
+      <circle cx="58" cy="58" r="38" fill="var(--surface, #ffffff)" fillOpacity={0.85} />
+      <circle cx="58" cy="58" r="32" fill="var(--bad-surface, #ffe4e6)" fillOpacity={0.7} />
+
+      {/* Ground Line */}
+      <line x1="14" y1="90" x2="100" y2="90" stroke="var(--ink, #111827)" strokeWidth={2} strokeLinecap="round" />
+
+      {/* Highlighted Missing / Ghost Bank Card (Tilted Above Empty Wallet) */}
+      <g transform="translate(26, 18) rotate(-12)">
+        <rect
+          x="0"
+          y="0"
+          width="50"
+          height="33"
+          rx="4.5"
+          fill="var(--bad-surface, #ffe4e6)"
+          stroke="var(--bad-ink, #9f1239)"
+          strokeWidth={1.85}
+          strokeDasharray="4 3"
+        />
+        {/* Dashed Magnetic Stripe & Missing Details Lines */}
+        <line x1="6" y1="9" x2="44" y2="9" stroke="var(--bad-ink, #9f1239)" strokeWidth={2} strokeLinecap="round" strokeDasharray="3 3" opacity={0.65} />
+        <rect x="7" y="16" width="11" height="8" rx="1.5" fill="var(--surface, #ffffff)" stroke="var(--bad-ink, #9f1239)" strokeWidth={1.4} />
+        <line x1="23" y1="20" x2="39" y2="20" stroke="var(--bad-ink, #9f1239)" strokeWidth={1.6} strokeLinecap="round" />
+      </g>
+
+      {/* Downward Dotted Prompt Arrow (Showing Card Needs to Go Into Wallet) */}
+      <path d="M53,36 L53,43" stroke="var(--bad-ink, #9f1239)" strokeWidth={1.75} strokeLinecap="round" strokeDasharray="2 2.5" />
+
+      {/* Open Empty Wallet Back Interior Flap */}
+      <path d="M23,46 C23,39 87,39 87,46" fill="var(--surface-muted, #f3f4f6)" stroke="var(--ink, #111827)" strokeWidth={1.85} />
+
+      {/* Main Wallet Body */}
+      <rect x="21" y="44" width="68" height="46" rx="8" fill="var(--surface, #ffffff)" stroke="var(--ink, #111827)" strokeWidth={2} />
+      {/* Subtle Warm Leather Overlay */}
+      <rect x="21" y="44" width="68" height="46" rx="8" fill="var(--warn-surface, #fef3c7)" fillOpacity={0.35} stroke="var(--ink, #111827)" strokeWidth={2} />
+
+      {/* Empty Stitched Pocket Line */}
+      <line x1="28" y1="51" x2="78" y2="51" stroke="var(--warn-ink, #92400e)" strokeWidth={1.4} strokeDasharray="3.5 3.5" strokeLinecap="round" />
+
+      {/* Unfastened / Swinging Open Wallet Clasp Strap */}
+      <path
+        d="M72,60 L96,56 C98.5,55.5 100,57.5 100,60 L100,66 C100,68.5 98.5,70.5 96,71 L72,74 C67.5,74 64.5,71 64.5,67 C64.5,63 67.5,60 72,60 Z"
+        fill="var(--surface, #ffffff)"
+        stroke="var(--ink, #111827)"
+        strokeWidth={1.85}
+      />
+      {/* Empty Snap Button Hole */}
+      <circle cx="72" cy="67" r={2.5} fill="var(--bad-surface, #ffe4e6)" stroke="var(--ink, #111827)" strokeWidth={1.4} />
+
+      {/* Attention Spark Rays Around Exclamation Badge */}
+      <line x1="96" y1="6" x2="94" y2="10" stroke="var(--bad-ink, #9f1239)" strokeWidth={1.75} strokeLinecap="round" />
+      <line x1="107" y1="12" x2="103" y2="15" stroke="var(--bad-ink, #9f1239)" strokeWidth={1.75} strokeLinecap="round" />
+      <line x1="110" y1="23" x2="105" y2="23" stroke="var(--bad-ink, #9f1239)" strokeWidth={1.75} strokeLinecap="round" />
+
+      {/* Bold Urgent Exclamation Badge ("!") at Top-Right */}
+      <circle cx="90" cy="24" r={12.5} fill="#f59e0b" stroke="var(--ink, #111827)" strokeWidth={2} />
+      {/* Exclamation Mark Stem & Dot */}
+      <line x1="90" y1="17.5" x2="90" y2="25" stroke="#ffffff" strokeWidth={2.6} strokeLinecap="round" />
+      <circle cx="90" cy="29.5" r={1.5} fill="#ffffff" />
+    </svg>
+  );
+}
+
+/** Wallet + Floating Golden Coins + Sparkles Art for Payouts Details Header */
+export function PayoutHeaderArt({ className = "w-28 sm:w-32 h-auto" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 160 100" fill="none" aria-hidden="true">
+      {/* Wallet Background & Border */}
+      <rect x="14" y="30" width="104" height="60" rx="14" fill="var(--m, var(--brand))" fillOpacity={0.16} />
+      <rect x="14" y="30" width="104" height="60" rx="14" fill="none" stroke="var(--m, var(--brand))" strokeWidth={2.5} />
+      {/* Open Top Flap */}
+      <path d="M30 30 98 12a8 8 0 0 1 10 6l2 12" fill="none" stroke="var(--m, var(--brand))" strokeWidth={2.5} strokeLinecap="round" />
+      {/* Clasp Pocket */}
+      <rect x="88" y="52" width="38" height="20" rx="10" fill="var(--surface, #ffffff)" stroke="var(--m, var(--brand))" strokeWidth={2.5} />
+      <circle cx="100" cy="62" r={3.5} fill="var(--m, var(--brand))" />
+      {/* Golden Coin 1 */}
+      <circle cx="136" cy="26" r={13} fill="#fbbf24" />
+      <circle cx="136" cy="26" r={8} fill="none" stroke="#f59e0b" strokeWidth={2} />
+      {/* Golden Coin 2 */}
+      <circle cx="148" cy="52" r={7} fill="#fcd34d" />
+      {/* Sparkles */}
+      <path d="M8 12v8M4 16h8M150 80v6M147 83h6" stroke="var(--m, var(--brand))" strokeWidth={2} strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /*
  * Metric art for the Overview's performance cards.
  *

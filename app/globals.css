@@ -181,6 +181,54 @@
   --m-ring: color-mix(in srgb, var(--bk) 28%, transparent);
 }
 
+/* Method Selector Cards */
+.method-card {
+  transition: all 0.2s ease;
+}
+.method-card[data-checked="true"] {
+  border-color: var(--m);
+  background-color: var(--m-tint);
+  box-shadow: 0 0 0 1px var(--m-ring);
+}
+.method-card[data-checked="true"] .method-indicator {
+  background-color: var(--m);
+  border-color: var(--m);
+  color: #ffffff;
+}
+
+/* Payout Details Panel themed by data-method */
+.payout-details-panel {
+  border-color: var(--m-line);
+}
+.payout-details-panel .payout-accent-bar {
+  background-color: var(--m);
+}
+.payout-details-panel .payout-header {
+  background-color: var(--m-tint);
+  border-bottom-color: var(--m-line);
+}
+.payout-details-panel .payout-save-btn {
+  background-color: var(--m);
+  color: #ffffff;
+}
+.payout-details-panel .payout-save-btn:hover:not(:disabled) {
+  background-color: var(--m-strong);
+}
+.payout-details-panel .payout-input-field:hover:not(:focus-within):not([data-invalid="true"]) {
+  border-color: var(--m);
+}
+.payout-details-panel .payout-input-field:focus-within:not([data-invalid="true"]) {
+  border-color: var(--m);
+  box-shadow: 0 0 0 3px var(--m-ring);
+}
+.payout-details-panel input:not(.border-0):hover:not(:focus):not([aria-invalid="true"]) {
+  border-color: var(--m);
+}
+.payout-details-panel input:not(.border-0):focus:not([aria-invalid="true"]) {
+  border-color: var(--m);
+  box-shadow: 0 0 0 2px var(--m-ring);
+}
+
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useTransition, useId } from "react";
+import React, { useState, useEffect, useRef, useTransition, useId } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   updateProfile,
   updateEmail,
@@ -20,6 +21,7 @@ import {
   parsePayoutDetails,
 } from "@/lib/pakistan-payouts";
 import { matchPayoutMethod } from "@/lib/payout-methods";
+import { PayoutHeaderArt } from "@/components/illustration";
 
 /* ------------------------------------------------------------------
    Types
@@ -54,79 +56,55 @@ type ToastItem = {
 
 export function EasypaisaLogo({ className = "h-8 w-auto" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 130 36" aria-hidden="true">
-      <rect width="130" height="36" rx="18" fill="#2db84d" />
-      <circle cx="18" cy="18" r="12" fill="#fff" />
-      <path
-        d="M12.6 18.2h10.8A5.4 5.4 0 1 0 22 22.1"
-        fill="none"
-        stroke="#1c9a3d"
-        strokeWidth="2.6"
-        strokeLinecap="round"
+    <div className={`relative flex items-center justify-center shrink-0 ${className}`}>
+      <Image
+        src="/easypaisa-logo.png"
+        alt="Easypaisa"
+        width={100}
+        height={32}
+        className="h-7 sm:h-8 w-auto object-contain rounded-md"
+        priority
+        unoptimized
       />
-      <text
-        x="36"
-        y="23.2"
-        fontFamily="system-ui, -apple-system, sans-serif"
-        fontSize="15.5"
-        fontWeight="700"
-        letterSpacing="-.2"
-        fill="#fff"
-      >
-        easypaisa
-      </text>
-    </svg>
+    </div>
   );
 }
 
 export function JazzCashLogo({ className = "h-8 w-auto" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 126 36" aria-hidden="true">
-      <rect width="126" height="36" rx="18" fill="#e8262d" />
-      <circle cx="13" cy="12" r="2.6" fill="#ff8f94" />
-      <circle cx="20.5" cy="25" r="3.4" fill="#ffc72c" />
-      <text
-        x="30"
-        y="24"
-        fontFamily="system-ui, -apple-system, sans-serif"
-        fontSize="16.5"
-        fontWeight="800"
-        fontStyle="italic"
-        letterSpacing="-.3"
-      >
-        <tspan fill="#ffc72c">Jazz</tspan>
-        <tspan fill="#fff">Cash</tspan>
-      </text>
+    <div className={`relative flex items-center justify-center shrink-0 ${className}`}>
+      <Image
+        src="/jazzcash-logo.webp"
+        alt="JazzCash"
+        width={110}
+        height={32}
+        className="h-7 sm:h-8 w-auto object-contain rounded-md"
+        priority
+        unoptimized
+      />
+    </div>
+  );
+}
+
+export function BankTileIcon({ className = "size-8" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 64 64" fill="currentColor" aria-hidden="true">
+      <path d="M32 7 57 21v5H7v-5z" />
+      <circle cx="32" cy="18" r="2.6" fill="white" />
+      <rect x="12" y="30" width="7" height="18" rx="1.5" />
+      <rect x="28.5" y="30" width="7" height="18" rx="1.5" />
+      <rect x="45" y="30" width="7" height="18" rx="1.5" />
+      <rect x="8" y="52" width="48" height="6" rx="2" />
     </svg>
   );
 }
 
 export function BankLogo({ className = "h-8 w-auto" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 146 36" aria-hidden="true">
-      <rect width="146" height="36" rx="18" fill="#4a5a7c" />
-      <g
-        transform="translate(9 6)"
-        fill="none"
-        stroke="#fff"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M2 10L12 4l10 6" />
-        <path d="M4.5 11v8M9.5 11v8M14.5 11v8M19.5 11v8M2 21.5h20" />
-      </g>
-      <text
-        x="38"
-        y="23"
-        fontFamily="system-ui, -apple-system, sans-serif"
-        fontSize="13.5"
-        fontWeight="700"
-        fill="#fff"
-      >
-        Bank transfer
-      </text>
-    </svg>
+    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-700/80 text-white font-semibold text-xs tracking-tight ${className}`}>
+      <BankTileIcon className="size-4 shrink-0 text-slate-200" />
+      <span>Bank transfer</span>
+    </div>
   );
 }
 
@@ -144,6 +122,51 @@ function CheckIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
+
+function PhoneIcon({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="7" y="2.5" width="10" height="19" rx="2.5" />
+      <path d="M11 18h2" />
+    </svg>
+  );
+}
+
+function UserIcon({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
+    </svg>
+  );
+}
+
+function BuildingIcon({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="4" y="2" width="16" height="20" rx="2" />
+      <path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" />
+    </svg>
+  );
+}
+
+function CreditCardIcon({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="3" />
+      <path d="M3 10h18M7 15h4" />
+    </svg>
+  );
+}
+
+function LockIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="11" width="14" height="10" rx="3" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
     </svg>
   );
 }
@@ -210,6 +233,14 @@ export function SettingsClient({
   // Navigation tab
   const [activeTab, setActiveTab] = useState<TabKey>("profile");
 
+  const TABS: TabKey[] = ["profile", "payouts", "email", "password"];
+  const tabButtonRefs = useRef<Record<TabKey, HTMLButtonElement | null>>({
+    profile: null,
+    payouts: null,
+    email: null,
+    password: null,
+  });
+
   // Sync hash with active tab
   useEffect(() => {
     const handleHash = () => {
@@ -229,6 +260,31 @@ export function SettingsClient({
       window.history.replaceState(null, "", `#${tab}`);
     } catch {
       // ignore in iframe environments
+    }
+  };
+
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, tab: TabKey) => {
+    const currentIndex = TABS.indexOf(tab);
+    let targetIndex: number | null = null;
+
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      targetIndex = (currentIndex + 1) % TABS.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      targetIndex = (currentIndex - 1 + TABS.length) % TABS.length;
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      targetIndex = 0;
+    } else if (e.key === "End") {
+      e.preventDefault();
+      targetIndex = TABS.length - 1;
+    }
+
+    if (targetIndex !== null) {
+      const nextTab = TABS[targetIndex];
+      selectTab(nextTab);
+      tabButtonRefs.current[nextTab]?.focus();
     }
   };
 
@@ -303,7 +359,13 @@ export function SettingsClient({
      2. Payouts Form State
   ------------------------------------------------------------------ */
   const initialMatched = matchPayoutMethod(payout?.method);
-  const initialKey = initialMatched === "Easypaisa" ? "easypaisa" : initialMatched === "JazzCash" ? "jazzcash" : "bank";
+  const isLegacyMethod = Boolean(payout?.method && !initialMatched);
+  const initialKey: "easypaisa" | "jazzcash" | "bank" =
+    initialMatched === "JazzCash"
+      ? "jazzcash"
+      : initialMatched === "Bank transfer"
+      ? "bank"
+      : "easypaisa";
   const initialParsed = parsePayoutDetails(payout?.method, payout?.details);
 
   const [payoutSaved, setPayoutSaved] = useState<{
@@ -321,10 +383,57 @@ export function SettingsClient({
   const [payoutTouched, setPayoutTouched] = useState<Set<string>>(new Set());
   const [payoutErrors, setPayoutErrors] = useState<Record<string, string>>({});
   const [payoutPending, startPayoutTransition] = useTransition();
-  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
-  const [removePending, startRemoveTransition] = useTransition();
 
-  const isPayoutConfigured = Boolean(payoutSaved.method && payout?.details);
+  // Remove payout modal state and accessible focus management
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [removePending, startRemoveTransition] = useTransition();
+  const removeTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const removeCancelBtnRef = useRef<HTMLButtonElement | null>(null);
+  const removeConfirmBtnRef = useRef<HTMLButtonElement | null>(null);
+  const removeBackdropRef = useRef<HTMLDivElement | null>(null);
+
+  const closeRemoveDialog = () => {
+    setIsRemoveDialogOpen(false);
+    setRemoveError(null);
+    setTimeout(() => {
+      removeTriggerRef.current?.focus();
+    }, 50);
+  };
+
+  useEffect(() => {
+    if (!isRemoveDialogOpen) return;
+    removeCancelBtnRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeRemoveDialog();
+      } else if (e.key === "Tab") {
+        const focusables = [removeCancelBtnRef.current, removeConfirmBtnRef.current].filter(Boolean) as HTMLElement[];
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isRemoveDialogOpen]);
+
+  const isPayoutConfigured = Boolean(
+    payoutSaved.method &&
+      (payoutSaved.key
+        ? Object.values(payoutSaved.details[payoutSaved.key]).some((v) => v.trim())
+        : payout?.details)
+  );
 
   // Check dirty state for payout
   const isPayoutDirty = (() => {
@@ -441,6 +550,7 @@ export function SettingsClient({
   };
 
   const handleRemovePayout = () => {
+    setRemoveError(null);
     startRemoveTransition(async () => {
       const res = await removePayoutDetails();
       if (res.status === "success") {
@@ -459,7 +569,13 @@ export function SettingsClient({
           bank: { bankName: "", title: "", iban: "" },
         });
         setIsRemoveDialogOpen(false);
+        setRemoveError(null);
         toast("Payout details removed");
+        setTimeout(() => {
+          removeTriggerRef.current?.focus();
+        }, 50);
+      } else if (res.status === "error") {
+        setRemoveError(res.message || "Failed to remove payout details. Please try again.");
       }
     });
   };
@@ -541,7 +657,7 @@ export function SettingsClient({
     if (pwNew.length < 8) {
       errs.new = "Use at least 8 characters.";
     } else if (pwNew === pwCurrent) {
-      errs.new = "Choose a password you have not used here before.";
+      errs.new = "Your new password cannot be the same as your current password.";
     }
     if (pwConfirm !== pwNew) {
       errs.confirm = "Passwords don't match.";
@@ -608,19 +724,24 @@ export function SettingsClient({
         >
           {/* Tab 1: Profile */}
           <button
+            ref={(el) => { tabButtonRefs.current["profile"] = el; }}
+            id="tab-profile"
             role="tab"
             type="button"
             onClick={() => selectTab("profile")}
+            onKeyDown={(e) => handleTabKeyDown(e, "profile")}
             aria-selected={activeTab === "profile"}
+            aria-controls="panel-profile"
+            aria-label={`Profile: ${profileSaved.first} ${profileSaved.last}`}
             tabIndex={activeTab === "profile" ? 0 : -1}
-            className={`relative flex items-center gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-left transition cursor-pointer ${
+            className={`relative flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-1 md:gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-center md:text-left transition cursor-pointer ${
               activeTab === "profile"
                 ? "bg-surface border-line text-ink shadow-xs"
                 : "border-transparent text-ink-muted hover:bg-surface-muted hover:text-ink"
             }`}
           >
             <span
-              className={`size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
+              className={`size-7 md:size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
                 activeTab === "profile" ? "bg-brand text-brand-ink" : "bg-surface-muted text-ink-muted"
               }`}
             >
@@ -629,32 +750,37 @@ export function SettingsClient({
                 <path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" />
               </svg>
             </span>
-            <span className="min-w-0 flex-1 hidden md:block">
-              <span className="block text-sm font-semibold truncate">Profile</span>
-              <span className="block text-xs text-ink-subtle truncate max-w-[130px]">
+            <div className="min-w-0 flex-1 flex flex-col items-center md:items-start">
+              <span className="block text-[11px] md:text-sm font-semibold truncate">Profile</span>
+              <span className="hidden md:block text-xs text-ink-subtle truncate max-w-[130px]">
                 {profileSaved.first} {profileSaved.last}
               </span>
-            </span>
+            </div>
             {isProfileDirty ? (
-              <span className="size-2 rounded-full bg-warn-ink shrink-0 ml-auto" title="Unsaved changes" />
+              <span className="absolute top-1.5 right-1.5 md:static md:ml-auto size-2 rounded-full bg-warn-ink shrink-0" title="Unsaved changes" />
             ) : null}
           </button>
 
           {/* Tab 2: Payouts */}
           <button
+            ref={(el) => { tabButtonRefs.current["payouts"] = el; }}
+            id="tab-payouts"
             role="tab"
             type="button"
             onClick={() => selectTab("payouts")}
+            onKeyDown={(e) => handleTabKeyDown(e, "payouts")}
             aria-selected={activeTab === "payouts"}
+            aria-controls="panel-payouts"
+            aria-label={`Payouts: ${payoutSaved.method ?? (isLegacyMethod ? `Legacy method ${payout?.method}` : "No payout method connected")}`}
             tabIndex={activeTab === "payouts" ? 0 : -1}
-            className={`relative flex items-center gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-left transition cursor-pointer ${
+            className={`relative flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-1 md:gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-center md:text-left transition cursor-pointer ${
               activeTab === "payouts"
                 ? "bg-surface border-line text-ink shadow-xs"
                 : "border-transparent text-ink-muted hover:bg-surface-muted hover:text-ink"
             }`}
           >
             <span
-              className={`size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
+              className={`size-7 md:size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
                 activeTab === "payouts" ? "bg-brand text-brand-ink" : "bg-surface-muted text-ink-muted"
               }`}
             >
@@ -664,39 +790,62 @@ export function SettingsClient({
                 <path d="M6.5 12h.01M17.5 12h.01" />
               </svg>
             </span>
-            <span className="min-w-0 flex-1 hidden md:block">
-              <span className="block text-sm font-semibold truncate">Payouts</span>
-              <span className="flex items-center gap-1.5 text-xs text-ink-subtle">
-                <span
-                  className={`size-1.5 rounded-full shrink-0 ${
-                    isPayoutConfigured ? "bg-ok-ink" : "bg-warn-ink"
-                  }`}
-                />
-                <span className="truncate max-w-[120px]">
-                  {payoutSaved.method ?? "Add details"}
+            <div className="min-w-0 flex-1 flex flex-col items-center md:items-start">
+              <span className="block text-[11px] md:text-sm font-semibold truncate">Payouts</span>
+              {isPayoutConfigured ? (
+                <span className="hidden md:flex items-center gap-1.5 text-xs text-ink-subtle">
+                  <span className="size-1.5 rounded-full shrink-0 bg-ok-ink" aria-hidden="true" />
+                  <span className="truncate max-w-[120px]">{payoutSaved.method}</span>
                 </span>
-              </span>
-            </span>
+              ) : isLegacyMethod ? (
+                <span className="hidden md:flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400">
+                  <span className="size-1.5 rounded-full shrink-0 bg-amber-500" aria-hidden="true" />
+                  <span className="truncate max-w-[120px]">{payout?.method}</span>
+                </span>
+              ) : (
+                <span className="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 mt-0.5 rounded-full text-[11px] font-semibold bg-bad-surface text-bad-ink border border-danger-line shadow-2xs">
+                  <span className="size-1.5 rounded-full bg-bad-ink shrink-0" aria-hidden="true" />
+                  <span className="truncate">No method connected</span>
+                </span>
+              )}
+              {!isPayoutConfigured && !isLegacyMethod ? (
+                <span className="md:hidden mt-0.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-bad-surface text-bad-ink border border-danger-line">
+                  No method
+                </span>
+              ) : null}
+            </div>
+            {!isPayoutConfigured && !isLegacyMethod && !isPayoutDirty ? (
+              <span
+                className="md:hidden absolute top-1.5 right-1.5 size-2 rounded-full bg-bad-ink shrink-0"
+                title="No payout method connected"
+                aria-hidden="true"
+              />
+            ) : null}
             {isPayoutDirty ? (
-              <span className="size-2 rounded-full bg-warn-ink shrink-0 ml-auto" title="Unsaved changes" />
+              <span className="absolute top-1.5 right-1.5 md:static md:ml-auto size-2 rounded-full bg-warn-ink shrink-0" title="Unsaved changes" />
             ) : null}
           </button>
 
           {/* Tab 3: Email */}
           <button
+            ref={(el) => { tabButtonRefs.current["email"] = el; }}
+            id="tab-email"
             role="tab"
             type="button"
             onClick={() => selectTab("email")}
+            onKeyDown={(e) => handleTabKeyDown(e, "email")}
             aria-selected={activeTab === "email"}
+            aria-controls="panel-email"
+            aria-label={`Email: ${emailSaved}`}
             tabIndex={activeTab === "email" ? 0 : -1}
-            className={`relative flex items-center gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-left transition cursor-pointer ${
+            className={`relative flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-1 md:gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-center md:text-left transition cursor-pointer ${
               activeTab === "email"
                 ? "bg-surface border-line text-ink shadow-xs"
                 : "border-transparent text-ink-muted hover:bg-surface-muted hover:text-ink"
             }`}
           >
             <span
-              className={`size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
+              className={`size-7 md:size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
                 activeTab === "email" ? "bg-brand text-brand-ink" : "bg-surface-muted text-ink-muted"
               }`}
             >
@@ -705,32 +854,37 @@ export function SettingsClient({
                 <path d="M4 7.5l8 6 8-6" />
               </svg>
             </span>
-            <span className="min-w-0 flex-1 hidden md:block">
-              <span className="block text-sm font-semibold truncate">Email</span>
-              <span className="block text-xs text-ink-subtle truncate max-w-[130px]">
+            <div className="min-w-0 flex-1 flex flex-col items-center md:items-start">
+              <span className="block text-[11px] md:text-sm font-semibold truncate">Email</span>
+              <span className="hidden md:block text-xs text-ink-subtle truncate max-w-[130px]">
                 {emailSaved}
               </span>
-            </span>
+            </div>
             {isEmailDirty ? (
-              <span className="size-2 rounded-full bg-warn-ink shrink-0 ml-auto" title="Unsaved changes" />
+              <span className="absolute top-1.5 right-1.5 md:static md:ml-auto size-2 rounded-full bg-warn-ink shrink-0" title="Unsaved changes" />
             ) : null}
           </button>
 
           {/* Tab 4: Password */}
           <button
+            ref={(el) => { tabButtonRefs.current["password"] = el; }}
+            id="tab-password"
             role="tab"
             type="button"
             onClick={() => selectTab("password")}
+            onKeyDown={(e) => handleTabKeyDown(e, "password")}
             aria-selected={activeTab === "password"}
+            aria-controls="panel-password"
+            aria-label="Password: Security and sign-in"
             tabIndex={activeTab === "password" ? 0 : -1}
-            className={`relative flex items-center gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-left transition cursor-pointer ${
+            className={`relative flex flex-col md:flex-row items-center md:items-center justify-center md:justify-start gap-1 md:gap-3 p-2 md:py-2.5 md:px-3 rounded-2xl border text-center md:text-left transition cursor-pointer ${
               activeTab === "password"
                 ? "bg-surface border-line text-ink shadow-xs"
                 : "border-transparent text-ink-muted hover:bg-surface-muted hover:text-ink"
             }`}
           >
             <span
-              className={`size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
+              className={`size-7 md:size-8 rounded-xl flex items-center justify-center shrink-0 transition ${
                 activeTab === "password" ? "bg-brand text-brand-ink" : "bg-surface-muted text-ink-muted"
               }`}
             >
@@ -739,14 +893,14 @@ export function SettingsClient({
                 <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
               </svg>
             </span>
-            <span className="min-w-0 flex-1 hidden md:block">
-              <span className="block text-sm font-semibold truncate">Password</span>
-              <span className="block text-xs text-ink-subtle truncate">
+            <div className="min-w-0 flex-1 flex flex-col items-center md:items-start">
+              <span className="block text-[11px] md:text-sm font-semibold truncate">Password</span>
+              <span className="hidden md:block text-xs text-ink-subtle truncate">
                 Security &amp; sign-in
               </span>
-            </span>
+            </div>
             {isPwDirty ? (
-              <span className="size-2 rounded-full bg-warn-ink shrink-0 ml-auto" title="Unsaved changes" />
+              <span className="absolute top-1.5 right-1.5 md:static md:ml-auto size-2 rounded-full bg-warn-ink shrink-0" title="Unsaved changes" />
             ) : null}
           </button>
         </nav>
@@ -757,7 +911,13 @@ export function SettingsClient({
               PANEL 1: PROFILE
              ========================================================= */}
           {activeTab === "profile" && (
-            <section className="animate-panel-in" role="tabpanel">
+            <section
+              id="panel-profile"
+              role="tabpanel"
+              aria-labelledby="tab-profile"
+              tabIndex={0}
+              className="animate-panel-in focus:outline-none"
+            >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Profile</h2>
                 <p className="mt-1.5 text-sm text-ink-muted">
@@ -802,9 +962,12 @@ export function SettingsClient({
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
                         }`}
                         aria-invalid={Boolean(profileErrors.first)}
+                        aria-describedby={profileErrors.first ? "first-name-error" : undefined}
                       />
                       {profileErrors.first ? (
-                        <p className="mt-1.5 text-xs text-bad-ink font-medium">{profileErrors.first}</p>
+                        <p id="first-name-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                          {profileErrors.first}
+                        </p>
                       ) : null}
                     </div>
 
@@ -828,9 +991,12 @@ export function SettingsClient({
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
                         }`}
                         aria-invalid={Boolean(profileErrors.last)}
+                        aria-describedby={profileErrors.last ? "last-name-error" : undefined}
                       />
                       {profileErrors.last ? (
-                        <p className="mt-1.5 text-xs text-bad-ink font-medium">{profileErrors.last}</p>
+                        <p id="last-name-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                          {profileErrors.last}
+                        </p>
                       ) : null}
                     </div>
                   </div>
@@ -863,7 +1029,13 @@ export function SettingsClient({
               PANEL 2: PAYOUTS ("How you get paid")
              ========================================================= */}
           {activeTab === "payouts" && (
-            <section className="animate-panel-in" role="tabpanel">
+            <section
+              id="panel-payouts"
+              role="tabpanel"
+              aria-labelledby="tab-payouts"
+              tabIndex={0}
+              className="animate-panel-in focus:outline-none"
+            >
               <div className="rounded-2xl border border-line bg-surface overflow-hidden shadow-xs">
                 <div className="p-6 md:p-8">
                   <div className="flex flex-wrap items-center gap-3">
@@ -872,16 +1044,50 @@ export function SettingsClient({
                       className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
                         isPayoutConfigured
                           ? "bg-ok-surface text-ok-ink border-ok-ink/20"
-                          : "bg-warn-surface text-warn-ink border-warn-ink/20"
+                          : isLegacyMethod
+                          ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-500/30"
+                          : "bg-bad-surface text-bad-ink border-danger-line"
                       }`}
                     >
-                      <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
-                      <span>{isPayoutConfigured ? "Configured" : "Not set up"}</span>
+                      <span
+                        className={`size-1.5 rounded-full ${
+                          isPayoutConfigured ? "bg-ok-ink" : isLegacyMethod ? "bg-amber-500" : "bg-bad-ink"
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span>
+                        {isPayoutConfigured
+                          ? "Configured"
+                          : isLegacyMethod
+                          ? `Legacy (${payout?.method})`
+                          : "No payout method connected"}
+                      </span>
                     </span>
                   </div>
                   <p className="mt-1.5 text-sm text-ink-muted">
                     Merchants pay you manually, so they need to know where to send your earnings.
                   </p>
+
+                  {/* Legacy / Unsupported Method Notice Banner */}
+                  {isLegacyMethod && (
+                    <div className="mt-5 rounded-2xl border border-amber-300 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/30 p-4 sm:p-5 flex items-start gap-3.5">
+                      <div className="size-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="12" />
+                          <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-ink">
+                          Unsupported saved method ({payout?.method})
+                        </h3>
+                        <p className="mt-1 text-xs text-ink-muted leading-relaxed">
+                          Your account currently has payout details saved under an unsupported method {payout?.details ? `(${payout.details})` : ""}. PartnerLoop now supports <strong>Easypaisa</strong>, <strong>JazzCash</strong>, and <strong>Bank transfer</strong>. Please select one of the supported methods below to update your details, or remove your previous details.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Payment Method Selector Grid */}
                   <fieldset className="mt-7">
@@ -891,18 +1097,26 @@ export function SettingsClient({
                     <div className="grid gap-3 sm:grid-cols-3">
                       {(["easypaisa", "jazzcash", "bank"] as const).map((methodKey) => {
                         const isChecked = draftMethod === methodKey;
-                        const label = methodKey === "easypaisa" ? "Easypaisa" : methodKey === "jazzcash" ? "JazzCash" : "Bank transfer";
-                        const kind = methodKey === "bank" ? "Bank account" : "Mobile wallet";
-                        const blurb = methodKey === "bank" ? "Paid to your IBAN" : "Paid to your wallet number";
+                        const label =
+                          methodKey === "easypaisa"
+                            ? "Easypaisa"
+                            : methodKey === "jazzcash"
+                            ? "JazzCash"
+                            : "Bank transfer";
+                        const blurb =
+                          methodKey === "bank"
+                            ? "Paid to your IBAN"
+                            : "Paid to your wallet number";
 
                         return (
                           <label
                             key={methodKey}
                             data-method={methodKey}
-                            className={`relative flex flex-col justify-between gap-3 p-4 rounded-2xl border transition cursor-pointer select-none ${
+                            data-checked={isChecked ? "true" : "false"}
+                            className={`method-card relative flex flex-col gap-3 p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer select-none ${
                               isChecked
-                                ? "border-brand bg-brand-surface/40 shadow-xs ring-1 ring-brand/30"
-                                : "border-line-strong bg-surface hover:border-brand/60"
+                                ? "shadow-xs border-m bg-m-tint/60 ring-2 ring-m/20"
+                                : "border-line-strong bg-surface hover:border-m/50 hover:-translate-y-0.5"
                             }`}
                           >
                             <input
@@ -916,23 +1130,50 @@ export function SettingsClient({
                               }}
                               className="sr-only"
                             />
-                            <div className="flex items-start justify-between gap-3">
-                              {LOGOS[methodKey]()}
-                              <span
-                                className={`size-5 rounded-full border flex items-center justify-center shrink-0 transition ${
-                                  isChecked
-                                    ? "bg-brand border-brand text-white"
-                                    : "border-line-strong text-transparent"
-                                }`}
-                              >
-                                <CheckIcon className="size-3" />
-                              </span>
+
+                            {/* White Logo Tile (Properly proportioned) */}
+                            <div className="h-20 sm:h-22 w-full rounded-xl bg-white border border-[#e8eaf2] dark:border-white/10 flex items-center justify-center p-2.5 overflow-hidden shadow-2xs">
+                              {methodKey === "easypaisa" ? (
+                                <Image
+                                  src="/easypaisa-logo.png"
+                                  alt="Easypaisa"
+                                  width={100}
+                                  height={36}
+                                  className="h-8 sm:h-9 w-auto max-w-[85%] object-contain"
+                                  priority
+                                  unoptimized
+                                />
+                              ) : methodKey === "jazzcash" ? (
+                                <Image
+                                  src="/jazzcash-logo.webp"
+                                  alt="JazzCash"
+                                  width={100}
+                                  height={36}
+                                  className="h-8 sm:h-9 w-auto max-w-[85%] object-contain"
+                                  priority
+                                  unoptimized
+                                />
+                              ) : (
+                                <BankTileIcon className="size-9 sm:size-10 text-slate-700" />
+                              )}
                             </div>
+
+                            {/* Method Name & Blurb */}
                             <div>
                               <span className="sr-only">{label}, </span>
-                              <span className="block text-sm font-semibold text-ink">{kind}</span>
+                              <b className="block text-sm sm:text-base font-semibold text-ink">{label}</b>
                               <span className="block text-xs text-ink-muted mt-0.5">{blurb}</span>
                             </div>
+
+                            {/* Top-Right Tick Badge */}
+                            <span
+                              className={`absolute top-3.5 right-3.5 size-6 rounded-full bg-m text-white flex items-center justify-center shadow-xs transition-transform duration-200 ${
+                                isChecked ? "scale-100" : "scale-0"
+                              }`}
+                              aria-hidden="true"
+                            >
+                              <CheckIcon className="size-3.5 stroke-[2.5]" />
+                            </span>
                           </label>
                         );
                       })}
@@ -946,22 +1187,63 @@ export function SettingsClient({
                   <form onSubmit={handlePayoutSubmit} className="mt-6" noValidate>
                     <div
                       data-method={draftMethod}
-                      className="rounded-2xl border border-line-strong overflow-hidden bg-surface-muted/60 transition"
+                      className="payout-details-panel rounded-2xl border border-m-line overflow-hidden bg-surface transition shadow-2xs"
                     >
-                      {/* Top accent bar & header */}
-                      <div className="h-1 bg-brand w-full" />
-                      <div className="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-line bg-surface/80">
-                        <div className="flex items-center gap-2">
-                          {LOGOS[draftMethod]("h-6 w-auto")}
+                      {/* Top 4px brand accent bar */}
+                      <div className="payout-accent-bar h-1 w-full bg-m" />
+
+                      {/* Header with white logo chip, title/subtitle, and PayoutHeaderArt */}
+                      <div className="payout-header flex items-center gap-4 sm:gap-5 px-5 py-4 sm:px-6 sm:py-5 border-b border-m-line bg-gradient-to-r from-m-tint via-m-tint/40 to-surface relative overflow-hidden">
+                        {/* White Logo Chip */}
+                        <div className="size-16 sm:size-18 rounded-2xl bg-white border border-[#e8eaf2] dark:border-white/10 flex items-center justify-center p-2.5 shadow-sm shrink-0">
+                          {draftMethod === "easypaisa" ? (
+                            <Image
+                              src="/easypaisa-logo.png"
+                              alt="Easypaisa"
+                              width={90}
+                              height={32}
+                              className="h-7 sm:h-8 w-auto max-w-[85%] object-contain"
+                              priority
+                              unoptimized
+                            />
+                          ) : draftMethod === "jazzcash" ? (
+                            <Image
+                              src="/jazzcash-logo.webp"
+                              alt="JazzCash"
+                              width={90}
+                              height={32}
+                              className="h-7 sm:h-8 w-auto max-w-[85%] object-contain"
+                              priority
+                              unoptimized
+                            />
+                          ) : (
+                            <BankTileIcon className="size-8 sm:size-9 text-slate-700" />
+                          )}
                         </div>
-                        <span className="text-xs font-semibold text-ink-muted">
-                          Account details
-                        </span>
+
+                        {/* Method Title & Subtitle */}
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-base sm:text-lg font-bold tracking-tight text-ink">
+                            {draftMethod === "bank"
+                              ? "Bank account"
+                              : draftMethod === "jazzcash"
+                              ? "JazzCash wallet"
+                              : "Easypaisa wallet"}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-ink-muted mt-0.5">
+                            {draftMethod === "bank"
+                              ? "Earnings go straight to your IBAN."
+                              : "Earnings go straight to your wallet number."}
+                          </p>
+                        </div>
+
+                        {/* Header Art Illustration (Scaled Elegantly) */}
+                        <PayoutHeaderArt className="ml-auto w-24 sm:w-28 md:w-32 h-auto shrink-0 hidden sm:block select-none" />
                       </div>
 
                       <div className="p-5 md:p-6 bg-surface">
                         {payoutErrors.form ? (
-                          <div className="mb-4 rounded-xl border border-bad-ink/20 bg-bad-surface p-3 text-xs text-bad-ink font-medium">
+                          <div role="alert" className="mb-4 rounded-xl border border-bad-ink/20 bg-bad-surface p-3 text-xs text-bad-ink font-medium">
                             {payoutErrors.form}
                           </div>
                         ) : null}
@@ -973,76 +1255,120 @@ export function SettingsClient({
                               <label htmlFor="ep-number" className="block text-xs font-semibold text-ink mb-1.5">
                                 Easypaisa mobile number
                               </label>
-                              <input
-                                id="ep-number"
-                                type="tel"
-                                inputMode="numeric"
-                                autoComplete="tel"
-                                placeholder="0300 1234567"
-                                value={draftDetails.easypaisa.number}
-                                onChange={(e) => {
-                                  const formatted = formatMobile(e.target.value);
-                                  setDraftDetails((prev) => ({
-                                    ...prev,
-                                    easypaisa: { ...prev.easypaisa, number: formatted },
-                                  }));
-                                  if (payoutTouched.has("easypaisa.number")) {
-                                    const err = validatePayoutField("number", formatted);
-                                    setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
-                                  }
-                                }}
-                                onBlur={() => {
-                                  setPayoutTouched((prev) => new Set(prev).add("easypaisa.number"));
-                                  const err = validatePayoutField("number", draftDetails.easypaisa.number);
-                                  setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
-                                }}
-                                className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm tabular-nums text-ink outline-none transition placeholder:text-ink-subtle ${
+                              <div
+                                data-invalid={Boolean(payoutErrors.number)}
+                                className={`payout-input-field flex items-center gap-2.5 rounded-xl border px-3.5 h-12 bg-surface-muted/40 transition ${
                                   payoutErrors.number
-                                    ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
-                                    : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
+                                    ? "border-bad-ink ring-2 ring-bad-ink/20"
+                                    : "border-line-strong hover:border-m/60 focus-within:border-m focus-within:bg-surface focus-within:ring-2 focus-within:ring-m-ring"
                                 }`}
-                                aria-invalid={Boolean(payoutErrors.number)}
-                              />
-                              <p className={`mt-1.5 text-xs ${payoutErrors.number ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                                {payoutErrors.number || "The number your Easypaisa account is registered with."}
+                              >
+                                <PhoneIcon className="size-5 shrink-0 text-ink-subtle" />
+                                <input
+                                  id="ep-number"
+                                  type="tel"
+                                  inputMode="numeric"
+                                  autoComplete="tel"
+                                  placeholder="0300 1234567"
+                                  value={draftDetails.easypaisa.number}
+                                  onChange={(e) => {
+                                    const formatted = formatMobile(e.target.value);
+                                    setDraftDetails((prev) => ({
+                                      ...prev,
+                                      easypaisa: { ...prev.easypaisa, number: formatted },
+                                    }));
+                                    if (payoutTouched.has("easypaisa.number")) {
+                                      const err = validatePayoutField("number", formatted);
+                                      setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setPayoutTouched((prev) => new Set(prev).add("easypaisa.number"));
+                                    const err = validatePayoutField("number", draftDetails.easypaisa.number);
+                                    setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
+                                  }}
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm tabular-nums text-ink placeholder:text-ink-subtle"
+                                  aria-invalid={Boolean(payoutErrors.number)}
+                                  aria-describedby={payoutErrors.number ? "ep-number-error ep-number-hint" : "ep-number-hint"}
+                                />
+                                <span
+                                  className={`transition-opacity duration-200 ${
+                                    validMobile(draftDetails.easypaisa.number) === true
+                                      ? "opacity-100 text-m"
+                                      : "opacity-0 pointer-events-none"
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <CheckIcon className="size-4 stroke-[2.5]" />
+                                </span>
+                              </div>
+                              <p id="ep-number-hint" className={`mt-1.5 text-xs ${payoutErrors.number ? "hidden" : "text-ink-subtle"}`}>
+                                The number your Easypaisa account is registered with.
                               </p>
+                              {payoutErrors.number ? (
+                                <p id="ep-number-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                                  {payoutErrors.number}
+                                </p>
+                              ) : null}
                             </div>
 
                             <div>
                               <label htmlFor="ep-title" className="block text-xs font-semibold text-ink mb-1.5">
                                 Account title
                               </label>
-                              <input
-                                id="ep-title"
-                                type="text"
-                                autoComplete="name"
-                                placeholder="Name on the account"
-                                value={draftDetails.easypaisa.title}
-                                onChange={(e) => {
-                                  setDraftDetails((prev) => ({
-                                    ...prev,
-                                    easypaisa: { ...prev.easypaisa, title: e.target.value },
-                                  }));
-                                  if (payoutTouched.has("easypaisa.title")) {
-                                    const err = validatePayoutField("title", e.target.value);
-                                    setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
-                                  }
-                                }}
-                                onBlur={() => {
-                                  setPayoutTouched((prev) => new Set(prev).add("easypaisa.title"));
-                                  const err = validatePayoutField("title", draftDetails.easypaisa.title);
-                                  setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
-                                }}
-                                className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                              <div
+                                data-invalid={Boolean(payoutErrors.title)}
+                                className={`payout-input-field flex items-center gap-2.5 rounded-xl border px-3.5 h-12 bg-surface-muted/40 transition ${
                                   payoutErrors.title
-                                    ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
-                                    : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
+                                    ? "border-bad-ink ring-2 ring-bad-ink/20"
+                                    : "border-line-strong hover:border-m/60 focus-within:border-m focus-within:bg-surface focus-within:ring-2 focus-within:ring-m-ring"
                                 }`}
-                                aria-invalid={Boolean(payoutErrors.title)}
-                              />
-                              <p className={`mt-1.5 text-xs ${payoutErrors.title ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                                {payoutErrors.title || "Exactly as it appears in your Easypaisa app."}
+                              >
+                                <UserIcon className="size-5 shrink-0 text-ink-subtle" />
+                                <input
+                                  id="ep-title"
+                                  type="text"
+                                  autoComplete="name"
+                                  placeholder="Name on the account"
+                                  value={draftDetails.easypaisa.title}
+                                  onChange={(e) => {
+                                    setDraftDetails((prev) => ({
+                                      ...prev,
+                                      easypaisa: { ...prev.easypaisa, title: e.target.value },
+                                    }));
+                                    if (payoutTouched.has("easypaisa.title")) {
+                                      const err = validatePayoutField("title", e.target.value);
+                                      setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setPayoutTouched((prev) => new Set(prev).add("easypaisa.title"));
+                                    const err = validatePayoutField("title", draftDetails.easypaisa.title);
+                                    setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
+                                  }}
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  aria-invalid={Boolean(payoutErrors.title)}
+                                  aria-describedby={payoutErrors.title ? "ep-title-error ep-title-hint" : "ep-title-hint"}
+                                />
+                                <span
+                                  className={`transition-opacity duration-200 ${
+                                    validTitle(draftDetails.easypaisa.title) === true
+                                      ? "opacity-100 text-m"
+                                      : "opacity-0 pointer-events-none"
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <CheckIcon className="size-4 stroke-[2.5]" />
+                                </span>
+                              </div>
+                              <p id="ep-title-hint" className={`mt-1.5 text-xs ${payoutErrors.title ? "hidden" : "text-ink-subtle"}`}>
+                                Exactly as it appears in your Easypaisa app.
                               </p>
+                              {payoutErrors.title ? (
+                                <p id="ep-title-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                                  {payoutErrors.title}
+                                </p>
+                              ) : null}
                             </div>
                           </div>
                         )}
@@ -1053,76 +1379,120 @@ export function SettingsClient({
                               <label htmlFor="jc-number" className="block text-xs font-semibold text-ink mb-1.5">
                                 JazzCash mobile number
                               </label>
-                              <input
-                                id="jc-number"
-                                type="tel"
-                                inputMode="numeric"
-                                autoComplete="tel"
-                                placeholder="0300 1234567"
-                                value={draftDetails.jazzcash.number}
-                                onChange={(e) => {
-                                  const formatted = formatMobile(e.target.value);
-                                  setDraftDetails((prev) => ({
-                                    ...prev,
-                                    jazzcash: { ...prev.jazzcash, number: formatted },
-                                  }));
-                                  if (payoutTouched.has("jazzcash.number")) {
-                                    const err = validatePayoutField("number", formatted);
-                                    setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
-                                  }
-                                }}
-                                onBlur={() => {
-                                  setPayoutTouched((prev) => new Set(prev).add("jazzcash.number"));
-                                  const err = validatePayoutField("number", draftDetails.jazzcash.number);
-                                  setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
-                                }}
-                                className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm tabular-nums text-ink outline-none transition placeholder:text-ink-subtle ${
+                              <div
+                                data-invalid={Boolean(payoutErrors.number)}
+                                className={`payout-input-field flex items-center gap-2.5 rounded-xl border px-3.5 h-12 bg-surface-muted/40 transition ${
                                   payoutErrors.number
-                                    ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
-                                    : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
+                                    ? "border-bad-ink ring-2 ring-bad-ink/20"
+                                    : "border-line-strong hover:border-m/60 focus-within:border-m focus-within:bg-surface focus-within:ring-2 focus-within:ring-m-ring"
                                 }`}
-                                aria-invalid={Boolean(payoutErrors.number)}
-                              />
-                              <p className={`mt-1.5 text-xs ${payoutErrors.number ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                                {payoutErrors.number || "The number your JazzCash account is registered with."}
+                              >
+                                <PhoneIcon className="size-5 shrink-0 text-ink-subtle" />
+                                <input
+                                  id="jc-number"
+                                  type="tel"
+                                  inputMode="numeric"
+                                  autoComplete="tel"
+                                  placeholder="0300 1234567"
+                                  value={draftDetails.jazzcash.number}
+                                  onChange={(e) => {
+                                    const formatted = formatMobile(e.target.value);
+                                    setDraftDetails((prev) => ({
+                                      ...prev,
+                                      jazzcash: { ...prev.jazzcash, number: formatted },
+                                    }));
+                                    if (payoutTouched.has("jazzcash.number")) {
+                                      const err = validatePayoutField("number", formatted);
+                                      setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setPayoutTouched((prev) => new Set(prev).add("jazzcash.number"));
+                                    const err = validatePayoutField("number", draftDetails.jazzcash.number);
+                                    setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
+                                  }}
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm tabular-nums text-ink placeholder:text-ink-subtle"
+                                  aria-invalid={Boolean(payoutErrors.number)}
+                                  aria-describedby={payoutErrors.number ? "jc-number-error jc-number-hint" : "jc-number-hint"}
+                                />
+                                <span
+                                  className={`transition-opacity duration-200 ${
+                                    validMobile(draftDetails.jazzcash.number) === true
+                                      ? "opacity-100 text-m"
+                                      : "opacity-0 pointer-events-none"
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <CheckIcon className="size-4 stroke-[2.5]" />
+                                </span>
+                              </div>
+                              <p id="jc-number-hint" className={`mt-1.5 text-xs ${payoutErrors.number ? "hidden" : "text-ink-subtle"}`}>
+                                The number your JazzCash account is registered with.
                               </p>
+                              {payoutErrors.number ? (
+                                <p id="jc-number-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                                  {payoutErrors.number}
+                                </p>
+                              ) : null}
                             </div>
 
                             <div>
                               <label htmlFor="jc-title" className="block text-xs font-semibold text-ink mb-1.5">
                                 Account title
                               </label>
-                              <input
-                                id="jc-title"
-                                type="text"
-                                autoComplete="name"
-                                placeholder="Name on the account"
-                                value={draftDetails.jazzcash.title}
-                                onChange={(e) => {
-                                  setDraftDetails((prev) => ({
-                                    ...prev,
-                                    jazzcash: { ...prev.jazzcash, title: e.target.value },
-                                  }));
-                                  if (payoutTouched.has("jazzcash.title")) {
-                                    const err = validatePayoutField("title", e.target.value);
-                                    setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
-                                  }
-                                }}
-                                onBlur={() => {
-                                  setPayoutTouched((prev) => new Set(prev).add("jazzcash.title"));
-                                  const err = validatePayoutField("title", draftDetails.jazzcash.title);
-                                  setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
-                                }}
-                                className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                              <div
+                                data-invalid={Boolean(payoutErrors.title)}
+                                className={`payout-input-field flex items-center gap-2.5 rounded-xl border px-3.5 h-12 bg-surface-muted/40 transition ${
                                   payoutErrors.title
-                                    ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
-                                    : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
+                                    ? "border-bad-ink ring-2 ring-bad-ink/20"
+                                    : "border-line-strong hover:border-m/60 focus-within:border-m focus-within:bg-surface focus-within:ring-2 focus-within:ring-m-ring"
                                 }`}
-                                aria-invalid={Boolean(payoutErrors.title)}
-                              />
-                              <p className={`mt-1.5 text-xs ${payoutErrors.title ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                                {payoutErrors.title || "Exactly as it appears in your JazzCash app."}
+                              >
+                                <UserIcon className="size-5 shrink-0 text-ink-subtle" />
+                                <input
+                                  id="jc-title"
+                                  type="text"
+                                  autoComplete="name"
+                                  placeholder="Name on the account"
+                                  value={draftDetails.jazzcash.title}
+                                  onChange={(e) => {
+                                    setDraftDetails((prev) => ({
+                                      ...prev,
+                                      jazzcash: { ...prev.jazzcash, title: e.target.value },
+                                    }));
+                                    if (payoutTouched.has("jazzcash.title")) {
+                                      const err = validatePayoutField("title", e.target.value);
+                                      setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setPayoutTouched((prev) => new Set(prev).add("jazzcash.title"));
+                                    const err = validatePayoutField("title", draftDetails.jazzcash.title);
+                                    setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
+                                  }}
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  aria-invalid={Boolean(payoutErrors.title)}
+                                  aria-describedby={payoutErrors.title ? "jc-title-error jc-title-hint" : "jc-title-hint"}
+                                />
+                                <span
+                                  className={`transition-opacity duration-200 ${
+                                    validTitle(draftDetails.jazzcash.title) === true
+                                      ? "opacity-100 text-m"
+                                      : "opacity-0 pointer-events-none"
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <CheckIcon className="size-4 stroke-[2.5]" />
+                                </span>
+                              </div>
+                              <p id="jc-title-hint" className={`mt-1.5 text-xs ${payoutErrors.title ? "hidden" : "text-ink-subtle"}`}>
+                                Exactly as it appears in your JazzCash app.
                               </p>
+                              {payoutErrors.title ? (
+                                <p id="jc-title-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                                  {payoutErrors.title}
+                                </p>
+                              ) : null}
                             </div>
                           </div>
                         )}
@@ -1133,151 +1503,215 @@ export function SettingsClient({
                               <label htmlFor="bk-name" className="block text-xs font-semibold text-ink mb-1.5">
                                 Bank name
                               </label>
-                              <input
-                                id="bk-name"
-                                type="text"
-                                list={bankDatalistId}
-                                placeholder="e.g. Meezan Bank"
-                                value={draftDetails.bank.bankName}
-                                onChange={(e) => {
-                                  setDraftDetails((prev) => ({
-                                    ...prev,
-                                    bank: { ...prev.bank, bankName: e.target.value },
-                                  }));
-                                  if (payoutTouched.has("bank.bankName")) {
-                                    const err = validatePayoutField("bankName", e.target.value);
-                                    setPayoutErrors((prev) => ({ ...prev, bankName: err || "" }));
-                                  }
-                                }}
-                                onBlur={() => {
-                                  setPayoutTouched((prev) => new Set(prev).add("bank.bankName"));
-                                  const err = validatePayoutField("bankName", draftDetails.bank.bankName);
-                                  setPayoutErrors((prev) => ({ ...prev, bankName: err || "" }));
-                                }}
-                                className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                              <div
+                                data-invalid={Boolean(payoutErrors.bankName)}
+                                className={`payout-input-field flex items-center gap-2.5 rounded-xl border px-3.5 h-12 bg-surface-muted/40 transition ${
                                   payoutErrors.bankName
-                                    ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
-                                    : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
+                                    ? "border-bad-ink ring-2 ring-bad-ink/20"
+                                    : "border-line-strong hover:border-m/60 focus-within:border-m focus-within:bg-surface focus-within:ring-2 focus-within:ring-m-ring"
                                 }`}
-                                aria-invalid={Boolean(payoutErrors.bankName)}
-                              />
+                              >
+                                <BuildingIcon className="size-5 shrink-0 text-ink-subtle" />
+                                <input
+                                  id="bk-name"
+                                  type="text"
+                                  list={bankDatalistId}
+                                  placeholder="e.g. Meezan Bank"
+                                  value={draftDetails.bank.bankName}
+                                  onChange={(e) => {
+                                    setDraftDetails((prev) => ({
+                                      ...prev,
+                                      bank: { ...prev.bank, bankName: e.target.value },
+                                    }));
+                                    if (payoutTouched.has("bank.bankName")) {
+                                      const err = validatePayoutField("bankName", e.target.value);
+                                      setPayoutErrors((prev) => ({ ...prev, bankName: err || "" }));
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setPayoutTouched((prev) => new Set(prev).add("bank.bankName"));
+                                    const err = validatePayoutField("bankName", draftDetails.bank.bankName);
+                                    setPayoutErrors((prev) => ({ ...prev, bankName: err || "" }));
+                                  }}
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  aria-invalid={Boolean(payoutErrors.bankName)}
+                                  aria-describedby={payoutErrors.bankName ? "bk-name-error bk-name-hint" : "bk-name-hint"}
+                                />
+                                <span
+                                  className={`transition-opacity duration-200 ${
+                                    validBankName(draftDetails.bank.bankName) === true
+                                      ? "opacity-100 text-m"
+                                      : "opacity-0 pointer-events-none"
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <CheckIcon className="size-4 stroke-[2.5]" />
+                                </span>
+                              </div>
                               <datalist id={bankDatalistId}>
                                 {PAKISTAN_BANKS.map((bank) => (
                                   <option key={bank} value={bank} />
                                 ))}
                               </datalist>
-                              <p className={`mt-1.5 text-xs ${payoutErrors.bankName ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                                {payoutErrors.bankName || "Start typing to pick from common banks."}
+                              <p id="bk-name-hint" className={`mt-1.5 text-xs ${payoutErrors.bankName ? "hidden" : "text-ink-subtle"}`}>
+                                Start typing to pick from common banks.
                               </p>
+                              {payoutErrors.bankName ? (
+                                <p id="bk-name-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                                  {payoutErrors.bankName}
+                                </p>
+                              ) : null}
                             </div>
 
                             <div>
                               <label htmlFor="bk-title" className="block text-xs font-semibold text-ink mb-1.5">
                                 Account title
                               </label>
-                              <input
-                                id="bk-title"
-                                type="text"
-                                autoComplete="name"
-                                placeholder="Name on the account"
-                                value={draftDetails.bank.title}
-                                onChange={(e) => {
-                                  setDraftDetails((prev) => ({
-                                    ...prev,
-                                    bank: { ...prev.bank, title: e.target.value },
-                                  }));
-                                  if (payoutTouched.has("bank.title")) {
-                                    const err = validatePayoutField("title", e.target.value);
-                                    setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
-                                  }
-                                }}
-                                onBlur={() => {
-                                  setPayoutTouched((prev) => new Set(prev).add("bank.title"));
-                                  const err = validatePayoutField("title", draftDetails.bank.title);
-                                  setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
-                                }}
-                                className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                              <div
+                                data-invalid={Boolean(payoutErrors.title)}
+                                className={`payout-input-field flex items-center gap-2.5 rounded-xl border px-3.5 h-12 bg-surface-muted/40 transition ${
                                   payoutErrors.title
-                                    ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
-                                    : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
+                                    ? "border-bad-ink ring-2 ring-bad-ink/20"
+                                    : "border-line-strong hover:border-m/60 focus-within:border-m focus-within:bg-surface focus-within:ring-2 focus-within:ring-m-ring"
                                 }`}
-                                aria-invalid={Boolean(payoutErrors.title)}
-                              />
-                              <p className={`mt-1.5 text-xs ${payoutErrors.title ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                                {payoutErrors.title || "Exactly as it appears on your bank statement."}
+                              >
+                                <UserIcon className="size-5 shrink-0 text-ink-subtle" />
+                                <input
+                                  id="bk-title"
+                                  type="text"
+                                  autoComplete="name"
+                                  placeholder="Name on the account"
+                                  value={draftDetails.bank.title}
+                                  onChange={(e) => {
+                                    setDraftDetails((prev) => ({
+                                      ...prev,
+                                      bank: { ...prev.bank, title: e.target.value },
+                                    }));
+                                    if (payoutTouched.has("bank.title")) {
+                                      const err = validatePayoutField("title", e.target.value);
+                                      setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setPayoutTouched((prev) => new Set(prev).add("bank.title"));
+                                    const err = validatePayoutField("title", draftDetails.bank.title);
+                                    setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
+                                  }}
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  aria-invalid={Boolean(payoutErrors.title)}
+                                  aria-describedby={payoutErrors.title ? "bk-title-error bk-title-hint" : "bk-title-hint"}
+                                />
+                                <span
+                                  className={`transition-opacity duration-200 ${
+                                    validTitle(draftDetails.bank.title) === true
+                                      ? "opacity-100 text-m"
+                                      : "opacity-0 pointer-events-none"
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <CheckIcon className="size-4 stroke-[2.5]" />
+                                </span>
+                              </div>
+                              <p id="bk-title-hint" className={`mt-1.5 text-xs ${payoutErrors.title ? "hidden" : "text-ink-subtle"}`}>
+                                Exactly as it appears on your bank statement.
                               </p>
+                              {payoutErrors.title ? (
+                                <p id="bk-title-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                                  {payoutErrors.title}
+                                </p>
+                              ) : null}
                             </div>
 
                             <div className="sm:col-span-2">
                               <label htmlFor="bk-iban" className="block text-xs font-semibold text-ink mb-1.5">
                                 IBAN
                               </label>
-                              <input
-                                id="bk-iban"
-                                type="text"
-                                maxLength={29}
-                                placeholder="PK36 SCBL 0000 0011 2345 6702"
-                                value={draftDetails.bank.iban}
-                                onChange={(e) => {
-                                  const formatted = formatIban(e.target.value);
-                                  setDraftDetails((prev) => ({
-                                    ...prev,
-                                    bank: { ...prev.bank, iban: formatted },
-                                  }));
-                                  if (payoutTouched.has("bank.iban")) {
-                                    const err = validatePayoutField("iban", formatted);
-                                    setPayoutErrors((prev) => ({ ...prev, iban: err || "" }));
-                                  }
-                                }}
-                                onBlur={() => {
-                                  setPayoutTouched((prev) => new Set(prev).add("bank.iban"));
-                                  const err = validatePayoutField("iban", draftDetails.bank.iban);
-                                  setPayoutErrors((prev) => ({ ...prev, iban: err || "" }));
-                                }}
-                                className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm tabular-nums text-ink outline-none transition placeholder:text-ink-subtle ${
+                              <div
+                                data-invalid={Boolean(payoutErrors.iban)}
+                                className={`payout-input-field flex items-center gap-2.5 rounded-xl border px-3.5 h-12 bg-surface-muted/40 transition ${
                                   payoutErrors.iban
-                                    ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
-                                    : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
+                                    ? "border-bad-ink ring-2 ring-bad-ink/20"
+                                    : "border-line-strong hover:border-m/60 focus-within:border-m focus-within:bg-surface focus-within:ring-2 focus-within:ring-m-ring"
                                 }`}
-                                aria-invalid={Boolean(payoutErrors.iban)}
-                              />
-                              <p className={`mt-1.5 text-xs ${payoutErrors.iban ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                                {payoutErrors.iban || "24 characters, starting with PK. You can find it in your banking app."}
+                              >
+                                <CreditCardIcon className="size-5 shrink-0 text-ink-subtle" />
+                                <input
+                                  id="bk-iban"
+                                  type="text"
+                                  maxLength={29}
+                                  placeholder="PK36 SCBL 0000 0011 2345 6702"
+                                  value={draftDetails.bank.iban}
+                                  onChange={(e) => {
+                                    const formatted = formatIban(e.target.value);
+                                    setDraftDetails((prev) => ({
+                                      ...prev,
+                                      bank: { ...prev.bank, iban: formatted },
+                                    }));
+                                    if (payoutTouched.has("bank.iban")) {
+                                      const err = validatePayoutField("iban", formatted);
+                                      setPayoutErrors((prev) => ({ ...prev, iban: err || "" }));
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setPayoutTouched((prev) => new Set(prev).add("bank.iban"));
+                                    const err = validatePayoutField("iban", draftDetails.bank.iban);
+                                    setPayoutErrors((prev) => ({ ...prev, iban: err || "" }));
+                                  }}
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm tabular-nums text-ink placeholder:text-ink-subtle"
+                                  aria-invalid={Boolean(payoutErrors.iban)}
+                                  aria-describedby={payoutErrors.iban ? "bk-iban-error bk-iban-hint" : "bk-iban-hint"}
+                                />
+                                <span
+                                  className={`transition-opacity duration-200 ${
+                                    validIban(draftDetails.bank.iban) === true
+                                      ? "opacity-100 text-m"
+                                      : "opacity-0 pointer-events-none"
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <CheckIcon className="size-4 stroke-[2.5]" />
+                                </span>
+                              </div>
+                              <p id="bk-iban-hint" className={`mt-1.5 text-xs ${payoutErrors.iban ? "hidden" : "text-ink-subtle"}`}>
+                                24 characters, starting with PK. You can find it in your banking app.
                               </p>
+                              {payoutErrors.iban ? (
+                                <p id="bk-iban-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                                  {payoutErrors.iban}
+                                </p>
+                              ) : null}
                             </div>
                           </div>
                         )}
 
-                        {/* Privacy Statement */}
-                        <div className="mt-5 flex items-start gap-2 text-xs text-ink-muted">
-                          <svg className="size-4 shrink-0 mt-0.5 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <rect x="5" y="10.5" width="14" height="9.5" rx="2.5" />
-                            <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
-                          </svg>
-                          <span>
-                            Only merchants running programs you belong to can view this information, and only when preparing your payout.
-                          </span>
-                        </div>
+                        {/* Footer Divider, Privacy Note & Submit Button */}
+                        <div className="mt-6 pt-5 border-t border-dashed border-line flex items-center justify-between gap-4 flex-wrap">
+                          <div className="flex items-center gap-2 text-xs text-ink-muted max-w-md">
+                            <LockIcon className="size-4 shrink-0 text-m" />
+                            <span>
+                              Only merchants running programs you belong to can view this information, and only when preparing your payout.
+                            </span>
+                          </div>
 
-                        {/* Submit Button */}
-                        <div className="mt-6 flex items-center gap-4">
-                          <button
-                            type="submit"
-                            disabled={!isPayoutDirty || payoutPending}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-subtle cursor-pointer"
-                          >
-                            {payoutPending ? (
-                              <>
-                                <SpinnerIcon className="size-4" />
-                                <span>Saving…</span>
-                              </>
-                            ) : (
-                              <span>Save payout details</span>
-                            )}
-                          </button>
-                          {isPayoutDirty ? (
-                            <span className="text-xs text-ink-subtle">Unsaved changes</span>
-                          ) : null}
+                          <div className="flex items-center gap-3">
+                            {isPayoutDirty ? (
+                              <span className="text-xs text-warn-ink font-medium">Unsaved changes</span>
+                            ) : null}
+                            <button
+                              type="submit"
+                              disabled={!isPayoutDirty || payoutPending}
+                              className="payout-save-btn inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-2xs transition disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-subtle cursor-pointer hover:brightness-105 active:scale-[0.98]"
+                            >
+                              {payoutPending ? (
+                                <>
+                                  <SpinnerIcon className="size-4" />
+                                  <span>Saving…</span>
+                                </>
+                              ) : (
+                                <span>Save payout details</span>
+                              )}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1285,7 +1719,7 @@ export function SettingsClient({
                 </div>
 
                 {/* Remove Payout Details Row */}
-                {payoutSaved.method ? (
+                {Boolean(payoutSaved.method || isLegacyMethod) ? (
                   <div className="border-t border-line px-6 md:px-8 py-5 flex flex-wrap items-center justify-between gap-4 bg-surface-muted/30">
                     <div className="flex-1 min-w-[15rem]">
                       <p className="text-sm font-semibold text-ink">Remove payout details</p>
@@ -1294,9 +1728,13 @@ export function SettingsClient({
                       </p>
                     </div>
                     <button
+                      ref={removeTriggerRef}
                       type="button"
-                      onClick={() => setIsRemoveDialogOpen(true)}
-                      className="inline-flex items-center justify-center rounded-xl bg-bad-surface px-4 py-2 text-xs font-semibold text-bad-ink transition hover:opacity-90 cursor-pointer"
+                      onClick={() => {
+                        setRemoveError(null);
+                        setIsRemoveDialogOpen(true);
+                      }}
+                      className="inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-950/70 px-4 py-2 text-xs font-semibold transition cursor-pointer"
                     >
                       Remove details
                     </button>
@@ -1310,7 +1748,13 @@ export function SettingsClient({
               PANEL 3: EMAIL ADDRESS
              ========================================================= */}
           {activeTab === "email" && (
-            <section className="animate-panel-in" role="tabpanel">
+            <section
+              id="panel-email"
+              role="tabpanel"
+              aria-labelledby="tab-email"
+              tabIndex={0}
+              className="animate-panel-in focus:outline-none"
+            >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Email address</h2>
                 <p className="mt-1.5 text-sm text-ink-muted">What you sign in with.</p>
@@ -1337,10 +1781,16 @@ export function SettingsClient({
                           : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
                       }`}
                       aria-invalid={Boolean(emailErrors.email)}
+                      aria-describedby={emailErrors.email ? "account-email-error account-email-hint" : "account-email-hint"}
                     />
-                    <p className={`mt-1.5 text-xs ${emailErrors.email ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                      {emailErrors.email || "This is what you sign in with."}
+                    <p id="account-email-hint" className={`mt-1.5 text-xs ${emailErrors.email ? "hidden" : "text-ink-subtle"}`}>
+                      This is what you sign in with.
                     </p>
+                    {emailErrors.email ? (
+                      <p id="account-email-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                        {emailErrors.email}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div>
@@ -1363,6 +1813,7 @@ export function SettingsClient({
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
                         }`}
                         aria-invalid={Boolean(emailErrors.password)}
+                        aria-describedby={emailErrors.password ? "email-current-pw-error email-current-pw-hint" : "email-current-pw-hint"}
                       />
                       <button
                         type="button"
@@ -1373,9 +1824,14 @@ export function SettingsClient({
                         {showEmailPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
                       </button>
                     </div>
-                    <p className={`mt-1.5 text-xs ${emailErrors.password ? "text-bad-ink font-medium" : "text-ink-subtle"}`}>
-                      {emailErrors.password || "Required: changing your email changes how you sign in."}
+                    <p id="email-current-pw-hint" className={`mt-1.5 text-xs ${emailErrors.password ? "hidden" : "text-ink-subtle"}`}>
+                      Required: changing your email changes how you sign in.
                     </p>
+                    {emailErrors.password ? (
+                      <p id="email-current-pw-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                        {emailErrors.password}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="pt-2 flex items-center gap-4">
@@ -1406,7 +1862,13 @@ export function SettingsClient({
               PANEL 4: PASSWORD
              ========================================================= */}
           {activeTab === "password" && (
-            <section className="animate-panel-in" role="tabpanel">
+            <section
+              id="panel-password"
+              role="tabpanel"
+              aria-labelledby="tab-password"
+              tabIndex={0}
+              className="animate-panel-in focus:outline-none"
+            >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Password</h2>
                 <p className="mt-1.5 text-sm text-ink-muted">
@@ -1435,6 +1897,7 @@ export function SettingsClient({
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
                         }`}
                         aria-invalid={Boolean(pwErrors.current)}
+                        aria-describedby={pwErrors.current ? "pw-current-error" : undefined}
                       />
                       <button
                         type="button"
@@ -1446,7 +1909,9 @@ export function SettingsClient({
                       </button>
                     </div>
                     {pwErrors.current ? (
-                      <p className="mt-1.5 text-xs text-bad-ink font-medium">{pwErrors.current}</p>
+                      <p id="pw-current-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                        {pwErrors.current}
+                      </p>
                     ) : null}
                   </div>
 
@@ -1471,6 +1936,7 @@ export function SettingsClient({
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
                         }`}
                         aria-invalid={Boolean(pwErrors.new)}
+                        aria-describedby={pwErrors.new ? "pw-new-error pw-requirements pw-suggestions" : "pw-requirements pw-suggestions"}
                       />
                       <button
                         type="button"
@@ -1501,42 +1967,61 @@ export function SettingsClient({
                       </span>
                     </div>
 
-                    {/* Requirements checklist */}
-                    <ul className="mt-3 space-y-1.5 text-xs">
-                      <li className={`flex items-center gap-2 transition ${PW_RULES.length(pwNew) ? "text-ink font-medium" : "text-ink-subtle"}`}>
-                        <span
-                          className={`size-4 rounded-full border flex items-center justify-center transition ${
-                            PW_RULES.length(pwNew) ? "bg-ok-ink border-ok-ink text-white" : "border-line-strong text-transparent"
-                          }`}
-                        >
-                          <CheckIcon className="size-2.5" />
-                        </span>
-                        <span>At least 8 characters</span>
-                      </li>
-                      <li className={`flex items-center gap-2 transition ${PW_RULES.case(pwNew) ? "text-ink font-medium" : "text-ink-subtle"}`}>
-                        <span
-                          className={`size-4 rounded-full border flex items-center justify-center transition ${
-                            PW_RULES.case(pwNew) ? "bg-ok-ink border-ok-ink text-white" : "border-line-strong text-transparent"
-                          }`}
-                        >
-                          <CheckIcon className="size-2.5" />
-                        </span>
-                        <span>Upper and lower case letters</span>
-                      </li>
-                      <li className={`flex items-center gap-2 transition ${PW_RULES.digit(pwNew) ? "text-ink font-medium" : "text-ink-subtle"}`}>
-                        <span
-                          className={`size-4 rounded-full border flex items-center justify-center transition ${
-                            PW_RULES.digit(pwNew) ? "bg-ok-ink border-ok-ink text-white" : "border-line-strong text-transparent"
-                          }`}
-                        >
-                          <CheckIcon className="size-2.5" />
-                        </span>
-                        <span>A number or symbol</span>
-                      </li>
-                    </ul>
+                    {/* Requirements checklist (separated mandatory requirement from suggestions) */}
+                    <div className="mt-3.5 space-y-2.5 text-xs">
+                      <div>
+                        <span className="block font-semibold text-ink mb-1.5">Requirement</span>
+                        <ul id="pw-requirements" className="space-y-1.5">
+                          <li className={`flex items-center gap-2 transition ${PW_RULES.length(pwNew) ? "text-ink font-medium" : "text-ink-subtle"}`}>
+                            <span
+                              className={`size-4 rounded-full border flex items-center justify-center transition ${
+                                PW_RULES.length(pwNew)
+                                  ? "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500 dark:text-neutral-950"
+                                  : "border-line-strong text-transparent"
+                              }`}
+                            >
+                              <CheckIcon className="size-2.5" />
+                            </span>
+                            <span>At least 8 characters <span className="text-ink-subtle font-normal">(required)</span></span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <span className="block font-semibold text-ink-muted mb-1.5">Suggestions for strength</span>
+                        <ul id="pw-suggestions" className="space-y-1.5">
+                          <li className={`flex items-center gap-2 transition ${PW_RULES.case(pwNew) ? "text-ink font-medium" : "text-ink-subtle"}`}>
+                            <span
+                              className={`size-4 rounded-full border flex items-center justify-center transition ${
+                                PW_RULES.case(pwNew)
+                                  ? "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500 dark:text-neutral-950"
+                                  : "border-line-strong text-transparent"
+                              }`}
+                            >
+                              <CheckIcon className="size-2.5" />
+                            </span>
+                            <span>Upper and lower case letters</span>
+                          </li>
+                          <li className={`flex items-center gap-2 transition ${PW_RULES.digit(pwNew) ? "text-ink font-medium" : "text-ink-subtle"}`}>
+                            <span
+                              className={`size-4 rounded-full border flex items-center justify-center transition ${
+                                PW_RULES.digit(pwNew)
+                                  ? "bg-emerald-600 border-emerald-600 text-white dark:bg-emerald-500 dark:border-emerald-500 dark:text-neutral-950"
+                                  : "border-line-strong text-transparent"
+                              }`}
+                            >
+                              <CheckIcon className="size-2.5" />
+                            </span>
+                            <span>A number or symbol</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
 
                     {pwErrors.new ? (
-                      <p className="mt-1.5 text-xs text-bad-ink font-medium">{pwErrors.new}</p>
+                      <p id="pw-new-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                        {pwErrors.new}
+                      </p>
                     ) : null}
                   </div>
 
@@ -1561,6 +2046,7 @@ export function SettingsClient({
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
                         }`}
                         aria-invalid={Boolean(pwErrors.confirm)}
+                        aria-describedby={pwErrors.confirm ? "pw-confirm-error" : undefined}
                       />
                       <button
                         type="button"
@@ -1572,7 +2058,9 @@ export function SettingsClient({
                       </button>
                     </div>
                     {pwErrors.confirm ? (
-                      <p className="mt-1.5 text-xs text-bad-ink font-medium">{pwErrors.confirm}</p>
+                      <p id="pw-confirm-error" role="alert" className="mt-1.5 text-xs text-bad-ink font-medium">
+                        {pwErrors.confirm}
+                      </p>
                     ) : null}
                   </div>
 
@@ -1605,31 +2093,43 @@ export function SettingsClient({
       {/* Remove Confirmation Modal Sheet */}
       {isRemoveDialogOpen && (
         <div
+          ref={removeBackdropRef}
           role="dialog"
           aria-labelledby="remove-dialog-title"
+          aria-describedby="remove-dialog-desc"
           aria-modal="true"
+          onClick={(e) => {
+            if (e.target === removeBackdropRef.current) closeRemoveDialog();
+          }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-panel-in"
         >
           <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl">
             <h3 id="remove-dialog-title" className="text-lg font-bold tracking-tight text-ink">
               Remove payout details?
             </h3>
-            <p className="mt-2 text-sm text-ink-muted leading-relaxed">
+            <p id="remove-dialog-desc" className="mt-2 text-sm text-ink-muted leading-relaxed">
               Merchants won&apos;t be able to pay you until you add new details. Everything you&apos;ve already earned is unaffected.
             </p>
+            {removeError ? (
+              <div role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 dark:border-rose-900/50 dark:bg-rose-950/40 p-3 text-xs text-rose-700 dark:text-rose-300 font-medium">
+                {removeError}
+              </div>
+            ) : null}
             <div className="mt-6 flex justify-end gap-2.5">
               <button
+                ref={removeCancelBtnRef}
                 type="button"
-                onClick={() => setIsRemoveDialogOpen(false)}
+                onClick={closeRemoveDialog}
                 className="inline-flex items-center justify-center rounded-xl border border-line bg-surface-muted px-4 py-2 text-xs font-semibold text-ink-muted hover:text-ink transition cursor-pointer"
               >
                 Keep details
               </button>
               <button
+                ref={removeConfirmBtnRef}
                 type="button"
                 onClick={handleRemovePayout}
                 disabled={removePending}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-bad-ink px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs dark:bg-rose-600 dark:hover:bg-rose-500 px-4 py-2 text-xs transition disabled:opacity-50 cursor-pointer"
               >
                 {removePending ? <SpinnerIcon className="size-3.5" /> : null}
                 <span>Remove</span>

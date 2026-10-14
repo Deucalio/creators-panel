@@ -11,16 +11,17 @@ The product spans **two separate applications** that share one Postgres database
 
 ## Status at a glance — 14 October 2026
 
-| | |
-|---|---|
-| Features | Phases 1–18 built. Open: password reset (B1) and email verification (F2), both blocked on a sending domain. |
-| Automated tests | `npm test` in each app — 56 merchant, 36 portal, no database needed. See "Automated review — 2026-10-13". |
-| Database | Schema in sync: `Commission.terms`, `Store.primaryDomain` and `Store.name` were pushed on 2026-10-14. |
-| Creator portal | Reviewed screen by screen on 2026-10-14 — see "Creator portal review — 2026-10-14". Roughly 85% feature-complete; the gaps are password reset, email, and creator-facing privacy terms and account deletion. |
+|                 |                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Features        | Phases 1–18 built. Open: password reset (B1) and email verification (F2), both blocked on a sending domain.                                                                                                                                                                                                                                                         |
+| Automated tests | `npm test` in each app — 56 merchant, 36 portal, no database needed. See "Automated review — 2026-10-13".                                                                                                                                                                                                                                                        |
+| Database        | Schema in sync: `Commission.terms`, `Store.primaryDomain` and `Store.name` were pushed on 2026-10-14.                                                                                                                                                                                                                                                          |
+| Creator portal  | Reviewed screen by screen on 2026-10-14 — see "Creator portal review — 2026-10-14". Roughly 85% feature-complete; the gaps are password reset, email, and creator-facing privacy terms and account deletion.                                                                                                                                                       |
 | Portal redesign | In progress (sidebar shell, new Overview, filters, payouts grouping). UI/UX audit: [PartnerLoop Creator Portal — UI/UX Audit](https://claude.ai/code/artifact/f332c46f-9fda-4ffd-a867-e3de5353f8a5). Reviewed again on 2026-10-14 after the latest redesign commits — see "Redesign review — 2026-10-14". Issues: `tests.md`, "Found in testing, not fixed yet". |
-| Manual testing | Live run on 2026-10-14 with both apps up — see "Live testing — 2026-10-14". Setup done; storefront click tracking and the creator-facing pages pass. Left for you: the coupon (A3), the Shopify admin checks (B), real orders and refunds (C). |
-| Launch blockers | `application_url` placeholder, no hosting for either app, Protected Customer Data access not requested, billing gate off. See `tests.md`, "Open decisions". |
-| Version control | Both repos committed on 2026-10-14, including the click-tracking and hydration fixes. The docs now live in `creators-panel/docs/`. `dev.log` should not be committed. |
+| Manual testing  | Live run on 2026-10-14 with both apps up — see "Live testing — 2026-10-14". Setup done; storefront click tracking and the creator-facing pages pass. Left for you: the coupon (A3), the Shopify admin checks (B), real orders and refunds (C).                                                                                                                     |
+| Launch blockers | `application_url` placeholder, no hosting for either app, Protected Customer Data access not requested, billing gate off. See `tests.md`, "Open decisions".                                                                                                                                                                                                      |
+| Version control | Both repos committed on 2026-10-14, including the click-tracking and hydration fixes. The docs now live in `creators-panel/docs/`. `dev.log` should not be committed.                                                                                                                                                                                            |
+
 ---
 
 ## Repository layout
@@ -34,18 +35,18 @@ promote/
 
 Each subdirectory is its **own git repository**. `promote/` itself is not version-controlled.
 
-| | `partner-loop-creator-growth` | `creators-panel` |
-|---|---|---|
-| Audience | Store owner, inside Shopify Admin | Creators / influencers, public web |
-| Framework | React Router 7 (framework mode) | Next.js 16 (App Router, Turbopack) |
-| React | 18.3 | 19.2 |
-| UI | Shopify Polaris 13 + App Bridge | Tailwind CSS v4 |
-| Language | JavaScript (JSX) | TypeScript |
-| ORM | Prisma 6.19.3 | Prisma 6.19.3 |
-| Dev port | via `shopify app dev` (tunnelled) | 3001 |
-| Routes | `/app`, `/app/programs`, `/app/creators`, `/app/commissions`, `/app/payouts`, `/privacy` | `/join/[programId]`, `/login`, `/dashboard` (+ `earnings`, `payouts`, `program`, `links`, `settings`) |
-| Tests | `npm test` (node:test, in-memory fake DB) | `npm test` (node:test) |
-| Owns the DB schema | **Yes** | No — read/write only |
+|                    | `partner-loop-creator-growth`                                                                      | `creators-panel`                                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Audience           | Store owner, inside Shopify Admin                                                                    | Creators / influencers, public web                                                                                    |
+| Framework          | React Router 7 (framework mode)                                                                      | Next.js 16 (App Router, Turbopack)                                                                                    |
+| React              | 18.3                                                                                                 | 19.2                                                                                                                  |
+| UI                 | Shopify Polaris 13 + App Bridge                                                                      | Tailwind CSS v4                                                                                                       |
+| Language           | JavaScript (JSX)                                                                                     | TypeScript                                                                                                            |
+| ORM                | Prisma 6.19.3                                                                                        | Prisma 6.19.3                                                                                                         |
+| Dev port           | via `shopify app dev` (tunnelled)                                                                  | 3001                                                                                                                  |
+| Routes             | `/app`, `/app/programs`, `/app/creators`, `/app/commissions`, `/app/payouts`, `/privacy` | `/join/[programId]`, `/login`, `/dashboard` (+ `earnings`, `payouts`, `program`, `links`, `settings`) |
+| Tests              | `npm test` (node:test, in-memory fake DB)                                                          | `npm test` (node:test)                                                                                              |
+| Owns the DB schema | **Yes**                                                                                        | No — read/write only                                                                                                 |
 
 ---
 
@@ -107,44 +108,44 @@ and three memberships, so signing in is unambiguous and each merchant's earnings
 
 Every downstream entity carries a status enum driving an approval workflow:
 
-| Model | Statuses |
-|---|---|
-| `Program` | `ACTIVE`, `INACTIVE` |
-| `Creator` | `PENDING` → `ACTIVE` / `REJECTED` / `INACTIVE` |
-| `Referral` | `PENDING` → `APPROVED` / `REJECTED` |
-| `Commission` | `PENDING` → `APPROVED` → `PAID` / `REJECTED` |
-| `Payout` | `PENDING` → `PROCESSING` → `PAID` / `FAILED` |
+| Model          | Statuses                                                |
+| -------------- | ------------------------------------------------------- |
+| `Program`    | `ACTIVE`, `INACTIVE`                                |
+| `Creator`    | `PENDING` → `ACTIVE` / `REJECTED` / `INACTIVE` |
+| `Referral`   | `PENDING` → `APPROVED` / `REJECTED`              |
+| `Commission` | `PENDING` → `APPROVED` → `PAID` / `REJECTED`  |
+| `Payout`     | `PENDING` → `PROCESSING` → `PAID` / `FAILED`  |
 
 ### Schema changes made so far
 
-| Model | Field | Purpose |
-|---|---|---|
-| `Store` | `currencyCode String @default("USD")` | Mirrored from Shopify so the portal can format money |
-| `CreatorAccount` | *(new model)* | Identity + credentials, `email` globally unique |
-| `Creator` | `accountId String` | Now a membership pointing at an account |
-| `Creator` | `referralCode String @unique` | Public tracking slug (`?ref=…`) and coupon code |
-| `Creator` | `approvedAt DateTime?` | Set when a merchant approves the application |
-| `Creator` | `@@unique([accountId, programId])` | An account joins a program at most once |
+| Model              | Field                                   | Purpose                                              |
+| ------------------ | --------------------------------------- | ---------------------------------------------------- |
+| `Store`          | `currencyCode String @default("USD")` | Mirrored from Shopify so the portal can format money |
+| `CreatorAccount` | *(new model)*                         | Identity + credentials, `email` globally unique    |
+| `Creator`        | `accountId String`                    | Now a membership pointing at an account              |
+| `Creator`        | `referralCode String @unique`         | Public tracking slug (`?ref=…`) and coupon code   |
+| `Creator`        | `approvedAt DateTime?`                | Set when a merchant approves the application         |
+| `Creator`        | `@@unique([accountId, programId])`    | An account joins a program at most once              |
 
 Removed from `Creator` when `CreatorAccount` landed: `firstName`, `lastName`, `email`,
 `passwordHash` (all moved to the account), and the old `@@unique([programId, email])`.
 
 Added during the creator-portal rework (2026-09-07), both nullable and therefore additive:
 
-| Model | Change | Why |
-|---|---|---|
-| `CreatorAccount` | `payoutMethod String?` | How the creator wants to be paid, free text mirroring `Payout.method` (Phase 12) |
-| `CreatorAccount` | `payoutDetails String?` | Whatever that method needs — IBAN, account number, transfer email (Phase 12) |
-| `ProductCommissionRule` | `productHandle String?` | Storefront handle, so the portal can build `/products/<handle>?ref=CODE` without Admin API credentials (Phase 13) |
-| *(new model)* | `LoginAttempt` | Failed creator sign-ins, for throttling. Pruned on every check; never grows (Phase 14) |
-| `TrackingConfig` | `couponDiscountType DiscountType?`, `couponDiscountValue Float?` | What the *shopper* saves with a creator's code — unrelated to the commission (Phase 5) |
-| `Creator` | `discountNodeId String?` | Shopify GID of that creator's discount, so it can be deactivated and reinstated rather than orphaned (Phase 5) |
-| *(new enum)* | `DiscountType { PERCENTAGE, FIXED_AMOUNT }` | Customer-facing discount; `CommissionType`'s FIXED_PER_ITEM has no meaning for a discount code (Phase 5) |
-| `Creator` | `statusReason String?` | Why a membership is not active, quoted to the creator. Covers paused as well as rejected, hence not `rejectionReason` (Phase 15) |
-| `Store` | `supportEmail String?` | Shopify's customer-facing `Shop.contactEmail`, mirrored so the portal can tell a creator *how* to reach the merchant (Phase 17) |
-| `Commission` | `terms Json?` | The pricing terms the commission was earned under, frozen at attribution — rates, overrides and the customer type. Refunds re-price through these (review, 2026-10-13) |
-| `Store` | `primaryDomain String?` | The storefront's own domain (`brand.com`), mirrored like currency, so the portal accepts and builds links on it (review, 2026-10-13) |
-| `Store` | `name String?` | The shop's own name (`Shop.name`), mirrored at onboarding and on dashboard load, so the portal stops calling the store "quickstart-65d173cf" (portal review, 2026-10-14) |
+| Model                     | Change                                                               | Why                                                                                                                                                                        |
+| ------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CreatorAccount`        | `payoutMethod String?`                                             | How the creator wants to be paid, free text mirroring `Payout.method` (Phase 12)                                                                                         |
+| `CreatorAccount`        | `payoutDetails String?`                                            | Whatever that method needs — IBAN, account number, transfer email (Phase 12)                                                                                              |
+| `ProductCommissionRule` | `productHandle String?`                                            | Storefront handle, so the portal can build `/products/<handle>?ref=CODE` without Admin API credentials (Phase 13)                                                        |
+| *(new model)*           | `LoginAttempt`                                                     | Failed creator sign-ins, for throttling. Pruned on every check; never grows (Phase 14)                                                                                     |
+| `TrackingConfig`        | `couponDiscountType DiscountType?`, `couponDiscountValue Float?` | What the *shopper* saves with a creator's code — unrelated to the commission (Phase 5)                                                                                  |
+| `Creator`               | `discountNodeId String?`                                           | Shopify GID of that creator's discount, so it can be deactivated and reinstated rather than orphaned (Phase 5)                                                             |
+| *(new enum)*            | `DiscountType { PERCENTAGE, FIXED_AMOUNT }`                        | Customer-facing discount; `CommissionType`'s FIXED_PER_ITEM has no meaning for a discount code (Phase 5)                                                                 |
+| `Creator`               | `statusReason String?`                                             | Why a membership is not active, quoted to the creator. Covers paused as well as rejected, hence not `rejectionReason` (Phase 15)                                         |
+| `Store`                 | `supportEmail String?`                                             | Shopify's customer-facing `Shop.contactEmail`, mirrored so the portal can tell a creator *how* to reach the merchant (Phase 17)                                        |
+| `Commission`            | `terms Json?`                                                      | The pricing terms the commission was earned under, frozen at attribution — rates, overrides and the customer type. Refunds re-price through these (review, 2026-10-13)    |
+| `Store`                 | `primaryDomain String?`                                            | The storefront's own domain (`brand.com`), mirrored like currency, so the portal accepts and builds links on it (review, 2026-10-13)                                     |
+| `Store`                 | `name String?`                                                     | The shop's own name (`Shop.name`), mirrored at onboarding and on dashboard load, so the portal stops calling the store "quickstart-65d173cf" (portal review, 2026-10-14) |
 
 `payoutDetails` is the first financial record the app stores about anyone; the privacy policy names
 it explicitly. `productHandle` is backfilled for pre-existing rules by the program editor's loader.
@@ -228,20 +229,20 @@ Scaffolded independently as Next.js 16. Prisma 6 added on top.
 
 **Library layer** — `lib/`
 
-| File | Purpose |
-|---|---|
-| `db.ts` | Prisma client singleton, reused across dev hot reloads so the shared pool is not exhausted |
-| `password.ts` | scrypt hashing via `node:crypto` — memory-hard, no extra dependency. Format: `scrypt$<salt>$<key>` |
-| `referral-code.ts` | Codes like `SARAHBYPQ` from an unambiguous alphabet (no `O`/`0`, `I`/`1`, `L`) |
-| `money.ts` | `Intl.NumberFormat` with a fallback, since Intl throws on unknown currency codes |
+| File                 | Purpose                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| `db.ts`            | Prisma client singleton, reused across dev hot reloads so the shared pool is not exhausted              |
+| `password.ts`      | scrypt hashing via `node:crypto` — memory-hard, no extra dependency. Format: `scrypt$<salt>$<key>` |
+| `referral-code.ts` | Codes like `SARAHBYPQ` from an unambiguous alphabet (no `O`/`0`, `I`/`1`, `L`)              |
+| `money.ts`         | `Intl.NumberFormat` with a fallback, since Intl throws on unknown currency codes                      |
 
 **Registration page** — `app/join/[programId]/`
 
-| File | Role |
-|---|---|
-| `page.tsx` | Server Component: loads program + store, renders program summary and form |
-| `actions.ts` | `registerCreator` Server Action: validation, creation, collision retry |
-| `registration-form.tsx` | Client Component: `useActionState` for field errors and pending state |
+| File                      | Role                                                                      |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `page.tsx`              | Server Component: loads program + store, renders program summary and form |
+| `actions.ts`            | `registerCreator` Server Action: validation, creation, collision retry  |
+| `registration-form.tsx` | Client Component: `useActionState` for field errors and pending state   |
 
 Built against the local Next 16 docs in `node_modules/next/dist/docs/`, as the project's
 `AGENTS.md` requires — `params` awaited as a Promise, `PageProps<'/join/[programId]'>` typed route
@@ -297,13 +298,13 @@ the cart attribute, and it is the load-bearing part of this phase.
               Click row (via App Proxy)
 ```
 
-| Piece | Location |
-|---|---|
-| `Click` model | canonical schema, synced to the portal |
-| App Proxy | `[app_proxy]` in `shopify.app.toml` — `/apps/partnerloop/*` → `<app>/proxy/*` |
-| Click endpoint | `app/routes/proxy.track.jsx` + `app/services/tracking.server.js` |
-| Storefront embed | `extensions/partnerloop-tracking/` (app embed block + vanilla JS asset) |
-| Embed detection | `app/services/embed-status.server.js`, surfaced as a dashboard banner |
+| Piece            | Location                                                                                |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| `Click` model  | canonical schema, synced to the portal                                                  |
+| App Proxy        | `[app_proxy]` in `shopify.app.toml` — `/apps/partnerloop/*` → `<app>/proxy/*` |
+| Click endpoint   | `app/routes/proxy.track.jsx` + `app/services/tracking.server.js`                    |
+| Storefront embed | `extensions/partnerloop-tracking/` (app embed block + vanilla JS asset)               |
+| Embed detection  | `app/services/embed-status.server.js`, surfaced as a dashboard banner                 |
 
 Decisions worth keeping in mind:
 
@@ -337,13 +338,13 @@ Not in this phase, by design: order attribution, commission creation, coupon tra
 
 A referred order becomes a `Referral` plus a `Commission`, in one transaction.
 
-| Piece | Location |
-|---|---|
+| Piece                | Location                                  |
+| -------------------- | ----------------------------------------- |
 | Webhook subscription | `orders/create` in `shopify.app.toml` |
-| Handler | `app/routes/webhooks.orders.create.jsx` |
-| Attribution | `app/services/attribution.server.js` |
-| Commission maths | `app/services/commission.server.js` |
-| Backfill | `app/services/backfill.server.js` |
+| Handler              | `app/routes/webhooks.orders.create.jsx` |
+| Attribution          | `app/services/attribution.server.js`    |
+| Commission maths     | `app/services/commission.server.js`     |
+| Backfill             | `app/services/backfill.server.js`       |
 
 **Commission basis: order subtotal after discounts, excluding tax and shipping.** Order #1759 was
 Rs 696 total — Rs 600 subtotal plus Rs 96 tax — so 13% pays Rs 78, not Rs 90.48. Paying a
@@ -396,12 +397,12 @@ minimum order value      ── a gate, not a rule: below it the order earns not
 3. program default       ── everything else    (all three types)
 ```
 
-| Layer | Model | Applies to |
-|---|---|---|
-| Gate | `CommissionConfig.minimumOrderValue` | whole order, before any rule |
-| 1 | `ProductCommissionRule` | lines whose product matches |
-| 2 | `CustomerCommissionRule` | lines no product rule claimed |
-| 3 | `CommissionConfig` | lines no product rule claimed, when no customer rule matched |
+| Layer | Model                                  | Applies to                                                   |
+| ----- | -------------------------------------- | ------------------------------------------------------------ |
+| Gate  | `CommissionConfig.minimumOrderValue` | whole order, before any rule                                 |
+| 1     | `ProductCommissionRule`              | lines whose product matches                                  |
+| 2     | `CustomerCommissionRule`             | lines no product rule claimed                                |
+| 3     | `CommissionConfig`                   | lines no product rule claimed, when no customer rule matched |
 
 Points that are easy to get wrong, and how they are settled:
 
@@ -431,14 +432,14 @@ re-validates every rule server-side and checks program ownership before writing.
 **Deliberately not built.** Flagged here so they are choices rather than oversights, to be picked up
 only if a real requirement appears:
 
-| Idea | Note |
-|---|---|
+| Idea                   | Note                                                                    |
+| ---------------------- | ----------------------------------------------------------------------- |
 | Collection-level rules | The editor has an "Excluded products/collections" card still marked PRO |
-| Lifetime commissions | Pay on a referred customer's *future* orders, not just the first |
-| Coupon-specific rates | A different rate for orders using a particular code |
-| Tiered / volume rates | "20% after £5k of referred sales this month" |
-| Per-creator overrides | A negotiated rate for one creator inside a shared program |
-| Maximum commission cap | Counterpart to the minimum gate |
+| Lifetime commissions   | Pay on a referred customer's *future* orders, not just the first      |
+| Coupon-specific rates  | A different rate for orders using a particular code                     |
+| Tiered / volume rates  | "20% after £5k of referred sales this month"                           |
+| Per-creator overrides  | A negotiated rate for one creator inside a shared program               |
+| Maximum commission cap | Counterpart to the minimum gate                                         |
 
 ### Phase 6 — commission lifecycle and payouts
 
@@ -454,11 +455,11 @@ doing so would erase a creator's work from reporting the moment money was clawed
 
 The dashboard reflects that split:
 
-| Figure | Meaning |
-|---|---|
-| Attributed revenue | Every order a creator generated |
-| Commissionable revenue | The subset whose commission was not rejected |
-| Commissions pending / approved / paid / rejected | Where the money itself stands |
+| Figure                                           | Meaning                                      |
+| ------------------------------------------------ | -------------------------------------------- |
+| Attributed revenue                               | Every order a creator generated              |
+| Commissionable revenue                           | The subset whose commission was not rejected |
+| Commissions pending / approved / paid / rejected | Where the money itself stands                |
 
 **Review screen** (`/app/commissions`) — tabs for Pending, Approved, Paid, Rejected with counts.
 Commissions are grouped by creator with a running total, so a merchant can approve a batch in one
@@ -468,13 +469,13 @@ which is stored on the commission and shown thereafter.
 **Payouts** (`/app/payouts`) — manual only, no payment provider. A payout groups a creator's
 approved commissions, and the selection is deliberately narrow:
 
-| Commission state | Selectable |
-|---|---|
-| `PENDING` | no — not approved yet |
-| `REJECTED` | no |
-| `APPROVED`, already on a payout | no |
-| `PAID` | no — money already sent |
-| `APPROVED`, `payoutId` null | **yes** |
+| Commission state                  | Selectable               |
+| --------------------------------- | ------------------------ |
+| `PENDING`                       | no — not approved yet   |
+| `REJECTED`                      | no                       |
+| `APPROVED`, already on a payout | no                       |
+| `PAID`                          | no — money already sent |
+| `APPROVED`, `payoutId` null   | **yes**            |
 
 Linking a commission to a payout is what removes it from the pool, so a stale form or a double-click
 matches zero rows the second time rather than paying twice. Commissions stay `APPROVED` until the
@@ -518,11 +519,11 @@ order includes order-level discounts and scales discount and tax to the units re
 **3. Money that has been paid cannot be un-paid.** What happens to a refund depends on where the
 commission had got to:
 
-| Commission state | Effect of a refund |
-|---|---|
-| `PENDING` | `amount` adjusted down; drops to `REJECTED` if entitlement reaches zero |
-| `APPROVED` | same, and it stays `APPROVED` if anything remains |
-| `PAID` | `amount` is **frozen** at what was actually paid; the delta becomes a debt |
+| Commission state | Effect of a refund                                                                 |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| `PENDING`      | `amount` adjusted down; drops to `REJECTED` if entitlement reaches zero        |
+| `APPROVED`     | same, and it stays `APPROVED` if anything remains                                |
+| `PAID`         | `amount` is **frozen** at what was actually paid; the delta becomes a debt |
 
 For a paid commission the shortfall surfaces as a **creator balance owed**, derived from the ledger
 rather than stored, and shown on the commissions screen. Settling it against a future payout is a
@@ -586,11 +587,11 @@ Four submission blockers from `SHOPIFY_APP_PLAYBOOK.md`, three now closed in cod
 **The three mandatory privacy webhooks** (§3) — declared with `compliance_topics`, not `topics`, so
 Shopify routes them as privacy requests. An app without all three is rejected.
 
-| Topic | Behaviour |
-|---|---|
-| `customers/data_request` | Reports the order references held for the named orders. |
-| `customers/redact` | Acknowledges — there is no customer personal data to erase. |
-| `shop/redact` | Deletes the shop and everything belonging to it. |
+| Topic                      | Behaviour                                                    |
+| -------------------------- | ------------------------------------------------------------ |
+| `customers/data_request` | Reports the order references held for the named orders.      |
+| `customers/redact`       | Acknowledges — there is no customer personal data to erase. |
+| `shop/redact`            | Deletes the shop and everything belonging to it.             |
 
 **The app stores no customer personal data, and that is a property of the schema rather than a
 claim.** A `Referral` holds an order id, number and amount; a `Click` holds a visitor id the app
@@ -666,14 +667,14 @@ rows in a single transaction, so referrals and commissions are strictly 1:1 — 
 are now one row per referred order, with the two statuses collapsed by
 `lib/earning-status.ts` into the single question a creator is asking:
 
-| Situation | Shown as |
-|---|---|
-| Referral rejected | Not credited |
-| Commission `PENDING` | Pending |
-| Commission `APPROVED` | Approved |
-| Commission `PAID` | Paid |
-| Commission `REJECTED` | Declined |
-| No commission row | Processing |
+| Situation               | Shown as     |
+| ----------------------- | ------------ |
+| Referral rejected       | Not credited |
+| Commission `PENDING`  | Pending      |
+| Commission `APPROVED` | Approved     |
+| Commission `PAID`     | Paid         |
+| Commission `REJECTED` | Declined     |
+| No commission row       | Processing   |
 
 The referral-vs-commission split stays in the schema, where it belongs — it is a merchant's
 distinction, not something a creator should have to reconcile across two tables.
@@ -1199,11 +1200,11 @@ thing, so announcing them would only make a screen reader repeat itself.
 
 **Colour now means something.** The stat tiles are grouped rather than uniformly grey:
 
-| Tone | Tiles | Meaning |
-|---|---|---|
-| `money` (green) | Commission earned, Paid out | actually the creator's |
-| `pending` (amber) | Pending | theirs, but not yet |
-| `reach` (blue) | Sales, Clicks, Orders, Conversion | performance that leads to money |
+| Tone                | Tiles                             | Meaning                         |
+| ------------------- | --------------------------------- | ------------------------------- |
+| `money` (green)   | Commission earned, Paid out       | actually the creator's          |
+| `pending` (amber) | Pending                           | theirs, but not yet             |
+| `reach` (blue)    | Sales, Clicks, Orders, Conversion | performance that leads to money |
 
 The tiles were also reordered. Commission earned now comes first, carries a brand ring and a larger
 number: of seven figures it is the one someone opened the portal for, and it previously sat in the
@@ -1287,7 +1288,7 @@ outcome of a submission otherwise lands above the fold and the form looks like i
 
 **Copying announces itself** (D2). `aria-live` sat on the copy button, competing with its own
 accessible name. It moved to a dedicated always-present `role="status"` region reading
-"<label> copied to clipboard" — this is the portal's most-used control, and copying a link is
+"<label></label> copied to clipboard" — this is the portal's most-used control, and copying a link is
 the entire job, so it should confirm audibly as well as visually.
 
 **The merchant loading gap, finally closed** (E1). Changing the dashboard's Program or Period filter
@@ -1338,15 +1339,15 @@ slot `db.server.js` already reuses and installs an in-memory fake (`tests/suppor
 with journal-based transaction rollback, so interleaved transactions — a double-click — undo only
 their own writes, as in Postgres. The Shopify Admin client is a stub answering by operation name.
 
-| Suite | Tests | Covers |
-|---|---|---|
-| merchant `commission` | 10 | rule types, rounding, tax-inclusive basis, minimum gate, overrides, customer rules, `pricingTerms` round trip |
-| merchant `order-shape` | 6 | webhook vs GraphQL parity, refunded-unit proration, both queries select what the normaliser reads |
-| merchant `attribution` | 9 | candidate precedence, customer-type lookup, frozen terms, promotions can't hijack, redelivery, tenancy |
-| merchant `refunds` | 11 | re-pricing under frozen terms, shipping-only no-op, payout total correction, debt after payment, legacy fallback, owed-back maths |
-| merchant `payouts` | 5 | selection rules, double-click race, tenancy, reasons, double mark-as-paid |
-| merchant `coupons` | 8 | input shape, create/update/stale node, retiring codes, thrown GraphQL errors |
-| portal (4 files) | 20 | link builder incl. custom domains, open-redirect cases, session tokens, earnings explanations |
+| Suite                    | Tests | Covers                                                                                                                            |
+| ------------------------ | ----- | --------------------------------------------------------------------------------------------------------------------------------- |
+| merchant `commission`  | 10    | rule types, rounding, tax-inclusive basis, minimum gate, overrides, customer rules, `pricingTerms` round trip                   |
+| merchant `order-shape` | 6     | webhook vs GraphQL parity, refunded-unit proration, both queries select what the normaliser reads                                 |
+| merchant `attribution` | 9     | candidate precedence, customer-type lookup, frozen terms, promotions can't hijack, redelivery, tenancy                            |
+| merchant `refunds`     | 11    | re-pricing under frozen terms, shipping-only no-op, payout total correction, debt after payment, legacy fallback, owed-back maths |
+| merchant `payouts`     | 5     | selection rules, double-click race, tenancy, reasons, double mark-as-paid                                                         |
+| merchant `coupons`     | 8     | input shape, create/update/stale node, retiring codes, thrown GraphQL errors                                                      |
+| portal (4 files)         | 20    | link builder incl. custom domains, open-redirect cases, session tokens, earnings explanations                                     |
 
 Each fix was then proven guarded by **re-introducing the bug and confirming the suite fails**:
 14 of 14 caught. The earlier phases' throwaway verification scripts (27, 26 and 22 assertions) were
@@ -1497,6 +1498,7 @@ coupon-vs-link rule on How you earn, a clipped theme switcher, "New" on a zero t
 generic worked example, and two labels.
 
 ---
+
 ## Creator portal review — 2026-10-14
 
 The 2026-10-13 review read the portal's security and money code; this one went through every page
@@ -1569,15 +1571,15 @@ Portal: `npm test` now 22 (store naming and rate comparison added); typecheck, l
 
 ### What the portal still doesn't have
 
-| Gap | Why it matters | Blocked on |
-|---|---|---|
-| Password reset (B1) | A locked-out creator needs a database script | A sending domain (tests.md H1) |
-| Email verification (F2) | Anyone can sign up as any address | Same |
-| Notifications | Creators find out they were approved, or paid, only by signing in | Same |
+| Gap                                        | Why it matters                                                                             | Blocked on                                                               |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Password reset (B1)                        | A locked-out creator needs a database script                                               | A sending domain (tests.md H1)                                           |
+| Email verification (F2)                    | Anyone can sign up as any address                                                          | Same                                                                     |
+| Notifications                              | Creators find out they were approved, or paid, only by signing in                          | Same                                                                     |
 | Privacy notice and creator terms at signup | The portal collects names, emails and bank details and links to no privacy policy or terms | Your wording — `/privacy` in the Shopify app is written for merchants |
-| Account deletion | A creator has no way to delete their account; only an uninstall removes it | A decision on what happens to their payout history |
-| Leaving a program | Only the merchant can end a membership | Decision |
-| Trend days follow the server's timezone | On a UTC host, a day in Pakistan splits at 5 a.m. | Small; not changed |
+| Account deletion                           | A creator has no way to delete their account; only an uninstall removes it                 | A decision on what happens to their payout history                       |
+| Leaving a program                          | Only the merchant can end a membership                                                     | Decision                                                                 |
+| Trend days follow the server's timezone    | On a UTC host, a day in Pakistan splits at 5 a.m.                                          | Small; not changed                                                       |
 
 ---
 
@@ -1589,6 +1591,7 @@ testing, not fixed yet". The headlines:
 
 - **Payout wording overpromises.** Payouts are manual, through Easypaisa or JazzCash. Both apps still
   talk like a payment gateway:
+
   - the Shopify app's Commission Lifecycle modal: "Queued for processing", "#PAY-5521… prepared for
     settlement", "funds were successfully transferred";
   - the portal: "Payment failed", "automatically deducted from your next payout", "payout schedule",
@@ -1604,10 +1607,12 @@ testing, not fixed yet". The headlines:
   white on cream, and field errors aren't red.
 
 **Fixed the same day:**
+
 - **Colour tokens.** Text, dots and tints moved to the `-ink` tokens, and `ok-line`, `warn-line` and
   `line-strong` were added for both themes. `globals.css` now says why there is no bare `ok`, `warn`
   or `danger`.
 - **Payment methods are Easypaisa, JazzCash or Bank transfer**, in both apps:
+
   - portal Settings: radio buttons, validated on save;
   - Shopify app, Mark as paid: a dropdown pre-filled from the creator's choice, validated in the
     action;
@@ -1617,6 +1622,7 @@ testing, not fixed yet". The headlines:
 
   The shared list is `lib/payout-methods.ts` / `app/payout-methods.js`; 8 new tests.
 - **Portal wording no longer promises a gateway:**
+
   - Payouts shows only "Not sent yet" and "Paid"; the "Payment failed" panel is gone.
   - The owed-back box says the store decides how to settle it.
   - The Overview says the store will send a prepared payout.
@@ -1628,6 +1634,7 @@ testing, not fixed yet". The headlines:
   The Settings save was exercised through the real form on the private DB.
 - **Kept by decision:** the Commission Lifecycle pop-up and its sample order.
 - **Layout and UX round, the same day:**
+
   - the theme switcher has its own row;
   - "New" no longer appears on a zero;
   - a creator's first-day Overview is short;
@@ -1639,6 +1646,7 @@ testing, not fixed yet". The headlines:
 
   The duplicated password error is gone in the Settings rebuild (tabs, structured Easypaisa/JazzCash/
   IBAN fields, `lib/pakistan-payouts.ts`). Reviewing that rebuild found 12 items:
+
   - keyboard access to the tabs, and phone tab labels;
   - two white-on-pastel colours in dark mode, and the Remove dialog's behaviour;
   - unlinked error messages, and browser-only validation;
@@ -1760,15 +1768,15 @@ The lookup is now case-insensitive, which fixes link attribution too.
 
 **Verified against real data**, with the dev store's program temporarily activated and restored:
 
-| Order carries | Result |
-|---|---|
-| Sarah's code at checkout | attributed **via coupon**, 130 |
-| SUMMER20 + Sarah's link attribute | attributed **via link** — the promotion does not hijack it |
-| SUMMER20 only | `unknown_code` |
-| `sarahq7x2` lower case | attributed via coupon |
-| Mike's code (PENDING creator) | `inactive` |
+| Order carries                          | Result                                                                          |
+| -------------------------------------- | ------------------------------------------------------------------------------- |
+| Sarah's code at checkout               | attributed **via coupon**, 130                                            |
+| SUMMER20 + Sarah's link attribute      | attributed **via link** — the promotion does not hijack it               |
+| SUMMER20 only                          | `unknown_code`                                                                |
+| `sarahq7x2` lower case               | attributed via coupon                                                           |
+| Mike's code (PENDING creator)          | `inactive`                                                                    |
 | Mike's code **and** Sarah's link | attributed via link — an inactive creator's code does not black-hole the order |
-| nothing | `no_referral_code` |
+| nothing                                | `no_referral_code`                                                            |
 
 All synthetic referrals were deleted and the program's INACTIVE status restored.
 
@@ -1839,8 +1847,7 @@ unbranded 404 with no way back; a database blip renders a raw Next error page; s
 a full server round trip with zero feedback — the same complaint raised against the Shopify app's
 Edit button.
 
-**C2. `app/layout.tsx` still says `title: "Create Next App"`** with `description: "Generated by
-create next app"`. It is the fallback for any page without its own metadata, including the 404.
+**C2. `app/layout.tsx` still says `title: "Create Next App"`** with `description: "Generated by create next app"`. It is the fallback for any page without its own metadata, including the 404.
 
 **C3. `app/globals.css` hardcodes `body { font-family: Arial, Helvetica, sans-serif }`**, overriding
 the Geist font the layout loads. All three pages work around it with a manual `font-sans` class;
@@ -1882,12 +1889,12 @@ mitigates it, but the account is created first.
 
 Both apps build clean.
 
-| Check | `partner-loop-creator-growth` | `creators-panel` |
-|---|---|---|
-| `npm run build` | exit 0 | exit 0 |
-| Typecheck | `npm run typecheck` clean | `tsc --noEmit` clean |
-| Lint | 69 pre-existing errors in older UI (see "Automated review") | `eslint` clean |
-| `npm test` | 49 pass | 20 pass |
+| Check             | `partner-loop-creator-growth`                             | `creators-panel`     |
+| ----------------- | ----------------------------------------------------------- | ---------------------- |
+| `npm run build` | exit 0                                                      | exit 0                 |
+| Typecheck         | `npm run typecheck` clean                                 | `tsc --noEmit` clean |
+| Lint              | 69 pre-existing errors in older UI (see "Automated review") | `eslint` clean       |
+| `npm test`      | 49 pass                                                     | 20 pass                |
 
 *(Table updated 2026-10-13. The narrative below is the original Phase 1–3 verification.)*
 
@@ -1896,50 +1903,50 @@ program and account that were deleted afterwards.
 
 **Registration page**
 
-| Case | Result |
-|---|---|
-| Unknown program id | 404 |
-| Active program | 200 — form, program name, commission derived from `CommissionConfig` + `Store.currencyCode` |
-| Coupon tracking enabled | conditional benefit line renders |
-| Inactive program | 200 — "Applications are closed", no form |
+| Case                    | Result                                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| Unknown program id      | 404                                                                                              |
+| Active program          | 200 — form, program name, commission derived from `CommissionConfig` + `Store.currencyCode` |
+| Coupon tracking enabled | conditional benefit line renders                                                                 |
+| Inactive program        | 200 — "Applications are closed", no form                                                        |
 
 **Register → approve → login → dashboard**
 
-| Case | Result |
-|---|---|
-| Successful signup | 303 redirect, session cookie issued |
-| `CreatorAccount` created | email lowercased, password stored as `scrypt$…` |
-| Membership created | `PENDING`, referral code issued |
-| Duplicate application | no second membership (1 → 1) |
-| Existing email + wrong password | no account created, existing account not overwritten |
-| Login, wrong password | no session cookie |
-| Login, correct password | 303 redirect, session cookie issued |
-| `/dashboard` signed out | 307 → `/login` |
-| `/dashboard` signed in | 200 — greeting, program name, referral link with `?ref=<code>`, coupon code, empty-state copy, sign out |
-| Password hash | never present in the HTML sent to the browser |
+| Case                            | Result                                                                                                     |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Successful signup               | 303 redirect, session cookie issued                                                                        |
+| `CreatorAccount` created      | email lowercased, password stored as `scrypt$…`                                                         |
+| Membership created              | `PENDING`, referral code issued                                                                          |
+| Duplicate application           | no second membership (1 → 1)                                                                              |
+| Existing email + wrong password | no account created, existing account not overwritten                                                       |
+| Login, wrong password           | no session cookie                                                                                          |
+| Login, correct password         | 303 redirect, session cookie issued                                                                        |
+| `/dashboard` signed out       | 307 → `/login`                                                                                          |
+| `/dashboard` signed in        | 200 — greeting, program name, referral link with `?ref=<code>`, coupon code, empty-state copy, sign out |
+| Password hash                   | never present in the HTML sent to the browser                                                              |
 
 **Storefront attribution script** (logic exercised against stubbed browser APIs)
 
-| Case | Result |
-|---|---|
-| Landing with `?ref=` | cookie written, visitor id minted, beacon POSTed with ref + landing page + referrer, cart attribute written |
-| Later page view, no `?ref=` | no duplicate beacon, cart still re-checked |
-| Cart already correct | no redundant write |
-| Second creator's link (last-click) | cookie and cart attribute both overwritten |
-| Visitor with no ref anywhere | zero network calls |
+| Case                               | Result                                                                                                      |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Landing with `?ref=`             | cookie written, visitor id minted, beacon POSTed with ref + landing page + referrer, cart attribute written |
+| Later page view, no `?ref=`      | no duplicate beacon, cart still re-checked                                                                  |
+| Cart already correct               | no redundant write                                                                                          |
+| Second creator's link (last-click) | cookie and cart attribute both overwritten                                                                  |
+| Visitor with no ref anywhere       | zero network calls                                                                                          |
 
 **App Proxy click endpoint** (real HMAC-signed requests against the running app and database)
 
-| Case | Result |
-|---|---|
-| Unsigned request | HTTP 400, nothing recorded |
-| Tampered signature | HTTP 400, nothing recorded |
-| Valid signed click | `Click` row written with landing page, referrer, denormalised `programId` |
-| Same visitor again | deduped, row count unchanged |
-| Different visitor | new row |
-| Unknown code | `unknown_code`, nothing written |
-| Unapproved creator | `inactive`, nothing written |
-| Missing `visitorId` | `missing_fields`, nothing written |
+| Case                  | Result                                                                        |
+| --------------------- | ----------------------------------------------------------------------------- |
+| Unsigned request      | HTTP 400, nothing recorded                                                    |
+| Tampered signature    | HTTP 400, nothing recorded                                                    |
+| Valid signed click    | `Click` row written with landing page, referrer, denormalised `programId` |
+| Same visitor again    | deduped, row count unchanged                                                  |
+| Different visitor     | new row                                                                       |
+| Unknown code          | `unknown_code`, nothing written                                             |
+| Unapproved creator    | `inactive`, nothing written                                                 |
+| Missing `visitorId` | `missing_fields`, nothing written                                           |
 
 **Embed detection** — enabled, toggled off, another app's embed only, no blocks, unreadable
 settings file, and a GraphQL/scope error (both of the last two fail open to "unknown"). Also
@@ -1949,14 +1956,14 @@ verified **against the live Dawn theme on the dev store**, with the embed switch
 **Order attribution** — backfill run against the real dev store, reading order #1759 back through
 the Admin API and through the same `attributeOrder` path the webhook uses:
 
-| Case | Result |
-|---|---|
-| Order #1759 | `attributed` — subtotal 600, 1 item, commission 78 |
-| `Referral` | Sarah Jenkins (`SARAHQ7X2`), `#1759`, `orderAmount` 600, status `APPROVED` |
-| `Commission` | 78, status `PENDING`, linked to the referral |
-| Orders #1755–#1758 | `no_referral_code` — correctly skipped |
-| Second backfill run | `already_attributed`, referrals 1→1, commissions 1→1 |
-| Merchant dashboard | revenue 600, orders 1, pending commission 78, Sarah top creator |
+| Case                | Result                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| Order #1759         | `attributed` — subtotal 600, 1 item, commission 78                              |
+| `Referral`        | Sarah Jenkins (`SARAHQ7X2`), `#1759`, `orderAmount` 600, status `APPROVED` |
+| `Commission`      | 78, status `PENDING`, linked to the referral                                     |
+| Orders #1755–#1758 | `no_referral_code` — correctly skipped                                          |
+| Second backfill run | `already_attributed`, referrals 1→1, commissions 1→1                           |
+| Merchant dashboard  | revenue 600, orders 1, pending commission 78, Sarah top creator                    |
 
 **Multi-line orders** — attribution is per *order*, never per line item, so the number of stamped
 lines cannot change the outcome. Verified via signed webhooks: a 2-line order with the code on both
@@ -1976,27 +1983,26 @@ URL rather than a broken one, and an API failure fails open.
 
 **Refund and cancellation matrix** — 26 assertions across 12 scenarios, all passing:
 
-| Scenario | Result |
-|---|---|
-| `PENDING` + partial refund | 130 → 91, ledger −39, original preserved |
-| `PENDING` + full refund | → 0, `REJECTED`, original still visible |
-| `APPROVED` + partial / full | → 78 still `APPROVED` / → 0 `REJECTED` |
-| `PAID` + partial refund | amount frozen at 78, debt of 26, balance owed 26 |
-| `PAID` + full refund | still shows 39 `PAID`, entire 39 owed back |
+| Scenario                                                | Result                                                                           |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `PENDING` + partial refund                            | 130 → 91, ledger −39, original preserved                                       |
+| `PENDING` + full refund                               | → 0, `REJECTED`, original still visible                                       |
+| `APPROVED` + partial / full                           | → 78 still `APPROVED` / → 0 `REJECTED`                                     |
+| `PAID` + partial refund                               | amount frozen at 78, debt of 26, balance owed 26                                 |
+| `PAID` + full refund                                  | still shows 39 `PAID`, entire 39 owed back                                     |
 | **Product override, refund only the 20% product** | **330 → 130**, ledger −200 exactly (proportional would wrongly give 165) |
-| **Product override, refund only the 13% product** | **330 → 200** (proportional would wrongly give 165) |
-| Two refunds on one order | two ledger entries, original + adjustments reconciles to amount |
-| Cancellation | → 0 `REJECTED`, referral still `APPROVED` at Rs 800 |
-| Duplicate webhook delivery | `already_applied`, one ledger entry, amount unchanged |
-| Another shop's order | `wrong_shop` |
-| Unreferred order | `not_attributed` |
+| **Product override, refund only the 13% product** | **330 → 200** (proportional would wrongly give 165)                       |
+| Two refunds on one order                                | two ledger entries, original + adjustments reconciles to amount                  |
+| Cancellation                                            | → 0 `REJECTED`, referral still `APPROVED` at Rs 800                         |
+| Duplicate webhook delivery                              | `already_applied`, one ledger entry, amount unchanged                          |
+| Another shop's order                                    | `wrong_shop`                                                                   |
+| Unreferred order                                        | `not_attributed`                                                               |
 
 **Commission lifecycle** — exercised against the two real commissions (Rs 78 + Rs 102.17):
 another shop can neither see nor approve them (0 rows); rejection without a reason refused;
 rejecting one left its `Referral` `APPROVED` and both referrals intact; a payout picked up only the
 approved commission and excluded the rejected one; a second payout for the same creator found
-nothing; marking paid moved the commission to `PAID` and recorded `PL-0001 · Bank transfer ·
-TRX-92838192 · paidAt`; a paid commission could not then be rejected, a rejected one could not be
+nothing; marking paid moved the commission to `PAID` and recorded `PL-0001 · Bank transfer · TRX-92838192 · paidAt`; a paid commission could not then be rejected, a rejected one could not be
 approved, and a paid payout could not be re-paid.
 
 **Attributed vs commissionable revenue** — rejecting the Rs 78 commission on order #1759 (Rs 600)
@@ -2031,22 +2037,22 @@ All test data was removed — the database is back to 0 accounts, 0 creators, 0 
 
 Completed against `quickstart-65d173cf.myshopify.com` (Dawn theme, app embed enabled).
 
-| Step | Result |
-|---|---|
+| Step                               | Result                                                                             |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
 | Embed injected into the storefront | script tag present with correct `data-proxy-base`, asset served from Shopify CDN |
-| Dashboard warning after enabling | banner disappeared — detection correct against a real theme |
-| `/?ref=SARAHQ7X2` in a browser | `_pl_ref=SARAHQ7X2` and `_pl_vid=8109b806-…` cookies written |
-| Click recorded | `Click` row whose `visitorId` matches the browser's `_pl_vid` exactly |
-| App proxy | request through `<shop>/apps/partnerloop/track` reached the app, Shopify-signed |
-| Add to cart | `/cart.js` → `"attributes":{"_pl_ref":"SARAHQ7X2"}`, written by the embed |
-| Bogus Gateway order #1759 | attribute survived onto the order |
+| Dashboard warning after enabling   | banner disappeared — detection correct against a real theme                       |
+| `/?ref=SARAHQ7X2` in a browser   | `_pl_ref=SARAHQ7X2` and `_pl_vid=8109b806-…` cookies written                  |
+| Click recorded                     | `Click` row whose `visitorId` matches the browser's `_pl_vid` exactly        |
+| App proxy                          | request through `<shop>/apps/partnerloop/track` reached the app, Shopify-signed  |
+| Add to cart                        | `/cart.js` → `"attributes":{"_pl_ref":"SARAHQ7X2"}`, written by the embed     |
+| Bogus Gateway order #1759          | attribute survived onto the order                                                  |
 
 **The field names Phase 3 needs**, both confirmed on order #1759:
 
-| Representation | Field | Keyed by | Value |
-|---|---|---|---|
-| GraphQL | `Order.customAttributes` | `key` | `[{"key":"_pl_ref","value":"SARAHQ7X2"}]` |
-| REST — the `orders/create` webhook payload shape | `order.note_attributes` | **`name`** | `[{"name":"_pl_ref","value":"SARAHQ7X2"}]` |
+| Representation                                      | Field                      | Keyed by           | Value                                        |
+| --------------------------------------------------- | -------------------------- | ------------------ | -------------------------------------------- |
+| GraphQL                                             | `Order.customAttributes` | `key`            | `[{"key":"_pl_ref","value":"SARAHQ7X2"}]`  |
+| REST — the `orders/create` webhook payload shape | `order.note_attributes`  | **`name`** | `[{"name":"_pl_ref","value":"SARAHQ7X2"}]` |
 
 The webhook uses `name`, not `key`. Orders #1758 and #1757, placed before tracking existed, both
 returned empty attributes — a control group confirming this isn't a false positive.
@@ -2119,8 +2125,7 @@ since it is reachable by direct POST.
 **1. A `"use server"` module may only export async functions.**
 `actions.ts` exported `initialRegistrationState`, a plain object. This **compiled and typechecked
 successfully**, then threw at runtime: *"A 'use server' file can only export async functions, found
-object."* Type exports are erased and therefore fine; value constants must live elsewhere. `next
-build` does not catch this — only executing the route does.
+object."* Type exports are erased and therefore fine; value constants must live elsewhere. `next build` does not catch this — only executing the route does.
 
 **2a. The same leak in Next.js, via a single shared constant.**
 `registration-form.tsx` is a Client Component and imported `MIN_PASSWORD_LENGTH` from
@@ -2174,9 +2179,9 @@ mobile conversions silently going unattributed.
 
 The fix is two independent carriers, because a shopper reaches checkout by two different routes:
 
-| Route | Carrier | Read from |
-|---|---|---|
-| Through the cart | cart attribute `_pl_ref` | `note_attributes` / `customAttributes` |
+| Route            | Carrier                                                  | Read from                                                            |
+| ---------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
+| Through the cart | cart attribute `_pl_ref`                               | `note_attributes` / `customAttributes`                           |
 | Dynamic checkout | hidden input `properties[_pl_ref]` on the product form | `line_items[].properties` / `lineItems.nodes[].customAttributes` |
 
 Line item properties survive dynamic checkout, and the `_` prefix keeps them hidden from the shopper

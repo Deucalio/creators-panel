@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/icon";
-import { PausedNextActionArt, AddPayoutDetailsArt } from "@/components/illustration";
+import { PausedNextActionArt, AddPayoutDetailsArt, UrgentPayoutDetailsArt } from "@/components/illustration";
 import { formatMoney } from "@/lib/money";
 import { formatPayoutNumber } from "@/lib/earning-status";
 
@@ -33,6 +33,7 @@ export function NextActionCard({
     badgeStyle: string;
     art?: React.ReactNode;
     topActionHref?: string;
+    isUrgent?: boolean;
   };
 
   let state: ActionState;
@@ -48,7 +49,7 @@ export function NextActionCard({
       badgeStyle: "bg-warn-surface text-warn-ink border-warn-ink/20",
       art: <PausedNextActionArt className="h-14 w-auto select-none shrink-0" />,
     };
-  } else if (!hasPayoutDetails && !newcomer) {
+  } else if (!hasPayoutDetails) {
     state = {
       title: "Add your payout details",
       body: `You've earned commissions, but haven't saved payout details yet. Add your Easypaisa, JazzCash or bank details so ${storeName} can pay you.`,
@@ -56,9 +57,10 @@ export function NextActionCard({
       actionHref: "/dashboard/settings#payouts",
       icon: "settings",
       badgeText: "Action needed",
-      badgeStyle: "bg-warn-surface text-warn-ink border-warn-ink/20",
-      art: <AddPayoutDetailsArt className="h-20 sm:h-22 w-auto select-none shrink-0" />,
+      badgeStyle: "bg-warn-surface text-warn-ink border-warn-ink/30",
+      art: <UrgentPayoutDetailsArt className="h-24 sm:h-26 w-auto select-none shrink-0" />,
       topActionHref: "/dashboard/settings#payouts",
+      isUrgent: true,
     };
   } else if (pendingPayout) {
     state = {
@@ -99,6 +101,62 @@ export function NextActionCard({
       badgeText: "Next step",
       badgeStyle: "bg-brand-surface text-brand-text border-brand-line",
     };
+  }
+
+  // Urgent Amber Card design when payout details are missing
+  if (state.isUrgent) {
+    return (
+      <div className="flex h-full flex-col justify-between rounded-2xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/70 dark:bg-amber-950/25 overflow-hidden shadow-xs transition hover:border-amber-400 dark:hover:border-amber-500/60">
+        {/* Top Amber Highlight Strip */}
+        <div className="h-1.5 w-full bg-amber-500 shrink-0" />
+
+        <div className="p-6 flex flex-col justify-between flex-1 gap-5">
+          <div className="flex flex-col gap-3">
+            {/* Header Row: Urgent Exclamation Pill + Amber Settings Button */}
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-warn-surface text-warn-ink border border-warn-ink/30 shadow-2xs">
+                <span className="size-4 rounded-full flex items-center justify-center text-[10px] font-black text-white bg-amber-500 shrink-0">
+                  !
+                </span>
+                <span>{state.badgeText}</span>
+              </span>
+
+              <Link
+                href={state.topActionHref || state.actionHref}
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-warn-surface text-warn-ink hover:bg-warn-surface/80 transition cursor-pointer"
+                aria-label="Configure payout settings"
+              >
+                <Icon name="settings" className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {/* Content Row: Title, body and the upgraded Urgent Art */}
+            <div className="flex items-center justify-between gap-4 pt-1">
+              <div className="space-y-1.5 min-w-0 flex-1">
+                <h3 className="text-base sm:text-lg font-bold tracking-tight text-ink">
+                  {state.title}
+                </h3>
+                <p className="text-xs sm:text-sm leading-relaxed text-ink-muted">
+                  {state.body}
+                </p>
+              </div>
+              {state.art}
+            </div>
+          </div>
+
+          {/* Divider & High-Contrast Action Button */}
+          <div className="pt-3 border-t border-amber-200 dark:border-amber-800/40">
+            <Link
+              href={state.actionHref}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-2xs transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+            >
+              <span>{state.actionLabel}</span>
+              <span className="text-base leading-none">›</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

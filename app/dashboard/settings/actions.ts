@@ -9,6 +9,13 @@ import { isValidEmail } from "@/lib/email-format";
 import { checkLoginAllowed, describeWait, recordFailedLogin } from "@/lib/rate-limit";
 import { uniqueViolationTargets } from "@/lib/unique-violation";
 import { matchPayoutMethod } from "@/lib/payout-methods";
+import {
+  validMobile,
+  validTitle,
+  validBankName,
+  validIban,
+  parsePayoutDetails,
+} from "@/lib/pakistan-payouts";
 
 /**
  * A "use server" module may only export async functions. Constants — including
@@ -157,6 +164,13 @@ export async function updatePassword(
       field: "newPassword",
     };
   }
+  if (next === current) {
+    return {
+      status: "error",
+      message: "Your new password cannot be the same as your current password.",
+      field: "newPassword",
+    };
+  }
   if (next !== confirm) {
     return { status: "error", message: "The two new passwords don't match.", field: "confirmPassword" };
   }
@@ -200,19 +214,58 @@ export async function updatePayoutDetails(
   const submittedMethod = text(formData, "payoutMethod");
   const method = matchPayoutMethod(submittedMethod);
   let details = text(formData, "payoutDetails");
-  const title = text(formData, "title");
-  const number = text(formData, "number");
-  const bankName = text(formData, "bankName");
-  const iban = text(formData, "iban");
+  let title = text(formData, "title");
+  let number = text(formData, "number");
+  let bankName = text(formData, "bankName");
+  let iban = text(formData, "iban");
 
-  if (!details && (title || number || bankName || iban)) {
+  // If structured fields were not passed directly, but raw details string was, extract them
+  if (!title && !number && !bankName && !iban && details && method) {
+    const parsed = parsePayoutDetails(method, details);
     if (method === "Easypaisa") {
-      details = `Account title: ${title}\nEasypaisa mobile number: ${number}`.trim();
+      number = parsed.easypaisa.number;
+      title = parsed.easypaisa.title;
     } else if (method === "JazzCash") {
-      details = `Account title: ${title}\nJazzCash mobile number: ${number}`.trim();
+      number = parsed.jazzcash.number;
+      title = parsed.jazzcash.title;
     } else if (method === "Bank transfer") {
-      details = `Bank name: ${bankName}\nAccount title: ${title}\nIBAN: ${iban}`.trim();
+      bankName = parsed.bank.bankName;
+      title = parsed.bank.title;
+      iban = parsed.bank.iban;
     }
+  }
+
+  // Server-side strict field validation
+  if (method === "Easypaisa" || method === "JazzCash") {
+    const mobErr = validMobile(number);
+    if (mobErr !== true) {
+      return { status: "error", message: mobErr, field: "number" };
+    }
+    const titleErr = validTitle(title);
+    if (titleErr !== true) {
+      return { status: "error", message: titleErr, field: "title" };
+    }
+  } else if (method === "Bank transfer") {
+    const bErr = validBankName(bankName);
+    if (bErr !== true) {
+      return { status: "error", message: bErr, field: "bankName" };
+    }
+    const titleErr = validTitle(title);
+    if (titleErr !== true) {
+      return { status: "error", message: titleErr, field: "title" };
+    }
+    const ibanErr = validIban(iban);
+    if (ibanErr !== true) {
+      return { status: "error", message: ibanErr, field: "iban" };
+    }
+  }
+
+  if (method === "Easypaisa") {
+    details = `Account title: ${title}\nEasypaisa mobile number: ${number}`.trim();
+  } else if (method === "JazzCash") {
+    details = `Account title: ${title}\nJazzCash mobile number: ${number}`.trim();
+  } else if (method === "Bank transfer") {
+    details = `Bank name: ${bankName}\nAccount title: ${title}\nIBAN: ${iban}`.trim();
   }
 
   if (submittedMethod && !method) {
