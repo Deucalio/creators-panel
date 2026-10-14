@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requestedProgramId } from "@/lib/auth";
 import { getProgramTerms } from "@/lib/program-terms";
 import { formatMoney } from "@/lib/money";
+import { buildWorkedExamples } from "@/lib/worked-examples";
 import {
   describeRate,
   describeShopperDiscount,
@@ -222,56 +223,29 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
             )}
           </section>
 
-          {/* Section 2: Concrete Worked Calculation Example (HE-1) */}
+          {/* Section 2: Worked examples, one per rule that can win (HE-1) */}
           <section className="rounded-2xl border border-brand/20 bg-linear-to-b from-brand-surface/40 to-surface p-6 shadow-xs">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/15 text-brand-text">
                 <Icon name="sparkles" className="h-3.5 w-3.5" />
               </span>
               <h2 className="text-sm font-bold tracking-tight text-ink">
-                Example calculation
+                Example orders
               </h2>
             </div>
-            <div className="mt-4 rounded-xl border border-line bg-surface p-4">
-              <p className="text-xs font-medium text-ink-subtle uppercase tracking-wider">
-                Scenario: Typical order of {formatMoney(100, currency)}
-              </p>
-              <div className="mt-3 flex flex-col gap-2 text-xs text-ink leading-relaxed">
-                <div className="flex items-center justify-between border-b border-line-soft pb-2">
-                  <span className="text-ink-muted">Eligible subtotal (excluding shipping & taxes)</span>
-                  <span className="font-mono font-medium">{formatMoney(100, currency)}</span>
-                </div>
-                {config.type === "PERCENTAGE" && (
-                  <div className="flex items-center justify-between border-b border-line-soft pb-2">
-                    <span className="text-ink-muted">Applied base commission ({config.amount}%)</span>
-                    <span className="font-mono font-bold text-ink">
-                      {formatMoney((100 * config.amount) / 100, currency)}
-                    </span>
+            <ul className="mt-4 flex flex-col divide-y divide-line-soft rounded-xl border border-line bg-surface">
+              {buildWorkedExamples({ config, customerRules, productRules }, currency).map((example) => (
+                <li key={example.scenario} className="flex items-start justify-between gap-4 px-4 py-3">
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <span className="text-xs font-semibold text-ink">{example.scenario}</span>
+                    <span className="text-[11px] leading-relaxed text-ink-muted">{example.rule}</span>
                   </div>
-                )}
-                {config.type === "FIXED_PER_ORDER" && (
-                  <div className="flex items-center justify-between border-b border-line-soft pb-2">
-                    <span className="text-ink-muted">Fixed commission per order</span>
-                    <span className="font-mono font-bold text-ink">
-                      {formatMoney(config.amount, currency)}
-                    </span>
-                  </div>
-                )}
-                {config.type === "FIXED_PER_ITEM" && (
-                  <div className="flex items-center justify-between border-b border-line-soft pb-2">
-                    <span className="text-ink-muted">Fixed commission per item (e.g. 2 items in cart)</span>
-                    <span className="font-mono font-bold text-ink">
-                      {formatMoney(2 * config.amount, currency)}
-                    </span>
-                  </div>
-                )}
-                {config.minimumOrderValue && (
-                  <p className="mt-1 text-[11px] text-ink-muted">
-                    * Orders under {formatMoney(config.minimumOrderValue, currency)} do not qualify for commission.
-                  </p>
-                )}
-              </div>
-            </div>
+                  <span className="flex-none font-mono text-xs font-bold text-ink">
+                    {formatMoney(example.commission, currency)}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </section>
 
           {/* Section 3: Attribution & Tracking Rules (HE-4) */}
@@ -351,7 +325,7 @@ export default async function ProgramPage({ searchParams }: PageProps<"/dashboar
                   </span>
                 </div>
                 <Link
-                  href={`/dashboard/settings?program=${membership.id}`}
+                  href={`/dashboard/settings?program=${membership.id}#payouts`}
                   className="rounded-xl border border-line bg-surface px-3.5 py-1.5 text-xs font-semibold text-ink hover:border-line-strong hover:bg-surface-muted transition-colors shadow-2xs"
                 >
                   Manage payout details →

@@ -14,7 +14,7 @@ The product spans **two separate applications** that share one Postgres database
 | | |
 |---|---|
 | Features | Phases 1–18 built. Open: password reset (B1) and email verification (F2), both blocked on a sending domain. |
-| Automated tests | `npm test` in each app — 56 merchant, 26 portal, no database needed. See "Automated review — 2026-10-13". |
+| Automated tests | `npm test` in each app — 56 merchant, 36 portal, no database needed. See "Automated review — 2026-10-13". |
 | Database | Schema in sync: `Commission.terms`, `Store.primaryDomain` and `Store.name` were pushed on 2026-10-14. |
 | Creator portal | Reviewed screen by screen on 2026-10-14 — see "Creator portal review — 2026-10-14". Roughly 85% feature-complete; the gaps are password reset, email, and creator-facing privacy terms and account deletion. |
 | Portal redesign | In progress (sidebar shell, new Overview, filters, payouts grouping). UI/UX audit: [PartnerLoop Creator Portal — UI/UX Audit](https://claude.ai/code/artifact/f332c46f-9fda-4ffd-a867-e3de5353f8a5). Reviewed again on 2026-10-14 after the latest redesign commits — see "Redesign review — 2026-10-14". Issues: `tests.md`, "Found in testing, not fixed yet". |
@@ -1627,6 +1627,22 @@ testing, not fixed yet". The headlines:
 
   The Settings save was exercised through the real form on the private DB.
 - **Kept by decision:** the Commission Lifecycle pop-up and its sample order.
+- **Layout and UX round, the same day:**
+  - the theme switcher has its own row;
+  - "New" no longer appears on a zero;
+  - a creator's first-day Overview is short;
+  - "Paused" replaces "Inactive";
+  - How you earn shows an example for each rule (`lib/worked-examples.ts`);
+  - "Search" replaces "Filter";
+  - the join page uses the brand colour;
+  - Shopify Payouts shows a toast after "Mark as paid".
+
+  The duplicated password error is gone in the Settings rebuild (tabs, structured Easypaisa/JazzCash/
+  IBAN fields, `lib/pakistan-payouts.ts`). Reviewing that rebuild found 12 items:
+  - keyboard access to the tabs, and phone tab labels;
+  - two white-on-pastel colours in dark mode, and the Remove dialog's behaviour;
+  - unlinked error messages, and browser-only validation;
+  - and smaller items, all listed in `tests.md`.
 
 ---
 

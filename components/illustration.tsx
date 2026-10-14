@@ -208,6 +208,56 @@ export function PausedNextActionArt({
   );
 }
 
+/** Open Wallet + Bank Card + Floating Coin. Used in NextActionCard when payout details are needed or payout is pending. */
+export function AddPayoutDetailsArt({
+  className = "h-20 sm:h-24 w-auto select-none shrink-0",
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 115 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* Soft Background Halo */}
+      <circle cx="58" cy="56" r="36" fill="var(--warn-surface, #fef3c7)" fillOpacity={0.55} />
+      {/* Ground Line */}
+      <line x1="16" y1="88" x2="98" y2="88" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" />
+
+      {/* Bank Card Sliding Into Wallet (Tilted) */}
+      <g transform="translate(28, 22) rotate(-14)">
+        <rect x="0" y="0" width="48" height="32" rx="4" fill="var(--info-surface, #e0e7ff)" stroke="var(--ink, #111827)" strokeWidth="1.75" />
+        <rect x="0" y="7" width="48" height="6" fill="var(--brand, #4f46e5)" />
+        <line x1="7" y1="21" x2="22" y2="21" stroke="var(--ink, #111827)" strokeWidth="1.5" strokeLinecap="round" />
+      </g>
+
+      {/* Crisp Green Banknote Peeking Out */}
+      <path d="M52,34 L82,26 L86,46 L54,48 Z" fill="var(--ok-surface, #d1fae5)" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinejoin="round" />
+      <circle cx="69" cy="37" r="4" fill="var(--surface, #ffffff)" stroke="var(--ok-ink, #065f46)" strokeWidth="1.5" />
+
+      {/* Main Pocket Wallet Body */}
+      <rect x="22" y="42" width="66" height="46" rx="8" fill="var(--surface, #ffffff)" stroke="var(--ink, #111827)" strokeWidth="2" />
+      {/* Warm Leather Tint Overlay */}
+      <rect x="22" y="42" width="66" height="46" rx="8" fill="var(--warn-surface, #fef3c7)" fillOpacity={0.45} stroke="var(--ink, #111827)" strokeWidth="2" />
+      {/* Stitching Detail */}
+      <line x1="28" y1="48" x2="78" y2="48" stroke="var(--warn-ink, #92400e)" strokeWidth="1.25" strokeDasharray="3 3" strokeLinecap="round" />
+      {/* Wallet Clasp Strap */}
+      <path d="M70,58 L92,58 C94,58 95,60 95,62 L95,68 C95,70 94,72 92,72 L70,72 C66,72 64,69 64,65 C64,61 66,58 70,58 Z" fill="var(--surface, #ffffff)" stroke="var(--ink, #111827)" strokeWidth="1.85" />
+      <circle cx="71" cy="65" r="2.5" fill="var(--brand, #4f46e5)" stroke="var(--ink, #111827)" strokeWidth="1.25" />
+
+      {/* Floating Action "+" Coin (Top Right) */}
+      <circle cx="88" cy="20" r="11" fill="var(--brand, #4f46e5)" stroke="var(--ink, #111827)" strokeWidth="1.75" />
+      <line x1="88" y1="15.5" x2="88" y2="24.5" stroke="var(--brand-ink, #ffffff)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="83.5" y1="20" x2="92.5" y2="20" stroke="var(--brand-ink, #ffffff)" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export const PendingPayoutArt = AddPayoutDetailsArt;
+
 /*
  * Metric art for the Overview's performance cards.
  *

@@ -199,7 +199,21 @@ export async function updatePayoutDetails(
 
   const submittedMethod = text(formData, "payoutMethod");
   const method = matchPayoutMethod(submittedMethod);
-  const details = text(formData, "payoutDetails");
+  let details = text(formData, "payoutDetails");
+  const title = text(formData, "title");
+  const number = text(formData, "number");
+  const bankName = text(formData, "bankName");
+  const iban = text(formData, "iban");
+
+  if (!details && (title || number || bankName || iban)) {
+    if (method === "Easypaisa") {
+      details = `Account title: ${title}\nEasypaisa mobile number: ${number}`.trim();
+    } else if (method === "JazzCash") {
+      details = `Account title: ${title}\nJazzCash mobile number: ${number}`.trim();
+    } else if (method === "Bank transfer") {
+      details = `Bank name: ${bankName}\nAccount title: ${title}\nIBAN: ${iban}`.trim();
+    }
+  }
 
   if (submittedMethod && !method) {
     return {

@@ -208,6 +208,15 @@ export function payoutTone(status: string): Tone {
   }
 }
 
+/**
+ * Membership status as the creator should read it. The merchant's "Inactive"
+ * is a pause they can lift — every sentence on that screen already says
+ * "paused", so the badge says it too.
+ */
+export function membershipLabel(status: string): string {
+  return status === "INACTIVE" ? "Paused" : titleCase(status);
+}
+
 /** Membership status, for the program switcher and the not-active screens. */
 export function membershipTone(status: string): Tone {
   switch (status) {

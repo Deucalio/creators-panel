@@ -188,7 +188,7 @@ export function EarningsFilterBar({
           disabled={isPending}
           className="rounded-xl border border-line bg-surface px-3.5 py-2 text-xs font-semibold text-ink shadow-2xs hover:border-line-strong hover:bg-surface-muted transition-colors disabled:opacity-50"
         >
-          Filter
+          Search
         </button>
         {currentQuery || (activeStatus && activeStatus !== "all") ? (
           <button

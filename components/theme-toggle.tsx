@@ -59,7 +59,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
             role="radio"
             aria-checked={active}
             onClick={() => changeTheme(opt.id)}
-            className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium motion-safe:transition cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium motion-safe:transition cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand ${
               active
                 ? "bg-brand text-brand-ink shadow-xs"
                 : "text-ink-muted hover:text-ink hover:bg-surface-muted"

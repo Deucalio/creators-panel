@@ -7,7 +7,7 @@ import { Icon, type IconName } from "@/components/icon";
 import { Badge } from "@/components/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { storeDisplayName } from "@/lib/store-name";
-import { membershipTone, titleCase } from "@/lib/earning-status";
+import { membershipLabel, membershipTone } from "@/lib/earning-status";
 
 export type ShellMembership = {
   id: string;
@@ -145,7 +145,7 @@ export function DashboardShell({
                   </span>
                 </div>
                 <Badge tone={membershipTone(activeMembership.status)}>
-                  {titleCase(activeMembership.status)}
+                  {membershipLabel(activeMembership.status)}
                 </Badge>
               </div>
 
@@ -187,7 +187,7 @@ export function DashboardShell({
                               </span>
                             </div>
                             <Badge tone={membershipTone(m.status)}>
-                              {titleCase(m.status)}
+                              {membershipLabel(m.status)}
                             </Badge>
                           </Link>
                         );
@@ -290,8 +290,9 @@ export function DashboardShell({
           </div>
         </div>
 
-        {/* Quick Settings & Theme */}
-        <div className="flex items-center justify-between gap-2 pt-1">
+        {/* Quick Settings & Theme — stacked: side by side, the three theme
+            options don't fit the 256px sidebar and "Dark" was cut off. */}
+        <div className="flex flex-col gap-2 pt-1">
           <Link
             href="/dashboard/settings"
             onClick={closeOverlays}
@@ -306,7 +307,7 @@ export function DashboardShell({
             <span>Settings</span>
           </Link>
 
-          <ThemeToggle />
+          <ThemeToggle className="w-full" />
         </div>
 
         {/* Sign out form */}

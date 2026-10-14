@@ -21,7 +21,7 @@ check the log and the database.
 | Creator portal, desktop | D1, D2, D7, D8, D14, D18, D22, D23 | 15 items, live and on a private copy |
 | Creator portal, phone | E2, E3, E5 | E1, E4 |
 
-Automated tests: `npm test` in either app — 56 in the Shopify app, 26 in the portal, about a second
+Automated tests: `npm test` in either app — 56 in the Shopify app, 36 in the portal, about a second
 each, no database needed. Run them after any change to the money code.
 
 ---
@@ -284,28 +284,32 @@ its sample order, as an illustration of how a commission moves. If it's ever rew
 read like a payment provider: "Queued for processing… prepared for settlement", "funds were
 successfully transferred to the creator's payout account", and "return window passed".
 
-### Visual bugs
+### Still open: the rebuilt Settings page (reviewed 14 October)
 
-- **A password error shows twice:** once in the banner, then again under the field.
-- **The join page uses Tailwind's own blues** (`text-blue-50` … `text-blue-200`) instead of theme
-  tokens.
-- **The theme switcher is clipped.** Light / Auto / Dark don't fit beside Settings in the 256px
-  sidebar; "Dark" is cut off.
-- **"New" on a zero.** The trend labels PKR 0 commission "New" when there's no previous period.
-- **Shopify app, Payouts: "Mark as paid" says nothing afterwards.** The action returns "Payout marked
-  as paid." or an error, but the page never shows it.
+The rebuild works end to end. Saving Easypaisa details stored them correctly, the badge turned
+"Configured", and the toast showed. Each password error now appears once. What's left:
 
-### UX
-
-- **Day one on a phone is a long scroll of zeros.** Ali's Overview is about 3,500px tall:
-  - five buttons all lead to "get your link" (header Share, Share links, Get my link, Get my referral link, Get your link);
-  - after that come four zero metric cards and an empty chart.
-
-  For a creator with no sales, show the how-it-works card and the link, and collapse the rest.
-- **The paused screen says "Inactive"** in its badge (sidebar and card) but "This membership is
-  paused" in its heading. Use one word for both.
-- **The worked example is generic.** "PKR 100 → 13%" never shows the 15% or 20% rule winning.
-- **"Filter" submits the order search** (`earnings-filter-bar.tsx:191`). It should say "Search".
+- **Tabs can't be reached by keyboard.** Inactive tabs have `tabIndex={-1}` and nothing handles the
+  arrow keys, so Tab never reaches them.
+- **On phones the tabs are four bare icons.** The labels are hidden below `md`, so there's no visible
+  or spoken name.
+- **Dark mode "Remove" button:** `bg-bad-ink text-white` is white on pale pink. Use `text-surface`.
+  The password checklist's ticks (`bg-ok-ink text-white`) have the same problem.
+- **Remove dialog:**
+  - Escape and clicking outside don't close it, and focus isn't moved into it;
+  - a failed removal shows nothing.
+- **Errors and hints aren't linked to their inputs** (no `aria-describedby`), so screen readers
+  don't read "That password is incorrect". The old `Field` component did this.
+- **A new creator starts on Bank transfer.** Default to Easypaisa, or to no choice.
+- **The password checklist reads like rules.** "Upper and lower case" and "A number or symbol"
+  aren't required (only 8 characters is). Call them tips, or enforce them.
+- **"Choose a password you have not used here before"** only compares against the current password.
+- **The mobile number and IBAN are only checked in the browser.** `updatePayoutDetails` doesn't
+  call `validMobile` / `validIban`.
+- **The Easypaisa, JazzCash and bank colours in `globals.css` (~60 lines) are unused.** The panel
+  accent is always indigo.
+- **An older saved method ("Wise") gets no Remove button and no explanation.**
+- **The Easypaisa and JazzCash logos are hand-drawn look-alikes.** Use the official assets before launch.
 
 ### Fixed on 14 October 2026
 
@@ -344,6 +348,28 @@ successfully transferred to the creator's payout account", and "return window pa
     - the code rule is accurate: another creator's code beats your link, a store sale code never does.
 - **Sentence case** for "Getting paid", "Manage payout details", "Example calculation", "Owed back
   from refunds", "Lifetime commission earned" and "Standard commission rate".
+- **Theme switcher:** it has its own full-width row under Settings; "Dark" is no longer cut off.
+- **"New" on a zero:** the trend badges "New" only on a value above zero. The note under it no longer
+  calls an empty period "first recorded activity".
+- **Day one:** for a creator with no referred orders on a running program, the Overview shows how it
+  works and the link and code, then either one "Your numbers will show up here" card (no clicks yet)
+  or the metrics and trend (once there are clicks).
+  - The zero earnings panel, the repeated next-action card and the empty recent-activity list are
+    hidden. Ali's phone view went from about 3,500px to 1,340px.
+  - On phones, the header "Share links" button is hidden for everyone, because the top bar's Share
+    is right above it.
+- **Paused, not Inactive:** a membership the merchant deactivated reads "Paused" in every badge
+  (`membershipLabel`).
+- **Worked example:** "Example orders" shows each rule that can win, with the program's real rates:
+  the standard rate (including guest checkouts), the first-time or returning customer rate, a product
+  rate, and "earns nothing" under the minimum. This is `lib/worked-examples.ts`, with 6 tests.
+- **"Filter" now says "Search".**
+- **Join page:** the panel uses the brand colour instead of hard-coded blues, in both themes.
+- **Shopify app, Payouts:** "Mark as paid" now shows a toast, and an error toast if it was refused.
+- **The duplicated password error** is gone in the Settings rebuild.
+- **How you earn → "Manage payout details"** now opens Settings on the Payouts tab.
+- **Shopify app, Mark as paid:** the creator's saved details show one line each instead of one
+  run-on line.
 
 ---
 

@@ -86,29 +86,29 @@ export default async function JoinProgramPage({ params }: PageProps<"/join/[prog
     <main className="flex flex-1 items-center justify-center px-4 py-10 sm:py-16">
       <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-line bg-surface shadow-xl shadow-black/5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         {/* Program summary */}
-        <aside className="flex flex-col gap-6 bg-linear-to-br from-blue-600 to-blue-900 p-8 text-white sm:p-10">
+        <aside className="flex flex-col gap-6 bg-brand bg-linear-to-br from-transparent to-black/25 p-8 text-brand-ink sm:p-10">
           <div className="flex flex-col gap-1">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-blue-200">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-brand-ink/75">
               Creator program
             </p>
             <h1 className="text-2xl font-extrabold tracking-tight">{program.name}</h1>
-            <p className="text-sm text-blue-100">by {storeName}</p>
+            <p className="text-sm text-brand-ink/85">by {storeName}</p>
           </div>
 
           {program.description ? (
-            <p className="text-sm leading-relaxed text-blue-50/90">{program.description}</p>
+            <p className="text-sm leading-relaxed text-brand-ink/90">{program.description}</p>
           ) : null}
 
           {commission ? (
-            <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-blue-200">
+            <div className="rounded-xl bg-brand-ink/10 p-4 backdrop-blur-sm">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-brand-ink/75">
                 You earn
               </p>
               <p className="mt-1 text-lg font-bold">{commission}</p>
             </div>
           ) : null}
 
-          <ul className="mt-auto flex flex-col gap-3 text-sm text-blue-50/90">
+          <ul className="mt-auto flex flex-col gap-3 text-sm text-brand-ink/90">
             <Benefit>Your own referral link, tracked automatically</Benefit>
             {couponTracking ? (
               <Benefit>A personal discount code to share with your audience</Benefit>
@@ -180,7 +180,7 @@ function Benefit({ children }: { children: React.ReactNode }) {
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="mt-0.5 h-4 w-4 flex-none text-blue-200"
+        className="mt-0.5 h-4 w-4 flex-none text-brand-ink/75"
         aria-hidden="true"
       >
         <path d="M20 6 9 17l-5-5" />

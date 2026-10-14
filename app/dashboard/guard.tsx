@@ -6,7 +6,7 @@ import {
   type Membership,
 } from "@/lib/auth";
 import { Badge } from "@/components/badge";
-import { membershipTone, titleCase } from "@/lib/earning-status";
+import { membershipLabel, membershipTone } from "@/lib/earning-status";
 import { EmptyState } from "@/components/empty-state";
 import { NoProgramsArt, PausedProgramArt } from "@/components/illustration";
 import { storeDisplayName } from "@/lib/store-name";
@@ -224,7 +224,7 @@ function NotActive({
   return (
     <div className="rounded-2xl border border-line bg-surface p-8 shadow-sm">
       <div className="flex flex-col items-start gap-3">
-        <Badge tone={membershipTone(status)}>{titleCase(status)}</Badge>
+        <Badge tone={membershipTone(status)}>{membershipLabel(status)}</Badge>
         <h1 className="text-xl font-bold tracking-tight text-ink">{title}</h1>
         <p className="max-w-xl text-sm leading-relaxed text-ink-muted">{body}</p>
 

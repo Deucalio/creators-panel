@@ -25,22 +25,26 @@ export function TrendSection({
   const stats = [
     {
       label: "Commission",
+      current: trend.totals.commission,
       value: formatMoney(trend.totals.commission, currency),
       change: percentChange(trend.totals.commission, trend.previous.commission),
     },
     {
       label: "Orders",
+      current: trend.totals.orders,
       value: String(trend.totals.orders),
       change: percentChange(trend.totals.orders, trend.previous.orders),
     },
     {
       label: "Clicks",
+      current: trend.totals.clicks,
       value: String(trend.totals.clicks),
       change: percentChange(trend.totals.clicks, trend.previous.clicks),
     },
   ];
 
   const hasPreviousActivity = stats.some((s) => s.change !== null);
+  const hasActivity = stats.some((s) => s.current > 0);
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-6 shadow-xs">
@@ -60,10 +64,15 @@ export function TrendSection({
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {stats.map((stat) => {
           const tone = changeTone(stat.change);
+          // With no previous period there's no percentage. Something this
+          // period is "New"; nothing at all gets no badge — "New" beside a 0
+          // read as if something had happened.
           const formattedChange =
-            stat.change === null
-              ? "New"
-              : `${stat.change > 0 ? "+" : ""}${stat.change}%`;
+            stat.change !== null
+              ? `${stat.change > 0 ? "+" : ""}${stat.change}%`
+              : stat.current > 0
+                ? "New"
+                : null;
 
           return (
             <div
@@ -74,11 +83,13 @@ export function TrendSection({
                 <span className="text-xs font-semibold text-ink-muted">
                   {stat.label}
                 </span>
-                <span
-                  className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${TONE_BADGE[tone]}`}
-                >
-                  {formattedChange}
-                </span>
+                {formattedChange ? (
+                  <span
+                    className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-semibold ${TONE_BADGE[tone]}`}
+                  >
+                    {formattedChange}
+                  </span>
+                ) : null}
               </div>
               <p className="mt-1.5 text-xl font-bold tracking-tight tabular-nums text-ink">
                 {stat.value}
@@ -92,8 +103,10 @@ export function TrendSection({
       <div className="mt-2 text-xs text-ink-subtle px-1">
         {hasPreviousActivity ? (
           <span>Comparison shown against the preceding {trend.days}-day period.</span>
+        ) : hasActivity ? (
+          <span>Nothing in the {trend.days} days before this to compare against.</span>
         ) : (
-          <span>First recorded activity — no previous {trend.days} days to compare against.</span>
+          <span>No clicks or orders in the last {trend.days} days yet.</span>
         )}
       </div>
 

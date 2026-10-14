@@ -53,6 +53,19 @@
   --danger-ink: #9f1239;
 
   --ring: #4f46e5;
+
+  /* Payment brands (Pakistan) */
+  --ep: #2db84d;  --ep-strong: #0d7f36;  --ep-tint: #edf9f1;  --ep-line: #bfe6cc;  --ep-ink: #0b6b2e;
+  --jc: #e8262d;  --jc-strong: #c7161e;  --jc-tint: #fff0f0;  --jc-line: #f8c6c9;  --jc-ink: #a3121a;
+  --bk: #5b6b8c;  --bk-strong: #3f4d6e;  --bk-tint: #f0f3f9;  --bk-line: #cfd7e8;  --bk-ink: #2f3b57;
+
+  /* Method accent */
+  --m: var(--brand);
+  --m-strong: var(--brand);
+  --m-tint: var(--brand-surface);
+  --m-line: var(--brand-line);
+  --m-ink: var(--brand-text);
+  --m-ring: color-mix(in srgb, var(--brand) 22%, transparent);
 }
 
 /* System dark preference */
@@ -98,6 +111,11 @@
     --danger-ink: #fda4af;
 
     --ring: #818cf8;
+
+    --ep: #34c25a;  --ep-strong: #12803a;  --ep-tint: #0e2a1b;  --ep-line: #1f5a39;  --ep-ink: #74e6a2;
+    --jc: #f0434a;  --jc-strong: #d62a33;  --jc-tint: #34141a;  --jc-line: #6d2832;  --jc-ink: #ff9ca1;
+    --bk: #8392b5;  --bk-strong: #55648a;  --bk-tint: #1b2133;  --bk-line: #38425e;  --bk-ink: #b9c4e3;
+    --m-ring: color-mix(in srgb, var(--brand) 30%, transparent);
   }
 }
 
@@ -142,6 +160,25 @@
   --danger-ink: #fda4af;
 
   --ring: #818cf8;
+
+  --ep: #34c25a;  --ep-strong: #12803a;  --ep-tint: #0e2a1b;  --ep-line: #1f5a39;  --ep-ink: #74e6a2;
+  --jc: #f0434a;  --jc-strong: #d62a33;  --jc-tint: #34141a;  --jc-line: #6d2832;  --jc-ink: #ff9ca1;
+  --bk: #8392b5;  --bk-strong: #55648a;  --bk-tint: #1b2133;  --bk-line: #38425e;  --bk-ink: #b9c4e3;
+  --m-ring: color-mix(in srgb, var(--brand) 30%, transparent);
+}
+
+/* Method brand styling */
+[data-method="easypaisa"] {
+  --m: var(--ep); --m-strong: var(--ep-strong); --m-tint: var(--ep-tint); --m-line: var(--ep-line); --m-ink: var(--ep-ink);
+  --m-ring: color-mix(in srgb, var(--ep) 26%, transparent);
+}
+[data-method="jazzcash"] {
+  --m: var(--jc); --m-strong: var(--jc-strong); --m-tint: var(--jc-tint); --m-line: var(--jc-line); --m-ink: var(--jc-ink);
+  --m-ring: color-mix(in srgb, var(--jc) 26%, transparent);
+}
+[data-method="bank"] {
+  --m: var(--bk); --m-strong: var(--bk-strong); --m-tint: var(--bk-tint); --m-line: var(--bk-line); --m-ink: var(--bk-ink);
+  --m-ring: color-mix(in srgb, var(--bk) 28%, transparent);
 }
 
 @theme inline {
@@ -183,8 +220,38 @@
 
   --color-ring: var(--ring);
 
+  --color-m: var(--m);
+  --color-m-strong: var(--m-strong);
+  --color-m-tint: var(--m-tint);
+  --color-m-line: var(--m-line);
+  --color-m-ink: var(--m-ink);
+  --color-sunken: var(--surface-muted);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(8px); }
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.25s ease-out forwards;
+}
+.animate-toast-out {
+  animation: toast-out 0.25s ease-in forwards;
+}
+.animate-panel-in {
+  animation: panel-in 0.22s ease-out;
 }
 
 /* Reduced motion preference support (AX-4) */

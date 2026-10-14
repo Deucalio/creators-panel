@@ -8,7 +8,7 @@ import { getEarningsTrend } from "@/lib/trend";
 import { CopyField } from "@/components/copy-field";
 import { Icon } from "@/components/icon";
 import { GettingStarted } from "@/components/getting-started";
-import { describeShopperDiscount, membershipTone, titleCase } from "@/lib/earning-status";
+import { describeShopperDiscount, membershipLabel, membershipTone } from "@/lib/earning-status";
 import { storeLink } from "@/lib/share-links";
 import { TrendSection, TREND_PERIODS } from "@/components/trend-section";
 import { resolveMembership } from "./guard";
@@ -19,6 +19,8 @@ import { HeroEarningsPanel } from "@/components/hero-earnings-panel";
 import { NextActionCard } from "@/components/next-action-card";
 import { PerformanceMetrics } from "@/components/performance-metrics";
 import { RecentEarningsPreview } from "@/components/recent-earnings-preview";
+import { EmptyState } from "@/components/empty-state";
+import { NoActivityArt } from "@/components/illustration";
 import { matchPayoutMethod } from "@/lib/payout-methods";
 
 // Earnings must never be served stale.
@@ -76,6 +78,12 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
     matchPayoutMethod(account.payoutMethod) && account.payoutDetails?.trim(),
   );
   const newcomer = stats.orders === 0;
+  // Day one: nothing referred yet and the program is running. The page then
+  // shows how it works and the link, not a column of zeros under five buttons
+  // that all say "get your link". Clicks still show once there are any — the
+  // first sign the link works. (`orders` leaves out rejected ones, so the
+  // earnings count decides whether there's any history at all.)
+  const firstDay = newcomer && !paused && earnings.total === 0;
 
   const shareSection = (
     <div className="flex flex-col gap-3">
@@ -88,7 +96,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         </div>
         <Link
           href={`/dashboard/links?program=${membership.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-text hover:underline"
+          className="inline-flex flex-none items-center whitespace-nowrap gap-1.5 text-xs font-semibold text-brand-text hover:underline"
         >
           <span>Product links &amp; QR</span>
           <Icon name="arrow" className="h-3 w-3" />
@@ -147,13 +155,14 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
         description={`Track your referred orders, commissions, and performance in ${prog.name}.`}
         badge={
           <Badge tone={membershipTone(membership.status)}>
-            {titleCase(membership.status)}
+            {membershipLabel(membership.status)}
           </Badge>
         }
         actions={
           <Link
             href={`/dashboard/links?program=${membership.id}`}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-brand-ink transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+            // Desktop only: on a phone the top bar's Share button is right above.
+            className="hidden items-center gap-2 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-brand-ink transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 lg:inline-flex"
           >
             <Icon name="share" className="h-3.5 w-3.5" />
             <span>Share links</span>
@@ -184,46 +193,66 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       {/* For newcomers, put the sharing strip right under getting started */}
       {newcomer ? shareSection : null}
 
-      {/* Row 1: Hero Earnings Panel (8 cols) + Next Action Card (4 cols) (OV-1, OV-2, OV-5) */}
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8">
-          <HeroEarningsPanel stats={stats} currency={currency} storeName={storeName} />
+      {/* Row 1: Hero Earnings Panel (8 cols) + Next Action Card (4 cols) (OV-1, OV-2, OV-5).
+          Not on day one: every figure is 0, and the card repeats Getting started. */}
+      {firstDay ? null : (
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-8">
+            <HeroEarningsPanel stats={stats} currency={currency} storeName={storeName} />
+          </div>
+          <div className="col-span-12 lg:col-span-4">
+            <NextActionCard
+              hasPayoutDetails={hasPayoutDetails}
+              pendingPayout={pendingPayout}
+              paused={paused}
+              newcomer={newcomer}
+              currency={currency}
+              programId={membership.id}
+              storeName={storeName}
+            />
+          </div>
         </div>
-        <div className="col-span-12 lg:col-span-4">
-          <NextActionCard
-            hasPayoutDetails={hasPayoutDetails}
-            pendingPayout={pendingPayout}
-            paused={paused}
-            newcomer={newcomer}
-            currency={currency}
-            programId={membership.id}
-            storeName={storeName}
+      )}
+
+      {firstDay && stats.clicks === 0 ? (
+        <div className="rounded-2xl border border-line bg-surface shadow-xs">
+          <EmptyState
+            art={<NoActivityArt />}
+            title="Your numbers will show up here"
+            body="Clicks, orders and what you've earned appear on this page as soon as people use your link. Orders usually show up within minutes."
           />
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Row 2: Balanced 4-Metric Grid (3 cols each = 12 cols, nothing stranded) (OV-1) */}
+          <div>
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-subtle">
+              Reach &amp; conversion metrics
+            </h2>
+            <PerformanceMetrics stats={stats} currency={currency} />
+          </div>
 
-      {/* Row 2: Balanced 4-Metric Grid (3 cols each = 12 cols, nothing stranded) (OV-1) */}
-      <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-subtle">
-          Reach &amp; Conversion Metrics
-        </h2>
-        <PerformanceMetrics stats={stats} currency={currency} />
-      </div>
-
-      {/* Row 3: Trend Section (8 cols) + Recent Earnings (4 cols) (OV-3, OV-4, OV-8) */}
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8">
-          <TrendSection trend={trend} currency={currency} programId={membership.id} />
-        </div>
-        <div className="col-span-12 lg:col-span-4">
-          <RecentEarningsPreview
-            rows={earnings.rows}
-            currency={currency}
-            total={earnings.total}
-            programId={membership.id}
-          />
-        </div>
-      </div>
+          {/* Row 3: Trend Section (8 cols) + Recent Earnings (4 cols) (OV-3, OV-4, OV-8).
+              Day one has no orders to list, so the trend takes the full width. */}
+          {firstDay ? (
+            <TrendSection trend={trend} currency={currency} programId={membership.id} />
+          ) : (
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12 lg:col-span-8">
+                <TrendSection trend={trend} currency={currency} programId={membership.id} />
+              </div>
+              <div className="col-span-12 lg:col-span-4">
+                <RecentEarningsPreview
+                  rows={earnings.rows}
+                  currency={currency}
+                  total={earnings.total}
+                  programId={membership.id}
+                />
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Row 4: Share strip for established creators */}
       {!newcomer ? shareSection : null}
