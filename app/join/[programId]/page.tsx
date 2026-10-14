@@ -84,36 +84,36 @@ export default async function JoinProgramPage({ params }: PageProps<"/join/[prog
 
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-10 sm:py-16">
-      <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl shadow-black/10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-line bg-surface shadow-xl shadow-black/5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         {/* Program summary */}
-        <aside className="flex flex-col gap-6 bg-linear-to-br from-indigo-700 via-indigo-800 to-slate-950 p-8 text-white sm:p-10">
+        <aside className="flex flex-col gap-6 bg-linear-to-br from-blue-600 to-blue-900 p-8 text-white sm:p-10">
           <div className="flex flex-col gap-1">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-200">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-blue-200">
               Creator program
             </p>
             <h1 className="text-2xl font-extrabold tracking-tight">{program.name}</h1>
-            <p className="text-sm text-indigo-100">by {storeName}</p>
+            <p className="text-sm text-blue-100">by {storeName}</p>
           </div>
 
           {program.description ? (
-            <p className="text-xs leading-relaxed text-indigo-50/90">{program.description}</p>
+            <p className="text-sm leading-relaxed text-blue-50/90">{program.description}</p>
           ) : null}
 
           {commission ? (
-            <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm border border-white/10">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-200">
+            <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-blue-200">
                 You earn
               </p>
-              <p className="mt-1 text-base font-extrabold">{commission}</p>
+              <p className="mt-1 text-lg font-bold">{commission}</p>
             </div>
           ) : null}
 
-          <ul className="mt-auto flex flex-col gap-3 text-xs text-indigo-50/90">
+          <ul className="mt-auto flex flex-col gap-3 text-sm text-blue-50/90">
             <Benefit>Your own referral link, tracked automatically</Benefit>
             {couponTracking ? (
               <Benefit>A personal discount code to share with your audience</Benefit>
             ) : null}
-            <Benefit>A real-time dashboard showing every order and payout</Benefit>
+            <Benefit>A dashboard showing every sale and commission you earn</Benefit>
           </ul>
         </aside>
 
@@ -125,19 +125,19 @@ export default async function JoinProgramPage({ params }: PageProps<"/join/[prog
                 <h2 className="text-xl font-bold tracking-tight text-ink">
                   Apply to join
                 </h2>
-                <p className="text-xs text-ink-muted">
-                  Takes less than a minute. {storeName} reviews every application.
+                <p className="text-sm text-ink-muted">
+                  Takes a minute. {storeName} reviews every application.
                 </p>
               </div>
 
               {existingMembership ? (
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs leading-relaxed text-ink-muted">
-                    You&apos;re already a member of this program.
+                  <p className="text-sm leading-relaxed text-ink-muted">
+                    You&apos;re already part of this program.
                   </p>
                   <Link
                     href={`/dashboard?program=${existingMembership.id}`}
-                    className="inline-flex items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-brand-hover"
+                    className="inline-flex items-center justify-center rounded-lg bg-brand px-5 py-3 text-sm font-semibold text-brand-ink shadow-sm transition hover:bg-brand-hover"
                   >
                     Go to your dashboard
                   </Link>
@@ -158,7 +158,7 @@ export default async function JoinProgramPage({ params }: PageProps<"/join/[prog
               <h2 className="text-xl font-bold tracking-tight text-ink">
                 Applications are closed
               </h2>
-              <p className="text-xs leading-relaxed text-ink-muted">
+              <p className="text-sm leading-relaxed text-ink-muted">
                 {storeName} isn&apos;t accepting new creators for this program right now. Check
                 back later, or reach out to them directly if you were invited.
               </p>
@@ -180,7 +180,7 @@ function Benefit({ children }: { children: React.ReactNode }) {
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="mt-0.5 h-3.5 w-3.5 flex-none text-indigo-300"
+        className="mt-0.5 h-4 w-4 flex-none text-blue-200"
         aria-hidden="true"
       >
         <path d="M20 6 9 17l-5-5" />

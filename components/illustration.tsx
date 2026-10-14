@@ -208,164 +208,171 @@ export function PausedNextActionArt({
   );
 }
 
-/** Tilted cart basket with shipping boxes & motion lines. Used in PerformanceMetrics for Total Sales. */
-export function TotalSalesArt({
-  className = "h-14 w-auto shrink-0 select-none",
-}: {
-  className?: string;
-}) {
+/*
+ * Metric art for the Overview's performance cards.
+ *
+ * One family, so the four cards read as a set: the same 96×72 frame, a soft
+ * brand-surface disc behind every object, objects outlined in brand-text at one
+ * stroke weight, and exactly one solid brand accent each. Status colours are
+ * kept out on purpose — amber means "pending" everywhere else in the portal.
+ * All colour comes from the theme tokens, so dark mode needs nothing extra.
+ *
+ * Each says one literal thing at 56px tall: a bag with a price tag (sales), a
+ * parcel with a check (an order credited), a cursor on a link (a click), and a
+ * funnel with several visits in and one purchase out (conversion).
+ */
+
+type ArtProps = { className?: string };
+
+const STROKE = 2.25;
+
+function MetricFrame({ className, children }: ArtProps & { children: React.ReactNode }) {
   return (
-    <svg
-      viewBox="0 0 110 85"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <line x1="18" y1="35" x2="26" y2="38" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" />
-      <line x1="11" y1="45" x2="27" y2="45" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" />
-      <line x1="16" y1="52" x2="30" y2="51" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" />
-      <line x1="13" y1="59" x2="28" y2="57" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" />
+    <svg viewBox="0 0 96 72" fill="none" className={className} aria-hidden="true">
+      <circle cx="48" cy="38" r="29" className="fill-brand-surface" />
+      {children}
+    </svg>
+  );
+}
 
-      <g transform="translate(58, 40) rotate(-13)">
-        <rect x="-19" y="-14" width="14" height="14" rx="1" fill="var(--warn-surface, #fef3c7)" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinejoin="round" />
-        <line x1="-12" y1="-14" x2="-12" y2="-8" stroke="var(--ink, #111827)" strokeWidth="1.5" strokeLinecap="round" />
-
-        <rect x="-5" y="-21" width="15" height="21" rx="1" fill="var(--warn-surface, #fef3c7)" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinejoin="round" />
-        <line x1="2.5" y1="-21" x2="2.5" y2="-13" stroke="var(--ink, #111827)" strokeWidth="1.5" strokeLinecap="round" />
-
-        <rect x="10" y="-13" width="11" height="13" rx="1" fill="var(--warn-surface, #fef3c7)" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinejoin="round" />
-        <line x1="15.5" y1="-13" x2="15.5" y2="-7" stroke="var(--ink, #111827)" strokeWidth="1.5" strokeLinecap="round" />
-
-        <polygon points="-24,0 24,0 21,20 -19,20" fill="var(--surface, #ffffff)" />
-        <polygon points="-22.5,6.5 23,6.5 21,20 -19,20" fill="var(--info-surface, #e0e7ff)" />
-        <polygon points="-24,0 24,0 21,20 -19,20" stroke="var(--ink, #111827)" strokeWidth="1.85" strokeLinejoin="round" />
-
-        <line x1="-22.5" y1="6.5" x2="23" y2="6.5" stroke="var(--ink, #111827)" strokeWidth="1.5" />
-        <line x1="-21" y1="13.5" x2="22" y2="13.5" stroke="var(--ink, #111827)" strokeWidth="1.5" />
-
-        <line x1="-14" y1="0" x2="-11" y2="20" stroke="var(--ink, #111827)" strokeWidth="1.5" />
-        <line x1="-5" y1="0" x2="-3" y2="20" stroke="var(--ink, #111827)" strokeWidth="1.5" />
-        <line x1="5" y1="0" x2="5" y2="20" stroke="var(--ink, #111827)" strokeWidth="1.5" />
-        <line x1="14" y1="0" x2="13" y2="20" stroke="var(--ink, #111827)" strokeWidth="1.5" />
-
-        <path d="M24,0 L28,-3 C31,-5 33,-1 30,2 L23.5,4" fill="var(--surface, #ffffff)" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+/** A shopping bag with a price tag. Used for Total sales. */
+export function TotalSalesArt({ className = "h-14 w-auto shrink-0 select-none" }: ArtProps) {
+  return (
+    <MetricFrame className={className}>
+      <path
+        d="M38 30v-4a8 8 0 0 1 16 0v4"
+        className="stroke-brand-text"
+        strokeWidth={STROKE}
+        strokeLinecap="round"
+      />
+      <path
+        d="M29 30h34l3 30a3 3 0 0 1-3 3.3H29a3 3 0 0 1-3-3.3z"
+        className="fill-surface"
+      />
+      {/* The bag's shaded side, drawn under the outline. */}
+      <path d="M57 30h6l3 30a3 3 0 0 1-3 3.3h-4.5z" className="fill-brand-line" />
+      <path
+        d="M29 30h34l3 30a3 3 0 0 1-3 3.3H29a3 3 0 0 1-3-3.3z"
+        className="stroke-brand-text"
+        strokeWidth={STROKE}
+        strokeLinejoin="round"
+      />
+      <circle cx="38" cy="37" r="1.75" className="fill-brand-text" />
+      <circle cx="54" cy="37" r="1.75" className="fill-brand-text" />
+      <g transform="rotate(-24 65 52)">
+        <path
+          d="M57 44h14a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H57l-7-8z"
+          className="fill-brand stroke-surface"
+          strokeWidth={2.5}
+          strokeLinejoin="round"
+        />
+        <circle cx="57.5" cy="52" r="2.25" className="fill-surface" />
+        <path d="M63 52h6" className="stroke-brand-ink" strokeWidth={STROKE} strokeLinecap="round" />
       </g>
-
-      <path d="M44,63 L83,55 L85,63 L46,66" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="86" cy="62.5" r="2" fill="var(--surface, #ffffff)" stroke="var(--ink, #111827)" strokeWidth="1.5" />
-
-      <circle cx="57" cy="70" r="5" fill="var(--surface, #ffffff)" stroke="var(--ink, #111827)" strokeWidth="1.85" />
-      <circle cx="57" cy="70" r="1.75" fill="var(--ink, #111827)" />
-
-      <circle cx="75" cy="70" r="5" fill="var(--surface, #ffffff)" stroke="var(--ink, #111827)" strokeWidth="1.85" />
-      <circle cx="75" cy="70" r="1.75" fill="var(--ink, #111827)" />
-
-      <line x1="36" y1="76" x2="42" y2="76" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" />
-      <line x1="47" y1="76" x2="86" y2="76" stroke="var(--ink, #111827)" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
+    </MetricFrame>
   );
 }
 
-/** High-five partners with megaphone & stars. Used in PerformanceMetrics for Referred Orders. */
-export function ReferredOrdersArt({
-  className = "h-14 w-auto shrink-0 select-none",
-}: {
-  className?: string;
-}) {
+/** A parcel with a check badge: an order credited. Used for Referred orders. */
+export function ReferredOrdersArt({ className = "h-14 w-auto shrink-0 select-none" }: ArtProps) {
   return (
-    <svg
-      viewBox="0 0 105 80"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <g transform="translate(22, 8) rotate(-20)">
-        <polygon points="0,8 12,2 12,16 0,11" fill="var(--info-surface)" stroke="var(--ink)" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M2,11 L1,16" stroke="var(--ink)" strokeWidth="1.5" strokeLinecap="round" />
-      </g>
-      <polygon points="52,8 53.5,12 58,12 54.5,14.5 56,18.5 52,16 48,18.5 49.5,14.5 46,12 50.5,12" fill="var(--warn-surface)" stroke="var(--ink)" strokeWidth="1.25" />
-      <polygon points="68,16 69,19 72,19 69.5,21 70.5,24 68,22 65.5,24 66.5,21 64,19 67,19" fill="var(--warn-surface)" stroke="var(--ink)" strokeWidth="1.25" />
-
-      <path d="M32,54 L49,26" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-      <path d="M72,54 L53,26" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-      <line x1="48" y1="20" x2="46" y2="17" stroke="var(--brand)" strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="54" y1="20" x2="56" y2="17" stroke="var(--brand)" strokeWidth="1.5" strokeLinecap="round" />
-
-      <path d="M12,76 L15,54 C16,50 28,50 30,54 L33,76 Z" fill="var(--warn-surface)" stroke="var(--ink)" strokeWidth="1.75" strokeLinejoin="round" />
-      <circle cx="23" cy="41" r="7" fill="var(--surface)" stroke="var(--ink)" strokeWidth="1.75" />
-      <path d="M16,42 C14,34 26,31 28,37 C23,37 19,39 16,42 Z" fill="var(--ink)" />
-
-      <path d="M68,76 L71,54 C72,50 84,50 86,54 L89,76 Z" fill="var(--info-surface)" stroke="var(--ink)" strokeWidth="1.75" strokeLinejoin="round" />
-      <circle cx="78" cy="41" r="7" fill="var(--surface)" stroke="var(--ink)" strokeWidth="1.75" />
-      <path d="M72,37 C74,31 85,32 85,39 C82,36 76,36 72,37 Z" fill="var(--ink)" />
-    </svg>
+    <MetricFrame className={className}>
+      <path
+        d="M27 33l5-9h30l5 9z"
+        className="fill-brand-line stroke-brand-text"
+        strokeWidth={STROKE}
+        strokeLinejoin="round"
+      />
+      <rect
+        x="27"
+        y="33"
+        width="40"
+        height="29"
+        rx="3"
+        className="fill-surface stroke-brand-text"
+        strokeWidth={STROKE}
+      />
+      <path
+        d="M47 24v20M33 55h8"
+        className="stroke-brand-text"
+        strokeWidth={STROKE}
+        strokeLinecap="round"
+      />
+      <circle cx="66" cy="55" r="10.5" className="fill-brand stroke-surface" strokeWidth={2.5} />
+      <path
+        d="M61.2 55.2l3.3 3.3 6.2-6.6"
+        className="stroke-brand-ink"
+        strokeWidth={STROKE}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </MetricFrame>
   );
 }
 
-/** Clicking cursor & hand with sprouting leaves. Used in PerformanceMetrics for Link Clicks. */
-export function LinkClicksArt({
-  className = "h-14 w-auto shrink-0 select-none",
-}: {
-  className?: string;
-}) {
+/** A cursor clicking a link. Used for Link clicks. */
+export function LinkClicksArt({ className = "h-14 w-auto shrink-0 select-none" }: ArtProps) {
   return (
-    <svg
-      viewBox="0 0 100 80"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <line x1="22" y1="16" x2="25" y2="21" stroke="var(--ink)" strokeWidth="1.75" strokeLinecap="round" />
-      <line x1="32" y1="13" x2="31" y2="19" stroke="var(--ink)" strokeWidth="1.75" strokeLinecap="round" />
-      <line x1="14" y1="25" x2="20" y2="26" stroke="var(--ink)" strokeWidth="1.75" strokeLinecap="round" />
-      <line x1="16" y1="35" x2="21" y2="32" stroke="var(--ink)" strokeWidth="1.75" strokeLinecap="round" />
-
-      <polygon points="26,25 46,35 37,39 43,50 38,53 32,42 26,48" fill="var(--info-surface)" stroke="var(--ink)" strokeWidth="1.75" strokeLinejoin="round" />
-
-      <path d="M46,44 Q56,42 62,48" stroke="var(--ink)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 3" />
-
-      <path d="M72,38 C62,38 60,26 70,28 C72,29 72,34 72,38 Z" fill="var(--ok-surface)" stroke="var(--ink)" strokeWidth="1.75" strokeLinejoin="round" />
-      <path d="M72,38 C82,38 84,26 74,28 C72,29 72,34 72,38 Z" fill="var(--ok-surface)" stroke="var(--ink)" strokeWidth="1.75" strokeLinejoin="round" />
-
-      <path d="M69,42 L69,56 L64,53 C61,51 59,54 61,57 L68,68 C70,70 73,72 78,72 L84,72 C88,72 90,68 90,62 L90,52 C90,49 86,49 86,52 L86,50 C86,47 82,47 82,50 L82,48 C82,45 77,45 77,48 L77,42 C77,39 69,39 69,42 Z" fill="var(--warn-surface)" stroke="var(--ink)" strokeWidth="1.75" strokeLinejoin="round" />
-    </svg>
+    <MetricFrame className={className}>
+      <rect
+        x="18"
+        y="22"
+        width="56"
+        height="22"
+        rx="11"
+        className="fill-surface stroke-brand-text"
+        strokeWidth={STROKE}
+      />
+      {/* Chain-link glyph, then a bar standing in for the URL. */}
+      <path
+        d="M33.5 30.5h-3a3.5 3.5 0 0 0 0 7h3M36.5 30.5h3a3.5 3.5 0 0 1 0 7h-3M31.5 34h7"
+        className="stroke-brand-text"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+      <path d="M47 33h17" className="stroke-brand-line" strokeWidth={4} strokeLinecap="round" />
+      <path
+        d="M58 44l.2 19.5 5.2-5 4.2 8.4 3.6-1.7-4.1-8.3 7.2-.2z"
+        className="fill-brand stroke-surface"
+        strokeWidth={STROKE}
+        strokeLinejoin="round"
+      />
+    </MetricFrame>
   );
 }
 
-/** Target bullseye with arrow & % flag. Used in PerformanceMetrics for Conversion Rate. */
-export function ConversionRateArt({
-  className = "h-14 w-auto shrink-0 select-none",
-}: {
-  className?: string;
-}) {
+/** A funnel: several visits in, one purchase out. Used for Conversion rate. */
+export function ConversionRateArt({ className = "h-14 w-auto shrink-0 select-none" }: ArtProps) {
   return (
-    <svg
-      viewBox="0 0 95 80"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <line x1="48" y1="66" x2="42" y2="75" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-      <line x1="64" y1="66" x2="70" y2="75" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-
-      <circle cx="56" cy="46" r="22" fill="var(--info-surface)" stroke="var(--ink)" strokeWidth="1.75" />
-      <circle cx="56" cy="46" r="15" fill="var(--surface)" stroke="var(--ink)" strokeWidth="1.75" />
-      <circle cx="56" cy="46" r="8" fill="var(--warn-surface)" stroke="var(--ink)" strokeWidth="1.75" />
-      <circle cx="56" cy="46" r="2.5" fill="var(--ink)" />
-
-      <line x1="46" y1="25" x2="46" y2="8" stroke="var(--ink)" strokeWidth="1.75" strokeLinecap="round" />
-      <polygon points="46,8 68,8 64,14 68,20 46,20" fill="var(--info-surface)" stroke="var(--ink)" strokeWidth="1.5" strokeLinejoin="round" />
-      <text x="51" y="17" fill="var(--ink)" fontSize="9" fontWeight="bold" fontFamily="sans-serif">
-        %
-      </text>
-
-      <line x1="16" y1="24" x2="56" y2="46" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
-      <polygon points="16,24 22,21 26,24 20,27" fill="var(--warn-surface)" stroke="var(--ink)" strokeWidth="1.5" strokeLinejoin="round" />
-      <polygon points="16,24 14,30 18,33 20,27" fill="var(--warn-surface)" stroke="var(--ink)" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
+    <MetricFrame className={className}>
+      {[
+        [34, 17],
+        [45, 12],
+        [56, 18],
+        [66, 13],
+      ].map(([cx, cy]) => (
+        <circle
+          key={cx}
+          cx={cx}
+          cy={cy}
+          r="2.75"
+          className="fill-brand-line stroke-brand-text"
+          strokeWidth={1.5}
+        />
+      ))}
+      <path
+        d="M24 23h48l-16 20v13h-16v-13z"
+        className="fill-surface stroke-brand-text"
+        strokeWidth={STROKE}
+        strokeLinejoin="round"
+      />
+      <path
+        d="M24 23h48l-4 5h-40z"
+        className="fill-brand-line stroke-brand-text"
+        strokeWidth={STROKE}
+        strokeLinejoin="round"
+      />
+      <circle cx="48" cy="64" r="5" className="fill-brand" />
+    </MetricFrame>
   );
 }

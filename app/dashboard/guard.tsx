@@ -124,18 +124,18 @@ function MembershipEndedNotice({
 }) {
   const reason = statusReason?.trim();
   return (
-    <div className="rounded-2xl border border-warn-line bg-warn-surface p-5 text-ink shadow-2xs">
-      <p className="text-xs font-bold text-warn">
+    <div className="rounded-2xl border border-warn-ink/25 bg-warn-surface p-5">
+      <p className="text-sm font-bold text-warn-ink">
         {status === "INACTIVE"
           ? `${storeName} has paused your membership of ${programName}`
           : `Your membership of ${programName} has ended`}
       </p>
-      <p className="mt-1 max-w-2xl text-xs leading-relaxed text-ink-muted">
+      <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink">
         New orders aren&apos;t credited to you, but everything below stays yours: commissions
         already approved are still paid out as normal.
       </p>
       {reason ? (
-        <p className="mt-2 max-w-2xl text-xs text-ink-muted">
+        <p className="mt-2 max-w-2xl text-sm text-ink-muted">
           &ldquo;{reason}&rdquo; — {storeName}
         </p>
       ) : null}
@@ -159,23 +159,23 @@ function ProgramPausedNotice({
   programName: string;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 rounded-2xl border border-warn-line bg-warn-surface px-6 py-5 text-ink shadow-xs">
-      <div className="space-y-1 max-w-xl">
-        <h2 className="text-sm font-bold text-warn">{programName} is paused</h2>
-        <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 rounded-2xl border border-warn-ink/25 bg-warn-surface px-6 py-4 shadow-xs">
+      <div className="space-y-1 max-w-2xl">
+        <p className="text-sm font-bold text-warn-ink">{programName} is paused</p>
+        <p className="text-xs sm:text-sm leading-relaxed text-ink">
           {storeName} has paused this program, so new orders through your link or code
           won&apos;t be credited to you until they turn it back on. Everything you&apos;ve already
           earned is unaffected.
         </p>
       </div>
-      <PausedProgramArt className="h-16 w-auto shrink-0 select-none hidden sm:block" />
+      <PausedProgramArt className="h-16 sm:h-18 w-auto shrink-0 select-none" />
     </div>
   );
 }
 
 function NoPrograms() {
   return (
-    <div className="rounded-2xl border border-line bg-surface shadow-xs">
+    <div className="rounded-2xl border border-line bg-surface shadow-sm">
       <EmptyState
         art={<NoProgramsArt />}
         title="No programs yet"
@@ -222,44 +222,49 @@ function NotActive({
   const reason = statusReason?.trim();
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-8 shadow-xs">
+    <div className="rounded-2xl border border-line bg-surface p-8 shadow-sm">
       <div className="flex flex-col items-start gap-3">
         <Badge tone={membershipTone(status)}>{titleCase(status)}</Badge>
         <h1 className="text-xl font-bold tracking-tight text-ink">{title}</h1>
-        <p className="max-w-xl text-xs leading-relaxed text-ink-muted">{body}</p>
+        <p className="max-w-xl text-sm leading-relaxed text-ink-muted">{body}</p>
 
-        {/* The merchant's own words, quoted rather than paraphrased */}
+        {/* The merchant's own words, quoted rather than paraphrased. Being told
+            you were turned down without being told why is the thing worth
+            fixing here; a rejection is required to carry one. */}
         {reason ? (
-          <figure className="mt-2 max-w-xl border-l-2 border-line pl-4">
-            <blockquote className="text-xs leading-relaxed text-ink">{reason}</blockquote>
-            <figcaption className="mt-1 text-[11px] text-ink-subtle">— {storeName}</figcaption>
+          <figure className="mt-2 max-w-xl border-l-3 border-line pl-4">
+            <blockquote className="text-sm leading-relaxed text-ink">{reason}</blockquote>
+            <figcaption className="mt-1.5 text-xs text-ink-subtle">— {storeName}</figcaption>
           </figure>
         ) : null}
 
-        {/* "Your existing earnings are unaffected" has to be checkable */}
+        {/* "Your existing earnings are unaffected" has to be checkable. */}
         {historyFor ? (
           <div className="mt-2 flex flex-wrap gap-2">
             <Link
               href={`/dashboard/earnings?program=${historyFor}`}
-              className="rounded-xl bg-brand px-4 py-2 text-xs font-semibold text-white shadow-2xs transition hover:bg-brand-hover"
+              className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-brand-ink transition hover:bg-brand-hover"
             >
               Your earnings
             </Link>
             <Link
               href={`/dashboard/payouts?program=${historyFor}`}
-              className="rounded-xl border border-line bg-surface px-4 py-2 text-xs font-semibold text-ink shadow-2xs transition hover:border-line-strong hover:bg-surface-muted"
+              className="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-ink transition hover:border-ink-subtle"
             >
               Payouts
             </Link>
           </div>
         ) : null}
 
+        {/* Telling someone to contact the merchant without saying how is worse
+            than saying nothing. The address is the shop's own customer-facing
+            one, mirrored from Shopify, so there is no merchant setup step. */}
         {supportEmail ? (
-          <p className="mt-2 text-xs text-ink-muted">
+          <p className="mt-2 text-sm text-ink-muted">
             Questions?{" "}
             <a
               href={`mailto:${supportEmail}`}
-              className="font-semibold text-brand hover:underline underline-offset-2"
+              className="font-semibold text-brand-text hover:underline"
             >
               {supportEmail}
             </a>

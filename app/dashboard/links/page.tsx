@@ -50,11 +50,10 @@ export default async function LinksPage({ searchParams }: PageProps<"/dashboard/
         </p>
       </div>
 
-      <Card title="Your store link" description="Sends shoppers directly to the home page.">
+      <Card title="Your store link" description="Sends people to the home page.">
         <CopyField
           label="Store link"
           value={storeLink(store, code)}
-          shareable
           hint={
             paused
               ? "The merchant has paused this program, so orders through this link won't be credited right now."
@@ -83,7 +82,7 @@ export default async function LinksPage({ searchParams }: PageProps<"/dashboard/
 
       <Card
         title="Link to any page"
-        description="Promoting a specific product converts far better than sending shoppers to the home page."
+        description="Promoting one product converts far better than sending people to the home page."
       >
         <LinkBuilder
           store={{ shop: store.shop, primaryDomain: store.primaryDomain }}
@@ -94,26 +93,26 @@ export default async function LinksPage({ searchParams }: PageProps<"/dashboard/
 
       {productRules.length > 0 ? (
         <Card
-          title="Products with custom rates"
+          title="Products with their own rate"
           description={
             config
-              ? `These replace your standard ${describeRate(config.type, config.amount, currency, { perSale: false })} for that product.`
-              : "These replace your standard rate for that product."
+              ? `These replace your standard ${describeRate(config.type, config.amount, currency, { perSale: false })} for that product — higher or lower.`
+              : "These replace your standard rate for that product — higher or lower."
           }
         >
-          <ul className="flex flex-col gap-5 divide-y divide-line-soft">
+          <ul className="flex flex-col gap-5">
             {productRules.map((rule) => {
               const comparison = compareToStandard(rule, config);
               return (
-                <li key={rule.id} className="flex flex-col gap-2 pt-4 first:pt-0">
+                <li key={rule.id} className="flex flex-col gap-2">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="text-xs font-bold text-ink">{rule.productTitle}</span>
+                    <span className="text-sm font-semibold text-ink">{rule.productTitle}</span>
                     <span
-                      className={`text-xs font-bold ${
+                      className={`text-sm font-bold ${
                         comparison === "none"
                           ? "text-ink-subtle"
                           : comparison === "lower"
-                            ? "text-warn"
+                            ? "text-ink-muted"
                             : "text-brand-text"
                       }`}
                     >
@@ -126,19 +125,24 @@ export default async function LinksPage({ searchParams }: PageProps<"/dashboard/
                   </div>
 
                   {comparison === "none" ? (
+                    // A 0% override is how a merchant excludes a product. Offering
+                    // a ready-made link to it would send the creator's audience
+                    // somewhere that pays them nothing.
                     <p className="text-xs leading-relaxed text-ink-subtle">
-                      Sales of this product don&apos;t earn commission, so there&apos;s no share link for it.
+                      Sales of this product don&apos;t earn you anything, so there&apos;s no link for it.
                     </p>
                   ) : rule.productHandle ? (
                     <CopyField
                       label={`Link to ${rule.productTitle}`}
                       value={productLink(store, code, rule.productHandle)}
-                      shareable
                     />
                   ) : (
+                    // Rules saved before handles were stored. The merchant opening
+                    // their program editor repairs this automatically, so the copy
+                    // avoids blaming anyone and points at the builder above.
                     <p className="text-xs leading-relaxed text-ink-subtle">
-                      No direct handle stored yet. Open the product on the store, copy its
-                      URL, and paste it into the link builder above.
+                      No direct link for this one yet. Open the product on the store, copy its
+                      address, and paste it into the builder above.
                     </p>
                   )}
                 </li>
@@ -161,10 +165,10 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-line bg-surface p-6 shadow-xs">
+    <section className="rounded-2xl border border-line bg-surface p-6 shadow-sm">
       <div className="mb-5 flex flex-col gap-1">
         <h2 className="text-base font-bold tracking-tight text-ink">{title}</h2>
-        <p className="text-xs text-ink-muted">{description}</p>
+        <p className="text-sm text-ink-muted">{description}</p>
       </div>
       {children}
     </section>
