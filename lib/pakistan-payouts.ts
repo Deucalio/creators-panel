@@ -138,3 +138,22 @@ export function parsePayoutDetails(
 
   return result;
 }
+
+export function isPayoutDetailsConfigured(
+  method: string | null | undefined,
+  raw: string | null | undefined,
+): boolean {
+  if (!method || !raw || !raw.trim()) return false;
+  const parsed = parsePayoutDetails(method, raw);
+  const m = method.toLowerCase();
+  if (m.includes("easypaisa")) {
+    return Boolean(parsed.easypaisa.number.trim());
+  }
+  if (m.includes("jazzcash")) {
+    return Boolean(parsed.jazzcash.number.trim());
+  }
+  if (m.includes("bank")) {
+    return Boolean(parsed.bank.iban.trim() || parsed.bank.bankName.trim());
+  }
+  return false;
+}

@@ -11,6 +11,7 @@ import { NoPayoutsArt } from "@/components/illustration";
 import { Icon } from "@/components/icon";
 import { resolveMembership } from "../guard";
 import { storeDisplayName } from "@/lib/store-name";
+import { isPayoutDetailsConfigured } from "@/lib/pakistan-payouts";
 
 export const dynamic = "force-dynamic";
 
@@ -43,9 +44,41 @@ export default async function PayoutsPage({ searchParams }: PageProps<"/dashboar
   const totalPaid = paidPayouts.reduce((sum, p) => sum + p.amount, 0);
   const totalPending = pendingPayouts.reduce((sum, p) => sum + p.amount, 0);
 
+  const hasPayoutDetails = isPayoutDetailsConfigured(
+    resolved.account.payoutMethod,
+    resolved.account.payoutDetails,
+  );
+
   return (
     <div className="flex flex-col gap-6">
       {resolved.notice}
+
+      {!hasPayoutDetails ? (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-950/30 p-4 sm:px-5 sm:py-3.5 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <span className="size-8 rounded-xl flex items-center justify-center font-bold text-white bg-amber-500 shrink-0 shadow-2xs">
+              !
+            </span>
+            <div className="flex flex-col gap-0.5">
+              <p className="text-xs sm:text-sm font-bold text-ink">
+                No payout method connected
+              </p>
+              <p className="text-xs text-ink-muted">
+                {pendingPayouts.length > 0
+                  ? `You have ${pendingPayouts.length} payout${pendingPayouts.length === 1 ? "" : "s"} (${formatMoney(totalPending, currency)}) waiting. Add your payout details so ${storeName} can send it.`
+                  : `Add your Easypaisa, JazzCash or bank details so ${storeName} can pay your approved earnings.`}
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/dashboard/settings?program=${encodeURIComponent(membership.id)}#payouts`}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs transition shrink-0 cursor-pointer"
+          >
+            <span>Connect payout method</span>
+            <Icon name="arrow" className="h-3 w-3" />
+          </Link>
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-extrabold tracking-tight text-ink">Payouts</h1>
@@ -231,7 +264,7 @@ function PayoutCard({
   return (
     <section
       id={payoutCode}
-      className={`scroll-mt-6 overflow-hidden rounded-2xl border bg-surface shadow-xs transition-shadow ${
+      className={`scroll-mt-20 sm:scroll-mt-8 overflow-hidden rounded-2xl border bg-surface shadow-xs transition-shadow ${
         isPending
           ? "border-warn-line bg-linear-to-b from-warn-surface/20 to-surface"
           : "border-line"

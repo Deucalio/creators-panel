@@ -168,9 +168,10 @@ export function EarningsFilterBar({
           <input
             type="search"
             name="q"
+            aria-label="Search by order number"
             defaultValue={currentQuery ?? ""}
             placeholder="Search order number e.g. #1042"
-            className="w-full rounded-xl border border-line bg-surface py-2 pr-9 pl-9 text-xs text-ink placeholder:text-ink-subtle shadow-2xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-xl border border-line bg-surface py-2 pr-9 pl-9 text-base sm:text-xs text-ink placeholder:text-ink-subtle shadow-2xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           {currentQuery ? (
             <button

@@ -21,7 +21,7 @@ check the log and the database.
 | Creator portal, desktop | D1, D2, D7, D8, D14, D18, D22, D23 | 15 items, live and on a private copy |
 | Creator portal, phone | E2, E3, E5 | E1, E4 |
 
-Automated tests: `npm test` in either app — 56 in the Shopify app, 36 in the portal, about a second
+Automated tests: `npm test` in either app — 56 in the Shopify app, 37 in the portal, about a second
 each, no database needed. Run them after any change to the money code.
 
 ---
@@ -284,35 +284,38 @@ its sample order, as an illustration of how a commission moves. If it's ever rew
 read like a payment provider: "Queued for processing… prepared for settlement", "funds were
 successfully transferred to the creator's payout account", and "return window passed".
 
-### Still open: the rebuilt Settings page (reviewed 14 October)
+### Still open: Shopify app
 
-The rebuild works end to end. Saving Easypaisa details stored them correctly, the badge turned
-"Configured", and the toast showed. Each password error now appears once. What's left:
+The full list for whoever fixes it is the doc [PartnerLoop Shopify App — Fix List](https://claude.ai/code/artifact/674c8afc-8d07-4476-90b5-b6a5e0d1265c),
+with lines, fixes and a sign-off checklist. In short:
 
-- **Tabs can't be reached by keyboard.** Inactive tabs have `tabIndex={-1}` and nothing handles the
-  arrow keys, so Tab never reaches them.
-- **On phones the tabs are four bare icons.** The labels are hidden below `md`, so there's no visible
-  or spoken name.
-- **Dark mode "Remove" button:** `bg-bad-ink text-white` is white on pale pink. Use `text-surface`.
-  The password checklist's ticks (`bg-ok-ink text-white`) have the same problem.
-- **Remove dialog:**
-  - Escape and clicking outside don't close it, and focus isn't moved into it;
-  - a failed removal shows nothing.
-- **Errors and hints aren't linked to their inputs** (no `aria-describedby`), so screen readers
-  don't read "That password is incorrect". The old `Field` component did this.
-- **A new creator starts on Bank transfer.** Default to Easypaisa, or to no choice.
-- **The password checklist reads like rules.** "Upper and lower case" and "A number or symbol"
-  aren't required (only 8 characters is). Call them tips, or enforce them.
-- **"Choose a password you have not used here before"** only compares against the current password.
-- **The mobile number and IBAN are only checked in the browser.** `updatePayoutDetails` doesn't
-  call `validMobile` / `validIban`.
-- **The Easypaisa, JazzCash and bank colours in `globals.css` (~60 lines) are unused.** The panel
-  accent is always indigo.
-- **An older saved method ("Wise") gets no Remove button and no explanation.**
-- **The Easypaisa and JazzCash logos are hand-drawn look-alikes.** Use the official assets before launch.
+- **Features shown that don't exist:**
+  - in the program editor: PRO toggles, auto-discount, the AI card, links to `#`;
+  - in the Programs list: dead buttons, a fake search box, and a "Multiple programs" upgrade promo
+    plus the Growth plan modal.
+- **Fake data:** "1 affiliate" is hard-coded, `$` shows in every currency, and five toggles are
+  decorative.
+- **Keyboard access:** selecting commissions, the onboarding choices and the editor controls are
+  clickable `div`s.
+- **Lint:** `npm run lint` reports 69 errors, 45 of which go away with the fixes above.
 
 ### Fixed on 14 October 2026
 
+- **Creator portal, after the Settings rebuild (15 October), checked in a browser:**
+  - `dark:` follows the portal's theme switch (`@custom-variant dark` in `globals.css`). The
+    legacy-method banner reads correctly in every OS/theme combination.
+  - The payout Save button and the selected-card tick use the strong method shade (≥ 4.95:1). The
+    disabled Save button is grey again.
+  - The square Easypaisa and JazzCash logos are drawn large enough to read.
+  - Keyboard focus shows on the method cards and the Settings panels.
+  - The phone menu drawer moves focus in, keeps it there, and returns it to the menu button.
+  - The theme switch survives blocked storage (`theme-toggle.tsx`).
+  - The Earnings order search has a label.
+  - Name, email and payout-text lengths are enforced on the server (`lib/field-limits.ts`); sign-up
+    has the same caps as Settings.
+  - `ring-m-ring` is defined, and the two lint warnings are gone (`ibanChecksum` now has a test).
+  - Still to decide: the untracked mock-ups `newcards.html` and `Payouts · Account settings-s.html`
+    in the repo root. Keep them out of commits, or add them to `.gitignore`.
 - **Six undefined colour tokens** (`danger`, `warn`, `ok`, `ok-line`, `warn-line`, `line-strong`; 34 uses).
   Text, dots and tints now use the `-ink` tokens, and `ok-line`, `warn-line` and `line-strong` were
   added to `globals.css` for both themes. Visible results:

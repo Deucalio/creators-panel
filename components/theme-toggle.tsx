@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import React, { useSyncExternalStore, useRef } from "react";
 import { Icon } from "@/components/icon";
 
 type Theme = "system" | "light" | "dark";
@@ -12,9 +12,34 @@ function subscribe(callback: () => void) {
   return () => window.removeEventListener("storage", callback);
 }
 
+// Storage can throw (blocked site data, some private windows and embedded
+// browsers). This renders in the sidebar on every dashboard page, so a throw
+// here took the whole page down; fall back to the system theme instead, as the
+// inline script in app/layout.tsx already does.
+// Held for this page too, so the switch still shows the choice it just made
+// when storage refused to keep it.
+let pageTheme: string | null = null;
+
+function readTheme(): string | null {
+  try {
+    return localStorage.getItem(THEME_KEY) ?? pageTheme;
+  } catch {
+    return pageTheme;
+  }
+}
+
+function saveTheme(theme: Theme) {
+  pageTheme = theme;
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    // Not remembered across visits, but still applied to this page.
+  }
+}
+
 function getSnapshot(): Theme {
   if (typeof window === "undefined") return "system";
-  const val = localStorage.getItem(THEME_KEY);
+  const val = readTheme();
   if (val === "light" || val === "dark" || val === "system") return val;
   return "system";
 }
@@ -25,9 +50,10 @@ function getServerSnapshot(): Theme {
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const buttonRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const changeTheme = (newTheme: Theme) => {
-    localStorage.setItem(THEME_KEY, newTheme);
+    saveTheme(newTheme);
     const root = document.documentElement;
     if (newTheme === "system") {
       root.removeAttribute("data-theme");
@@ -44,21 +70,40 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     { id: "dark", label: "Dark", icon: "moon" },
   ];
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+    let nextIndex: number | null = null;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      nextIndex = (currentIndex + 1) % options.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      nextIndex = (currentIndex - 1 + options.length) % options.length;
+    }
+    if (nextIndex !== null) {
+      e.preventDefault();
+      changeTheme(options[nextIndex].id);
+      buttonRefs.current[nextIndex]?.focus();
+    }
+  };
+
   return (
     <div
       role="radiogroup"
       aria-label="Color theme"
       className={`inline-flex items-center rounded-lg border border-line bg-surface p-0.5 text-xs ${className}`}
     >
-      {options.map((opt) => {
+      {options.map((opt, idx) => {
         const active = theme === opt.id;
         return (
           <button
             key={opt.id}
+            ref={(el) => {
+              buttonRefs.current[idx] = el;
+            }}
             type="button"
             role="radio"
             aria-checked={active}
+            tabIndex={active ? 0 : -1}
             onClick={() => changeTheme(opt.id)}
+            onKeyDown={(e) => handleKeyDown(e, idx)}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium motion-safe:transition cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand ${
               active
                 ? "bg-brand text-brand-ink shadow-xs"

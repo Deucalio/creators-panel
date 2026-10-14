@@ -52,14 +52,23 @@ export function NextActionCard({
   } else if (!hasPayoutDetails) {
     state = {
       title: "Add your payout details",
-      body: `You've earned commissions, but haven't saved payout details yet. Add your Easypaisa, JazzCash or bank details so ${storeName} can pay you.`,
+      body: pendingPayout ? (
+        <>
+          {storeName} has put {formatMoney(pendingPayout.amount, currency)} into payout{" "}
+          <span className="whitespace-nowrap">{formatPayoutNumber(pendingPayout.number)}</span> for
+          you, but you haven&apos;t saved payout details yet. Add your Easypaisa, JazzCash or bank
+          details so they can send it.
+        </>
+      ) : (
+        `You've earned commissions, but haven't saved payout details yet. Add your Easypaisa, JazzCash or bank details so ${storeName} can pay you.`
+      ),
       actionLabel: "Add payout details",
-      actionHref: "/dashboard/settings#payouts",
+      actionHref: `/dashboard/settings?program=${encodeURIComponent(programId)}#payouts`,
       icon: "settings",
       badgeText: "Action needed",
       badgeStyle: "bg-warn-surface text-warn-ink border-warn-ink/30",
       art: <UrgentPayoutDetailsArt className="h-24 sm:h-26 w-auto select-none shrink-0" />,
-      topActionHref: "/dashboard/settings#payouts",
+      topActionHref: `/dashboard/settings?program=${encodeURIComponent(programId)}#payouts`,
       isUrgent: true,
     };
   } else if (pendingPayout) {

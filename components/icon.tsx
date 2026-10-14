@@ -51,10 +51,13 @@ const PATHS = {
   filter: "M22 3H2l8 9.46V19l4 2v-8.54L22 3z",
   search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35",
   info: "M12 16v-4M12 8h.01M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z",
+  eye: "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z",
+  eyeOff: "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22",
 } as const;
 
 /** Icons whose shape needs a circle the path data can't express. */
 const CIRCLES: Partial<Record<IconName, Array<[number, number, number]>>> = {
+  eye: [[12, 12, 3]],
   share: [
     [18, 5.5, 2.4],
     [6, 12, 2.4],

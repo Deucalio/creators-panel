@@ -10,6 +10,7 @@ import {
 } from "./actions";
 import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 import { Field } from "@/components/field";
+import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH } from "@/lib/field-limits";
 
 // Lives here rather than in actions.ts: a "use server" module can only export
 // async functions, so exporting this constant from there fails at runtime.
@@ -50,6 +51,7 @@ export function RegistrationForm({ programId, storeName }: Props) {
           name="firstName"
           label="First name"
           autoComplete="given-name"
+          maxLength={NAME_MAX_LENGTH}
           defaultValue={values.firstName}
           error={fieldErrors.firstName}
         />
@@ -57,6 +59,7 @@ export function RegistrationForm({ programId, storeName }: Props) {
           name="lastName"
           label="Last name"
           autoComplete="family-name"
+          maxLength={NAME_MAX_LENGTH}
           defaultValue={values.lastName}
           error={fieldErrors.lastName}
         />
@@ -67,6 +70,7 @@ export function RegistrationForm({ programId, storeName }: Props) {
         label="Email address"
         type="email"
         autoComplete="email"
+        maxLength={EMAIL_MAX_LENGTH}
         defaultValue={values.email}
         error={fieldErrors.email}
       />

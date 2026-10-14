@@ -34,6 +34,10 @@ describe("pakistan payouts formatting & validation", () => {
     // Invalid length / prefix
     assert.equal(typeof validIban("GB36 SCBL 0000 0011 2345 6702"), "string");
     assert.equal(typeof validIban("PK36 SCBL 123"), "string");
+
+    // The checksum on its own, on the compact form the server stores
+    assert.equal(ibanChecksum("PK36SCBL0000001123456702"), true);
+    assert.equal(ibanChecksum("PK36SCBL0000001123456703"), false);
   });
 
   it("parses multiline and json payout details", () => {

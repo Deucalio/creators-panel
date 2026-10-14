@@ -21,6 +21,7 @@ import {
   parsePayoutDetails,
 } from "@/lib/pakistan-payouts";
 import { matchPayoutMethod } from "@/lib/payout-methods";
+import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, PAYOUT_TEXT_MAX_LENGTH } from "@/lib/field-limits";
 import { PayoutHeaderArt } from "@/components/illustration";
 
 /* ------------------------------------------------------------------
@@ -107,12 +108,6 @@ export function BankLogo({ className = "h-8 w-auto" }: { className?: string }) {
     </div>
   );
 }
-
-const LOGOS: Record<string, (cls?: string) => React.ReactNode> = {
-  easypaisa: (cls = "h-8 w-auto") => <EasypaisaLogo className={cls} />,
-  jazzcash: (cls = "h-8 w-auto") => <JazzCashLogo className={cls} />,
-  bank: (cls = "h-8 w-auto") => <BankLogo className={cls} />,
-};
 
 /* ------------------------------------------------------------------
    Icons
@@ -916,7 +911,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-profile"
               tabIndex={0}
-              className="animate-panel-in focus:outline-none"
+              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Profile</h2>
@@ -949,7 +944,7 @@ export function SettingsClient({
                       <input
                         id="first-name"
                         type="text"
-                        maxLength={40}
+                        maxLength={NAME_MAX_LENGTH}
                         autoComplete="given-name"
                         value={profileDraft.first}
                         onChange={(e) => {
@@ -978,7 +973,7 @@ export function SettingsClient({
                       <input
                         id="last-name"
                         type="text"
-                        maxLength={40}
+                        maxLength={NAME_MAX_LENGTH}
                         autoComplete="family-name"
                         value={profileDraft.last}
                         onChange={(e) => {
@@ -1034,7 +1029,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-payouts"
               tabIndex={0}
-              className="animate-panel-in focus:outline-none"
+              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface overflow-hidden shadow-xs">
                 <div className="p-6 md:p-8">
@@ -1137,9 +1132,9 @@ export function SettingsClient({
                                 <Image
                                   src="/easypaisa-logo.png"
                                   alt="Easypaisa"
-                                  width={100}
-                                  height={36}
-                                  className="h-8 sm:h-9 w-auto max-w-[85%] object-contain"
+                                  width={64}
+                                  height={64}
+                                  className="h-14 sm:h-16 w-auto max-w-[85%] object-contain"
                                   priority
                                   unoptimized
                                 />
@@ -1147,14 +1142,14 @@ export function SettingsClient({
                                 <Image
                                   src="/jazzcash-logo.webp"
                                   alt="JazzCash"
-                                  width={100}
-                                  height={36}
-                                  className="h-8 sm:h-9 w-auto max-w-[85%] object-contain"
+                                  width={64}
+                                  height={64}
+                                  className="h-14 sm:h-16 w-auto max-w-[85%] object-contain"
                                   priority
                                   unoptimized
                                 />
                               ) : (
-                                <BankTileIcon className="size-9 sm:size-10 text-slate-700" />
+                                <BankTileIcon className="size-12 sm:size-14 text-slate-700" />
                               )}
                             </div>
 
@@ -1167,7 +1162,7 @@ export function SettingsClient({
 
                             {/* Top-Right Tick Badge */}
                             <span
-                              className={`absolute top-3.5 right-3.5 size-6 rounded-full bg-m text-white flex items-center justify-center shadow-xs transition-transform duration-200 ${
+                              className={`absolute top-3.5 right-3.5 size-6 rounded-full bg-m-strong text-white flex items-center justify-center shadow-xs transition-transform duration-200 ${
                                 isChecked ? "scale-100" : "scale-0"
                               }`}
                               aria-hidden="true"
@@ -1200,9 +1195,9 @@ export function SettingsClient({
                             <Image
                               src="/easypaisa-logo.png"
                               alt="Easypaisa"
-                              width={90}
-                              height={32}
-                              className="h-7 sm:h-8 w-auto max-w-[85%] object-contain"
+                              width={48}
+                              height={48}
+                              className="h-11 sm:h-12 w-auto max-w-full object-contain"
                               priority
                               unoptimized
                             />
@@ -1210,14 +1205,14 @@ export function SettingsClient({
                             <Image
                               src="/jazzcash-logo.webp"
                               alt="JazzCash"
-                              width={90}
-                              height={32}
-                              className="h-7 sm:h-8 w-auto max-w-[85%] object-contain"
+                              width={48}
+                              height={48}
+                              className="h-11 sm:h-12 w-auto max-w-full object-contain"
                               priority
                               unoptimized
                             />
                           ) : (
-                            <BankTileIcon className="size-8 sm:size-9 text-slate-700" />
+                            <BankTileIcon className="size-10 sm:size-11 text-slate-700" />
                           )}
                         </div>
 
@@ -1328,6 +1323,7 @@ export function SettingsClient({
                                 <input
                                   id="ep-title"
                                   type="text"
+                                  maxLength={PAYOUT_TEXT_MAX_LENGTH}
                                   autoComplete="name"
                                   placeholder="Name on the account"
                                   value={draftDetails.easypaisa.title}
@@ -1452,6 +1448,7 @@ export function SettingsClient({
                                 <input
                                   id="jc-title"
                                   type="text"
+                                  maxLength={PAYOUT_TEXT_MAX_LENGTH}
                                   autoComplete="name"
                                   placeholder="Name on the account"
                                   value={draftDetails.jazzcash.title}
@@ -1515,6 +1512,7 @@ export function SettingsClient({
                                 <input
                                   id="bk-name"
                                   type="text"
+                                  maxLength={PAYOUT_TEXT_MAX_LENGTH}
                                   list={bankDatalistId}
                                   placeholder="e.g. Meezan Bank"
                                   value={draftDetails.bank.bankName}
@@ -1579,6 +1577,7 @@ export function SettingsClient({
                                 <input
                                   id="bk-title"
                                   type="text"
+                                  maxLength={PAYOUT_TEXT_MAX_LENGTH}
                                   autoComplete="name"
                                   placeholder="Name on the account"
                                   value={draftDetails.bank.title}
@@ -1753,7 +1752,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-email"
               tabIndex={0}
-              className="animate-panel-in focus:outline-none"
+              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Email address</h2>
@@ -1767,6 +1766,7 @@ export function SettingsClient({
                     <input
                       id="account-email"
                       type="email"
+                      maxLength={EMAIL_MAX_LENGTH}
                       autoComplete="email"
                       inputMode="email"
                       spellCheck="false"
@@ -1867,7 +1867,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-password"
               tabIndex={0}
-              className="animate-panel-in focus:outline-none"
+              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Password</h2>

@@ -22,6 +22,8 @@ import { RecentEarningsPreview } from "@/components/recent-earnings-preview";
 import { EmptyState } from "@/components/empty-state";
 import { NoActivityArt } from "@/components/illustration";
 import { matchPayoutMethod } from "@/lib/payout-methods";
+import { isPayoutDetailsConfigured } from "@/lib/pakistan-payouts";
+import { formatMoney } from "@/lib/money";
 
 // Earnings must never be served stale.
 export const dynamic = "force-dynamic";
@@ -73,9 +75,10 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
     currency,
   );
 
-  // A method no merchant pays through (an older "Wise") counts as missing.
-  const hasPayoutDetails = Boolean(
-    matchPayoutMethod(account.payoutMethod) && account.payoutDetails?.trim(),
+  // Validated against Pakistan payout methods: Easypaisa / JazzCash require a number; Bank transfer requires IBAN/Bank name.
+  const hasPayoutDetails = isPayoutDetailsConfigured(
+    account.payoutMethod,
+    account.payoutDetails,
   );
   const newcomer = stats.orders === 0;
   // Day one: nothing referred yet and the program is running. The page then
@@ -148,6 +151,34 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   return (
     <div className="flex flex-col gap-6">
       {resolved.notice}
+
+      {/* Missing Payout Method Banner */}
+      {!hasPayoutDetails ? (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-950/30 p-4 sm:px-5 sm:py-3.5 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <span className="size-8 rounded-xl flex items-center justify-center font-bold text-white bg-amber-500 shrink-0 shadow-2xs">
+              !
+            </span>
+            <div className="flex flex-col gap-0.5">
+              <p className="text-xs sm:text-sm font-bold text-ink">
+                No payout method connected
+              </p>
+              <p className="text-xs text-ink-muted">
+                {pendingPayout
+                  ? `${storeName} has a payout of ${formatMoney(pendingPayout.amount, currency)} waiting to be sent to you. Add your payout details to receive it.`
+                  : `Add your Easypaisa, JazzCash or bank details so ${storeName} can send your commissions.`}
+              </p>
+            </div>
+          </div>
+          <Link
+            href={`/dashboard/settings?program=${encodeURIComponent(membership.id)}#payouts`}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-amber-600 hover:bg-amber-700 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs transition shrink-0 cursor-pointer"
+          >
+            <span>Connect payout method</span>
+            <Icon name="arrow" className="h-3 w-3" />
+          </Link>
+        </div>
+      ) : null}
 
       {/* Page Header (OV-6) */}
       <PageHeader

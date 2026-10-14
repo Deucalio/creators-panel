@@ -91,17 +91,83 @@ export function DashboardShell({
     setSwitcherOpen(false);
   };
 
+  // The phone drawer is a modal. Focus moves into it when it opens and stays
+  // there; closing it with Escape, the close button or the backdrop puts focus
+  // back on the menu button. Following a link doesn't: that's a new page.
+  const menuButtonRef = React.useRef<HTMLButtonElement>(null);
+  const drawerRef = React.useRef<HTMLDivElement>(null);
+  const switcherRef = React.useRef<HTMLDivElement>(null);
+  const restoreFocusRef = React.useRef(false);
+
+  const closeDrawer = () => {
+    restoreFocusRef.current = true;
+    setDrawerOpen(false);
+  };
+
+  // Close switcher when clicking outside
+  React.useEffect(() => {
+    if (!switcherOpen) return;
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (switcherRef.current && !switcherRef.current.contains(e.target as Node)) {
+        setSwitcherOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [switcherOpen]);
+
   // Close drawer on Escape
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setDrawerOpen(false);
+        setDrawerOpen((open) => {
+          if (open) restoreFocusRef.current = true;
+          return false;
+        });
         setSwitcherOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  React.useEffect(() => {
+    if (!drawerOpen) {
+      if (restoreFocusRef.current) menuButtonRef.current?.focus();
+      restoreFocusRef.current = false;
+      return;
+    }
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    const focusable = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+    focusable()[0]?.focus();
+
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const items = focusable();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener("keydown", trap);
+    return () => window.removeEventListener("keydown", trap);
+  }, [drawerOpen]);
 
   const requestedId = searchParams.get("program");
   const activeMembership =
@@ -150,7 +216,7 @@ export function DashboardShell({
               </div>
 
               {memberships.length > 1 ? (
-                <div className="relative mt-1">
+                <div ref={switcherRef} className="relative mt-1">
                   <button
                     type="button"
                     onClick={() => setSwitcherOpen(!switcherOpen)}
@@ -294,7 +360,7 @@ export function DashboardShell({
             options don't fit the 256px sidebar and "Dark" was cut off. */}
         <div className="flex flex-col gap-2 pt-1">
           <Link
-            href="/dashboard/settings"
+            href={withProgram("/dashboard/settings", currentProgramId)}
             onClick={closeOverlays}
             aria-current={pathname.startsWith("/dashboard/settings") ? "page" : undefined}
             className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold motion-safe:transition ${
@@ -340,6 +406,7 @@ export function DashboardShell({
       {/* Mobile Top Bar (SH-2, RS-2) */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-14 border-b border-line bg-surface/90 backdrop-blur-md px-4 flex items-center justify-between z-30">
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={() => setDrawerOpen(true)}
           className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-ink hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
@@ -372,12 +439,13 @@ export function DashboardShell({
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
-            onClick={() => setDrawerOpen(false)}
+            onClick={closeDrawer}
             aria-hidden="true"
           />
 
           {/* Drawer content */}
           <div
+            ref={drawerRef}
             role="dialog"
             aria-modal="true"
             aria-label="Navigation drawer"
@@ -389,7 +457,7 @@ export function DashboardShell({
               </span>
               <button
                 type="button"
-                onClick={() => setDrawerOpen(false)}
+                onClick={closeDrawer}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-muted hover:text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand"
                 aria-label="Close navigation drawer"
               >

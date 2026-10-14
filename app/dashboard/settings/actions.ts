@@ -9,6 +9,7 @@ import { isValidEmail } from "@/lib/email-format";
 import { checkLoginAllowed, describeWait, recordFailedLogin } from "@/lib/rate-limit";
 import { uniqueViolationTargets } from "@/lib/unique-violation";
 import { matchPayoutMethod } from "@/lib/payout-methods";
+import { NAME_MAX_LENGTH, PAYOUT_TEXT_MAX_LENGTH } from "@/lib/field-limits";
 import {
   validMobile,
   validTitle,
@@ -77,6 +78,13 @@ export async function updateProfile(
 
   if (!firstName || !lastName) {
     return { status: "error", message: "Enter both your first and last name.", field: "firstName" };
+  }
+  if (firstName.length > NAME_MAX_LENGTH || lastName.length > NAME_MAX_LENGTH) {
+    return {
+      status: "error",
+      message: `Keep each name to ${NAME_MAX_LENGTH} characters or fewer.`,
+      field: firstName.length > NAME_MAX_LENGTH ? "firstName" : "lastName",
+    };
   }
 
   await prisma.creatorAccount.update({
@@ -236,6 +244,20 @@ export async function updatePayoutDetails(
   }
 
   // Server-side strict field validation
+  if (title.length > PAYOUT_TEXT_MAX_LENGTH) {
+    return {
+      status: "error",
+      message: `Keep the account title to ${PAYOUT_TEXT_MAX_LENGTH} characters or fewer.`,
+      field: "title",
+    };
+  }
+  if (bankName.length > PAYOUT_TEXT_MAX_LENGTH) {
+    return {
+      status: "error",
+      message: `Keep the bank name to ${PAYOUT_TEXT_MAX_LENGTH} characters or fewer.`,
+      field: "bankName",
+    };
+  }
   if (method === "Easypaisa" || method === "JazzCash") {
     const mobErr = validMobile(number);
     if (mobErr !== true) {

@@ -5,6 +5,7 @@ import prisma from "@/lib/db";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { MIN_PASSWORD_LENGTH } from "@/lib/password-policy";
 import { isValidEmail } from "@/lib/email-format";
+import { NAME_MAX_LENGTH } from "@/lib/field-limits";
 import {
   checkLoginAllowed,
   clearLoginAttempts,
@@ -94,7 +95,13 @@ export async function registerCreator(
 
   const fieldErrors: RegistrationFieldErrors = {};
   if (!values.firstName) fieldErrors.firstName = "Enter your first name";
+  else if (values.firstName.length > NAME_MAX_LENGTH) {
+    fieldErrors.firstName = `Use ${NAME_MAX_LENGTH} characters or fewer`;
+  }
   if (!values.lastName) fieldErrors.lastName = "Enter your last name";
+  else if (values.lastName.length > NAME_MAX_LENGTH) {
+    fieldErrors.lastName = `Use ${NAME_MAX_LENGTH} characters or fewer`;
+  }
   if (!isValidEmail(values.email)) fieldErrors.email = "Enter a valid email address";
   if (password.length < MIN_PASSWORD_LENGTH) {
     fieldErrors.password = `Use at least ${MIN_PASSWORD_LENGTH} characters`;

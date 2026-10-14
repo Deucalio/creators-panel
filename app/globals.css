@@ -1,6 +1,24 @@
 @import "tailwindcss";
 
 /*
+ * `dark:` follows the portal's own theme switch, not only the operating system.
+ * Tailwind's default reads `prefers-color-scheme` alone, so a creator who picked
+ * Light on a dark OS (or Dark on a light one) got half-dark components: the
+ * legacy-payout banner's heading went white on cream and vanished. This mirrors
+ * the token blocks below: an explicit `data-theme`, else the OS preference.
+ */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+/*
  * Semantic design tokens — PartnerLoop Creator Portal
  *
  * Components reference roles — `surface`, `ink-muted`, `brand`, `ok-ink` —
@@ -182,6 +200,11 @@
 }
 
 /* Method Selector Cards */
+/* The radio inside is sr-only, so the card itself shows keyboard focus. */
+.method-card:has(input:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
 .method-card {
   transition: all 0.2s ease;
 }
@@ -207,12 +230,21 @@
   background-color: var(--m-tint);
   border-bottom-color: var(--m-line);
 }
+/* White text needs the strong shade: on the plain brand colours it measured
+   2.3–4.4:1 (Easypaisa green worst), under the 4.5:1 body-text minimum; the
+   strong shades are 4.95:1 or better in both themes. */
 .payout-details-panel .payout-save-btn {
-  background-color: var(--m);
+  background-color: var(--m-strong);
   color: #ffffff;
 }
 .payout-details-panel .payout-save-btn:hover:not(:disabled) {
-  background-color: var(--m-strong);
+  background-color: color-mix(in srgb, var(--m-strong) 85%, #000000);
+}
+/* This file's rules sit outside Tailwind's layers, so they beat the button's
+   `disabled:` utilities — restate the disabled look here. */
+.payout-details-panel .payout-save-btn:disabled {
+  background-color: var(--surface-muted);
+  color: var(--ink-subtle);
 }
 .payout-details-panel .payout-input-field:hover:not(:focus-within):not([data-invalid="true"]) {
   border-color: var(--m);
@@ -273,6 +305,7 @@
   --color-m-tint: var(--m-tint);
   --color-m-line: var(--m-line);
   --color-m-ink: var(--m-ink);
+  --color-m-ring: var(--m-ring);
   --color-sunken: var(--surface-muted);
 
   --font-sans: var(--font-geist-sans);

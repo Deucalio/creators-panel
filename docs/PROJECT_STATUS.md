@@ -14,7 +14,7 @@ The product spans **two separate applications** that share one Postgres database
 |                 |                                                                                                                                                                                                                                                                                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Features        | Phases 1–18 built. Open: password reset (B1) and email verification (F2), both blocked on a sending domain.                                                                                                                                                                                                                                                         |
-| Automated tests | `npm test` in each app — 56 merchant, 36 portal, no database needed. See "Automated review — 2026-10-13".                                                                                                                                                                                                                                                        |
+| Automated tests | `npm test` in each app — 56 merchant, 37 portal, no database needed. See "Automated review — 2026-10-13".                                                                                                                                                                                                                                                        |
 | Database        | Schema in sync: `Commission.terms`, `Store.primaryDomain` and `Store.name` were pushed on 2026-10-14.                                                                                                                                                                                                                                                          |
 | Creator portal  | Reviewed screen by screen on 2026-10-14 — see "Creator portal review — 2026-10-14". Roughly 85% feature-complete; the gaps are password reset, email, and creator-facing privacy terms and account deletion.                                                                                                                                                       |
 | Portal redesign | In progress (sidebar shell, new Overview, filters, payouts grouping). UI/UX audit: [PartnerLoop Creator Portal — UI/UX Audit](https://claude.ai/code/artifact/f332c46f-9fda-4ffd-a867-e3de5353f8a5). Reviewed again on 2026-10-14 after the latest redesign commits — see "Redesign review — 2026-10-14". Issues: `tests.md`, "Found in testing, not fixed yet". |
@@ -1651,6 +1651,23 @@ testing, not fixed yet". The headlines:
   - two white-on-pastel colours in dark mode, and the Remove dialog's behaviour;
   - unlinked error messages, and browser-only validation;
   - and smaller items, all listed in `tests.md`.
+  Re-checked that evening:
+  - Most of the 12 are fixed and verified in a browser.
+  - Still open in the portal:
+    - `dark:` follows the OS rather than the theme switch (it can hide the legacy banner's heading);
+    - the payout Save button fails contrast;
+    - illegible square logos, and a few focus and labelling gaps.
+  - Shopify app sweep:
+    - the program editor and upgrade modal show unbuilt features as real: PRO toggles, an
+      "AI" card, an "up to 18%" claim, dead buttons;
+    - `npm run lint` reports 69 errors, mainly clickable `div`s; selecting commissions and the
+      onboarding choices don't work from the keyboard.
+  - Full list: `tests.md`, "Still open".
+
+  15 October:
+  - Every creator-portal item from that list is fixed and checked in a browser (see `tests.md`,
+    "Fixed").
+  - The Shopify app items are written up for the colleague in [PartnerLoop Shopify App — Fix List](https://claude.ai/code/artifact/674c8afc-8d07-4476-90b5-b6a5e0d1265c).
 
 ---
 
