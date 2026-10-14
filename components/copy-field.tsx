@@ -1,7 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Icon } from "@/components/icon";
+
+// Whether this browser can open the native share sheet. Read through
+// useSyncExternalStore rather than `typeof navigator` during render: the server
+// has no navigator, so it renders no Share button, and checking during render
+// made the browser's first pass disagree with the server's HTML — a hydration
+// error on every Overview load. The server snapshot (false) is used while
+// hydrating, then the real answer replaces it.
+const noSubscription = () => () => {};
+const browserCanShare = () => typeof navigator.share === "function";
+const serverCanShare = () => false;
 
 type Props = {
   label: string;
@@ -25,9 +35,7 @@ export function CopyField({
   const [expanded, setExpanded] = useState(false);
 
   const canShare =
-    shareable &&
-    typeof navigator !== "undefined" &&
-    typeof navigator.share === "function";
+    useSyncExternalStore(noSubscription, browserCanShare, serverCanShare) && shareable;
 
   const copy = async () => {
     try {
