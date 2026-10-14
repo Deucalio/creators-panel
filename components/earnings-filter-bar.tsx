@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { formatMoney } from "@/lib/money";
 import { Icon } from "@/components/icon";
@@ -23,6 +23,11 @@ export function EarningsFilterBar({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [searchValue, setSearchValue] = useState(currentQuery ?? "");
+
+  useEffect(() => {
+    setSearchValue(currentQuery ?? "");
+  }, [currentQuery]);
 
   const activeStatus = (currentStatus ?? "").toLowerCase();
 
@@ -44,8 +49,7 @@ export function EarningsFilterBar({
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const q = (formData.get("q") as string)?.trim() ?? "";
+    const q = searchValue.trim();
 
     const params = new URLSearchParams(searchParams.toString());
     params.set("program", programId);
@@ -63,6 +67,7 @@ export function EarningsFilterBar({
   };
 
   const clearSearch = () => {
+    setSearchValue("");
     const params = new URLSearchParams(searchParams.toString());
     params.set("program", programId);
     params.delete("page");
@@ -169,15 +174,22 @@ export function EarningsFilterBar({
             type="search"
             name="q"
             aria-label="Search by order number"
-            defaultValue={currentQuery ?? ""}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && searchValue) {
+                e.preventDefault();
+                clearSearch();
+              }
+            }}
             placeholder="Search order number e.g. #1042"
             className="w-full rounded-xl border border-line bg-surface py-2 pr-9 pl-9 text-base sm:text-xs text-ink placeholder:text-ink-subtle shadow-2xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
-          {currentQuery ? (
+          {searchValue ? (
             <button
               type="button"
               onClick={clearSearch}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-ink-subtle hover:text-ink"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-ink-subtle hover:text-ink cursor-pointer"
               aria-label="Clear order search"
             >
               <Icon name="close" className="h-3.5 w-3.5" />
@@ -187,7 +199,7 @@ export function EarningsFilterBar({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-xl border border-line bg-surface px-3.5 py-2 text-xs font-semibold text-ink shadow-2xs hover:border-line-strong hover:bg-surface-muted transition-colors disabled:opacity-50"
+          className="rounded-xl border border-line bg-surface px-3.5 py-2 text-xs font-semibold text-ink shadow-2xs hover:border-line-strong hover:bg-surface-muted transition-colors disabled:opacity-50 cursor-pointer"
         >
           Search
         </button>
@@ -195,11 +207,14 @@ export function EarningsFilterBar({
           <button
             type="button"
             onClick={() => {
+              setSearchValue("");
               const params = new URLSearchParams();
               params.set("program", programId);
-              router.push(`${pathname}?${params.toString()}`);
+              startTransition(() => {
+                router.push(`${pathname}?${params.toString()}`);
+              });
             }}
-            className="text-xs font-semibold text-brand hover:underline underline-offset-2 ml-1"
+            className="text-xs font-semibold text-brand hover:underline underline-offset-2 ml-1 cursor-pointer"
           >
             Reset filters
           </button>

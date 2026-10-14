@@ -156,7 +156,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
       {!hasPayoutDetails ? (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/80 dark:bg-amber-950/30 p-4 sm:px-5 sm:py-3.5 shadow-2xs">
           <div className="flex items-center gap-3">
-            <span className="size-8 rounded-xl flex items-center justify-center font-bold text-white bg-amber-500 shrink-0 shadow-2xs">
+            <span className="size-8 rounded-xl flex items-center justify-center font-bold text-white bg-amber-500 shrink-0 shadow-2xs" aria-hidden="true">
               !
             </span>
             <div className="flex flex-col gap-0.5">

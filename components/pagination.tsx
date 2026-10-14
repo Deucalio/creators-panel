@@ -41,26 +41,26 @@ export function Pagination({
   };
 
   const linkClass =
-    "rounded-lg border border-line px-3.5 py-2 text-sm font-semibold text-ink transition hover:border-ink-subtle";
+    "rounded-xl border border-line bg-surface px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-ink shadow-2xs transition hover:border-line-strong hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2";
   const disabledClass =
-    "rounded-lg border border-line px-3.5 py-2 text-sm font-semibold text-ink-subtle opacity-50";
+    "rounded-xl border border-line bg-surface-muted/50 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-ink-subtle opacity-50 select-none";
 
   return (
     <nav
-      aria-label="Earnings pages"
-      className="flex items-center justify-between gap-4 border-t border-line-soft px-6 py-4"
+      aria-label="Earnings pagination"
+      className="flex items-center justify-between gap-3 border-t border-line-soft px-4 sm:px-6 py-3.5"
     >
       {page > 1 ? (
         <Link href={href(page - 1)} rel="prev" className={linkClass}>
           Previous
         </Link>
       ) : (
-        <span className={disabledClass} aria-hidden="true">
+        <span className={disabledClass} aria-disabled="true">
           Previous
         </span>
       )}
 
-      <span className="text-sm text-ink-muted">
+      <span className="text-xs sm:text-sm font-medium text-ink-muted tabular-nums">
         Page {page} of {pageCount}
       </span>
 
@@ -69,7 +69,7 @@ export function Pagination({
           Next
         </Link>
       ) : (
-        <span className={disabledClass} aria-hidden="true">
+        <span className={disabledClass} aria-disabled="true">
           Next
         </span>
       )}

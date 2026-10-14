@@ -141,8 +141,15 @@ export function DashboardShell({
       restoreFocusRef.current = false;
       return;
     }
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const drawer = drawerRef.current;
-    if (!drawer) return;
+    if (!drawer) {
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
     const focusable = () =>
       Array.from(
         drawer.querySelectorAll<HTMLElement>(
@@ -166,7 +173,10 @@ export function DashboardShell({
       }
     };
     window.addEventListener("keydown", trap);
-    return () => window.removeEventListener("keydown", trap);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", trap);
+    };
   }, [drawerOpen]);
 
   const requestedId = searchParams.get("program");
@@ -409,8 +419,10 @@ export function DashboardShell({
           ref={menuButtonRef}
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-ink hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-surface text-ink hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand cursor-pointer"
           aria-label="Open portal navigation"
+          aria-expanded={drawerOpen}
+          aria-controls="mobile-navigation-drawer"
         >
           <Icon name="menu" className="h-5 w-5" />
         </button>
@@ -446,10 +458,11 @@ export function DashboardShell({
           {/* Drawer content */}
           <div
             ref={drawerRef}
+            id="mobile-navigation-drawer"
             role="dialog"
             aria-modal="true"
             aria-label="Navigation drawer"
-            className="fixed inset-y-0 left-0 w-72 max-w-[85vw] border-r border-line bg-surface shadow-2xl flex flex-col z-50"
+            className="fixed inset-y-0 left-0 w-72 max-w-[85vw] border-r border-line bg-surface shadow-2xl flex flex-col z-50 animate-drawer-in"
           >
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
               <span className="text-xs font-bold text-ink uppercase tracking-wider">

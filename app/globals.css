@@ -324,6 +324,10 @@
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
 
 .animate-toast-in {
   animation: toast-in 0.25s ease-out forwards;
@@ -333,6 +337,9 @@
 }
 .animate-panel-in {
   animation: panel-in 0.22s ease-out;
+}
+.animate-drawer-in {
+  animation: drawer-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Reduced motion preference support (AX-4) */

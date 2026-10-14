@@ -134,7 +134,8 @@ function PeriodPicker({ active, programId }: { active: number; programId: string
           <Link
             key={days}
             href={`/dashboard?${params.toString()}`}
-            aria-current={isActive ? "true" : undefined}
+            scroll={false}
+            aria-current={isActive ? "page" : undefined}
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold motion-safe:transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
               isActive
                 ? "bg-brand text-brand-ink shadow-xs"

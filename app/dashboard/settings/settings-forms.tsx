@@ -242,6 +242,12 @@ export function SettingsClient({
       const hash = window.location.hash.replace("#", "") as TabKey;
       if (["profile", "payouts", "email", "password"].includes(hash)) {
         setActiveTab(hash);
+        setTimeout(() => {
+          const target = document.getElementById(`panel-${hash}`);
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 80);
       }
     };
     handleHash();
@@ -911,7 +917,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-profile"
               tabIndex={0}
-              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+              className="animate-panel-in scroll-mt-20 md:scroll-mt-8 rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Profile</h2>
@@ -951,7 +957,7 @@ export function SettingsClient({
                           setProfileDraft((prev) => ({ ...prev, first: e.target.value }));
                           if (profileErrors.first) setProfileErrors((prev) => ({ ...prev, first: undefined }));
                         }}
-                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
                           profileErrors.first
                             ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -980,7 +986,7 @@ export function SettingsClient({
                           setProfileDraft((prev) => ({ ...prev, last: e.target.value }));
                           if (profileErrors.last) setProfileErrors((prev) => ({ ...prev, last: undefined }));
                         }}
-                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
                           profileErrors.last
                             ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -1029,7 +1035,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-payouts"
               tabIndex={0}
-              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+              className="animate-panel-in scroll-mt-20 md:scroll-mt-8 rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface overflow-hidden shadow-xs">
                 <div className="p-6 md:p-8">
@@ -1282,7 +1288,7 @@ export function SettingsClient({
                                     const err = validatePayoutField("number", draftDetails.easypaisa.number);
                                     setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
                                   }}
-                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm tabular-nums text-ink placeholder:text-ink-subtle"
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-base sm:text-sm tabular-nums text-ink placeholder:text-ink-subtle"
                                   aria-invalid={Boolean(payoutErrors.number)}
                                   aria-describedby={payoutErrors.number ? "ep-number-error ep-number-hint" : "ep-number-hint"}
                                 />
@@ -1342,7 +1348,7 @@ export function SettingsClient({
                                     const err = validatePayoutField("title", draftDetails.easypaisa.title);
                                     setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
                                   }}
-                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-base sm:text-sm text-ink placeholder:text-ink-subtle"
                                   aria-invalid={Boolean(payoutErrors.title)}
                                   aria-describedby={payoutErrors.title ? "ep-title-error ep-title-hint" : "ep-title-hint"}
                                 />
@@ -1407,7 +1413,7 @@ export function SettingsClient({
                                     const err = validatePayoutField("number", draftDetails.jazzcash.number);
                                     setPayoutErrors((prev) => ({ ...prev, number: err || "" }));
                                   }}
-                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm tabular-nums text-ink placeholder:text-ink-subtle"
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-base sm:text-sm tabular-nums text-ink placeholder:text-ink-subtle"
                                   aria-invalid={Boolean(payoutErrors.number)}
                                   aria-describedby={payoutErrors.number ? "jc-number-error jc-number-hint" : "jc-number-hint"}
                                 />
@@ -1467,7 +1473,7 @@ export function SettingsClient({
                                     const err = validatePayoutField("title", draftDetails.jazzcash.title);
                                     setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
                                   }}
-                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-base sm:text-sm text-ink placeholder:text-ink-subtle"
                                   aria-invalid={Boolean(payoutErrors.title)}
                                   aria-describedby={payoutErrors.title ? "jc-title-error jc-title-hint" : "jc-title-hint"}
                                 />
@@ -1531,7 +1537,7 @@ export function SettingsClient({
                                     const err = validatePayoutField("bankName", draftDetails.bank.bankName);
                                     setPayoutErrors((prev) => ({ ...prev, bankName: err || "" }));
                                   }}
-                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-base sm:text-sm text-ink placeholder:text-ink-subtle"
                                   aria-invalid={Boolean(payoutErrors.bankName)}
                                   aria-describedby={payoutErrors.bankName ? "bk-name-error bk-name-hint" : "bk-name-hint"}
                                 />
@@ -1596,7 +1602,7 @@ export function SettingsClient({
                                     const err = validatePayoutField("title", draftDetails.bank.title);
                                     setPayoutErrors((prev) => ({ ...prev, title: err || "" }));
                                   }}
-                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm text-ink placeholder:text-ink-subtle"
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-base sm:text-sm text-ink placeholder:text-ink-subtle"
                                   aria-invalid={Boolean(payoutErrors.title)}
                                   aria-describedby={payoutErrors.title ? "bk-title-error bk-title-hint" : "bk-title-hint"}
                                 />
@@ -1656,7 +1662,7 @@ export function SettingsClient({
                                     const err = validatePayoutField("iban", draftDetails.bank.iban);
                                     setPayoutErrors((prev) => ({ ...prev, iban: err || "" }));
                                   }}
-                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-sm tabular-nums text-ink placeholder:text-ink-subtle"
+                                  className="flex-1 min-w-0 bg-transparent border-0 outline-none text-base sm:text-sm tabular-nums text-ink placeholder:text-ink-subtle"
                                   aria-invalid={Boolean(payoutErrors.iban)}
                                   aria-describedby={payoutErrors.iban ? "bk-iban-error bk-iban-hint" : "bk-iban-hint"}
                                 />
@@ -1752,7 +1758,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-email"
               tabIndex={0}
-              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+              className="animate-panel-in scroll-mt-20 md:scroll-mt-8 rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Email address</h2>
@@ -1775,7 +1781,7 @@ export function SettingsClient({
                         setEmailDraft(e.target.value);
                         if (emailErrors.email) setEmailErrors((prev) => ({ ...prev, email: undefined }));
                       }}
-                      className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                      className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 text-base sm:text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
                         emailErrors.email
                           ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
                           : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -1807,7 +1813,7 @@ export function SettingsClient({
                           setEmailPassword(e.target.value);
                           if (emailErrors.password) setEmailErrors((prev) => ({ ...prev, password: undefined }));
                         }}
-                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-base sm:text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
                           emailErrors.password
                             ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -1867,7 +1873,7 @@ export function SettingsClient({
               role="tabpanel"
               aria-labelledby="tab-password"
               tabIndex={0}
-              className="animate-panel-in rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+              className="animate-panel-in scroll-mt-20 md:scroll-mt-8 rounded-2xl outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
               <div className="rounded-2xl border border-line bg-surface p-6 md:p-8 shadow-xs">
                 <h2 className="text-xl font-bold tracking-tight text-ink">Password</h2>
@@ -1891,7 +1897,7 @@ export function SettingsClient({
                           setPwCurrent(e.target.value);
                           if (pwErrors.current) setPwErrors((prev) => ({ ...prev, current: undefined }));
                         }}
-                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-base sm:text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
                           pwErrors.current
                             ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -1930,7 +1936,7 @@ export function SettingsClient({
                           setPwNew(e.target.value);
                           if (pwErrors.new) setPwErrors((prev) => ({ ...prev, new: undefined }));
                         }}
-                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-base sm:text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
                           pwErrors.new
                             ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -2040,7 +2046,7 @@ export function SettingsClient({
                           setPwConfirm(e.target.value);
                           if (pwErrors.confirm) setPwErrors((prev) => ({ ...prev, confirm: undefined }));
                         }}
-                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
+                        className={`w-full rounded-xl border bg-surface px-3.5 py-2.5 pr-11 text-base sm:text-sm text-ink outline-none transition placeholder:text-ink-subtle ${
                           pwErrors.confirm
                             ? "border-bad-ink focus:ring-2 focus:ring-bad-ink/20"
                             : "border-line-strong hover:border-brand focus:border-brand focus:ring-2 focus:ring-brand/20"
