@@ -7,6 +7,7 @@ import { Icon, type IconName } from "@/components/icon";
 import { Badge } from "@/components/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { storeDisplayName } from "@/lib/store-name";
+import { pickMembership } from "@/lib/membership-choice";
 import { membershipLabel, membershipTone } from "@/lib/earning-status";
 
 export type ShellMembership = {
@@ -71,13 +72,11 @@ function withProgram(href: string, programId: string | null): string {
 export function DashboardShell({
   account,
   memberships,
-  defaultMembershipId,
   signOutAction,
   children,
 }: {
   account: ShellAccount;
   memberships: ShellMembership[];
-  defaultMembershipId: string | null;
   signOutAction: () => Promise<void>;
   children: React.ReactNode;
 }) {
@@ -180,10 +179,9 @@ export function DashboardShell({
   }, [drawerOpen]);
 
   const requestedId = searchParams.get("program");
-  const activeMembership =
-    memberships.find((m) => m.id === (requestedId ?? defaultMembershipId)) ??
-    memberships[0] ??
-    null;
+  // The same choice the page makes, so an old link to a program that no
+  // longer exists can't show one store here and another in the page.
+  const activeMembership = pickMembership(memberships, requestedId) ?? null;
 
   const currentProgramId = activeMembership?.id ?? null;
   const isApproved = activeMembership?.status === "ACTIVE";
@@ -220,62 +218,61 @@ export function DashboardShell({
                     {storeName}
                   </span>
                 </div>
-                <Badge tone={membershipTone(activeMembership.status)}>
-                  {membershipLabel(activeMembership.status)}
+                <Badge tone={membershipTone(activeMembership.status, activeMembership.program.status)}>
+                  {membershipLabel(activeMembership.status, activeMembership.program.status)}
                 </Badge>
               </div>
 
-              {memberships.length > 1 ? (
-                <div ref={switcherRef} className="relative mt-1">
-                  <button
-                    type="button"
-                    onClick={() => setSwitcherOpen(!switcherOpen)}
-                    className="flex w-full items-center justify-between gap-2 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-left text-xs font-medium text-ink transition hover:border-ink-subtle focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand"
-                    aria-expanded={switcherOpen}
-                    aria-label="Switch creator program"
-                  >
-                    <span className="truncate">{activeMembership.program.name}</span>
-                    <Icon name="chevronUpDown" className="h-3.5 w-3.5 flex-none text-ink-subtle" />
-                  </button>
+              <div ref={switcherRef} className="relative mt-1">
+                <button
+                  type="button"
+                  onClick={() => setSwitcherOpen(!switcherOpen)}
+                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-left text-xs font-medium text-ink transition hover:border-ink-subtle focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand cursor-pointer shadow-2xs"
+                  aria-expanded={switcherOpen}
+                  aria-label="Switch creator program"
+                >
+                  <span className="truncate">{activeMembership.program.name}</span>
+                  <Icon name="chevronUpDown" className="h-3.5 w-3.5 flex-none text-ink-subtle" />
+                </button>
 
-                  {switcherOpen && (
-                    <div className="absolute left-0 right-0 top-full z-50 mt-1.5 flex flex-col gap-1 rounded-xl border border-line bg-surface p-1.5 shadow-lg">
-                      <p className="px-2 py-1 text-[11px] font-semibold text-ink-subtle uppercase tracking-wider">
-                        Your programs
-                      </p>
-                      {memberships.map((m) => {
-                        const isCurrent = m.id === activeMembership.id;
-                        return (
-                          <Link
-                            key={m.id}
-                            href={withProgram(pathname, m.id)}
-                            onClick={closeOverlays}
-                            className={`flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition ${
-                              isCurrent
-                                ? "bg-brand-surface text-brand-text font-semibold"
-                                : "text-ink hover:bg-surface-muted"
-                            }`}
-                          >
-                            <div className="flex flex-col min-w-0">
+                {switcherOpen && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1.5 flex flex-col gap-1 rounded-xl border border-line bg-surface p-1.5 shadow-lg">
+                    <p className="px-2 py-1 text-[11px] font-semibold text-ink-subtle uppercase tracking-wider">
+                      Your programs ({memberships.length})
+                    </p>
+                    {memberships.map((m) => {
+                      const isCurrent = m.id === activeMembership.id;
+                      return (
+                        <Link
+                          key={m.id}
+                          href={withProgram(pathname, m.id)}
+                          onClick={closeOverlays}
+                          className={`flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition ${
+                            isCurrent
+                              ? "bg-brand-surface text-brand-text font-semibold"
+                              : "text-ink hover:bg-surface-muted"
+                          }`}
+                        >
+                          <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-1.5">
                               <span className="truncate font-semibold">{m.program.name}</span>
-                              <span className="truncate text-[11px] text-ink-subtle">
-                                {storeDisplayName(m.program.store)}
-                              </span>
+                              {isCurrent ? (
+                                <Icon name="check" className="h-3 w-3 flex-none text-brand" />
+                              ) : null}
                             </div>
-                            <Badge tone={membershipTone(m.status)}>
-                              {membershipLabel(m.status)}
-                            </Badge>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="truncate text-xs font-semibold text-ink-muted">
-                  {activeMembership.program.name}
-                </p>
-              )}
+                            <span className="truncate text-[11px] text-ink-subtle">
+                              {storeDisplayName(m.program.store)}
+                            </span>
+                          </div>
+                          <Badge tone={membershipTone(m.status, m.program.status)}>
+                            {membershipLabel(m.status, m.program.status)}
+                          </Badge>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2.5 px-2">

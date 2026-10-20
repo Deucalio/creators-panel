@@ -20,8 +20,9 @@ check the log and the database.
 | Orders and refunds | C1–C7, C9–C17 | C8, the click half of C4 |
 | Creator portal, desktop | D1, D2, D7, D8, D14, D18, D22, D23 | 15 items, live and on a private copy |
 | Creator portal, phone | E2, E3, E5 | E1, E4 |
+| A creator in two stores | F1–F8 (most need a second dev store) | One-click join (D17); the removed-store notice, the stale-link fix and the uninstall clean-up, on a private copy |
 
-Automated tests: `npm test` in either app — 56 in the Shopify app, 37 in the portal, about a second
+Automated tests: `npm test` in either app — 56 in the Shopify app, 40 in the portal, about a second
 each, no database needed. Run them after any change to the money code.
 
 ---
@@ -240,6 +241,59 @@ share sheet, only Copy shows.
 
 ---
 
+## F. A creator in two stores
+
+One creator account can join programs in any number of stores; each store is a separate
+membership with its own link, code, status and earnings. This has only been tried on a private
+database with two programs, never with a second real store. You need a second development store
+with the app installed and a program set up ("store B" below).
+
+**F1. Joining a second store.** Signed in as Sarah, open store B's signup link (Programs → Get
+registration link). *Expect:* one "Join as Sarah Jenkins" button, not the sign-up form. Then
+approve her in store B. *Expect:*
+- The sidebar switcher lists both stores, each with its own status.
+- Settings still shows one set of details.
+- Her store B link and code differ from Quickstart's.
+
+Signed out, the sign-up form with Sarah's email should ask for her existing password and join with
+it; a wrong password is refused.
+
+**F2. Each store credits only its own sales.** Place a test order on store B through Sarah's store B
+link. *Expect:* it appears under store B, both in the portal and in store B's Commissions. It does
+not appear under Quickstart, whose numbers don't change. Then enter Sarah's Quickstart code at store
+B's checkout. *Expect:* Shopify rejects it and nothing is credited.
+
+**F3. A different status in each store.** Leave Sarah pending in store B while she's approved at
+Quickstart. *Expect:* the switcher shows Active for one and Pending for the other. Only store B's
+Share page is locked, and Quickstart works as before.
+
+**F4. Changing payout details once.** Change Sarah's Easypaisa number in Settings. *Expect:* both
+stores show the new number in **Mark as paid**. Payouts already recorded keep the method and
+reference they were saved with.
+
+**F5. A store in another currency.** Set store B's currency to USD (Shopify admin → Settings →
+Store details). *Expect:* store B's figures show in USD and Quickstart's in PKR. Nothing adds the
+two together.
+
+**F6. Two programs in one store.** Join Sarah to a second Quickstart program (she's in "Summer
+Collab" on the private copy). *Expect:* each program has its own link and code, and an order through
+one link is credited to that program only.
+
+**F7. A store uninstalls.** Uninstall the app from store B. *Expect:*
+- On any store B page, Sarah sees "Store B has removed PartnerLoop", saying tracking has stopped and
+  her records leave in 48 hours.
+- Quickstart is unaffected.
+
+48 hours later, Shopify triggers the data deletion. *Expect:* store B disappears from her switcher,
+but her account and Quickstart remain. A creator who was only in store B is deleted.
+
+**F8. Deleting a program with sales.** In Programs, delete a program that has referred orders.
+*Expect:* the dialog says it can't be deleted and offers **Deactivate instead**, and the server
+refuses a forced request too. A program with no sales deletes as before, and the dialog says how many
+creators will lose access.
+
+---
+
 ## Not bugs — please don't report these
 
 - **No "Forgot password" link.** Blocked on email (H1); a locked-out creator needs a database script.
@@ -301,6 +355,17 @@ with lines, fixes and a sign-off checklist. In short:
 
 ### Fixed on 14 October 2026
 
+- **Creators in more than one store (15 October):**
+  - **Deleting a program with sales is refused.** The server checks too, and the dialog offers
+    "Deactivate instead" and says how many creators a sales-free delete affects. Before, the
+    delete erased every member's commissions and payout records, unpaid ones included.
+  - **An uninstalled store is flagged in the portal.** It has no Shopify session left, so every
+    page shows "[store] has removed PartnerLoop" instead of carrying on as Active.
+    (`lib/store-connection.ts`)
+  - **The sidebar and the page always pick the same program,** including for an old link to a
+    deleted program. (`lib/membership-choice.ts`, 3 tests)
+  - **The uninstall clean-up only deletes the erased store's own orphaned creators.** It no longer
+    catches anyone signing up elsewhere at that moment; checked against Postgres.
 - **Creator portal, after the Settings rebuild (15 October), checked in a browser:**
   - `dark:` follows the portal's theme switch (`@custom-variant dark` in `globals.css`). The
     legacy-method banner reads correctly in every OS/theme combination.
@@ -420,3 +485,8 @@ send deletion requests to the merchant.
 **H14. The address creators are told to email.** The pending screen shows
 **nakson.service@gmail.com**, your store's contact email in Shopify. Change it there, or ask for a
 separate creator-support address.
+
+**H15. A creator loses a store's history when that store leaves.** Shopify requires the app to
+erase a store's data 48 hours after it uninstalls, and that includes the creator's commissions and
+payout records there, even money still owed. The portal now warns them during those 48 hours (F7).
+Is that enough, or should creators be able to download their records first?

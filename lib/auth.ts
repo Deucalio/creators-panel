@@ -4,6 +4,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import { getSessionAccountId } from "@/lib/session";
+import { pickMembership } from "@/lib/membership-choice";
 
 /**
  * The signed-in account with every program it belongs to, or null.
@@ -88,11 +89,7 @@ export function selectMembership(
   account: CreatorAccountWithMemberships,
   requested: string | undefined,
 ): Membership | undefined {
-  return (
-    account.memberships.find((m) => m.id === requested) ??
-    account.memberships.find((m) => m.status === "ACTIVE") ??
-    account.memberships[0]
-  );
+  return pickMembership(account.memberships, requested);
 }
 
 /** Read `?program=` out of a page's searchParams, ignoring array/undefined forms. */

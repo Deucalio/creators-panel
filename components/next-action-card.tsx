@@ -40,8 +40,8 @@ export function NextActionCard({
 
   if (paused) {
     state = {
-      title: "Program is paused",
-      body: `${storeName} has paused this program. Clicks still work, but new orders won't be credited until it resumes. Everything you've earned is unaffected.`,
+      title: "Program is inactive",
+      body: `${storeName} has set this program to inactive. Clicks still work, but new orders won't be credited until it is active again. Everything you've earned is unaffected.`,
       actionLabel: "View program rules",
       actionHref: `/dashboard/program?program=${programId}`,
       icon: "pending",
@@ -172,13 +172,13 @@ export function NextActionCard({
     <div
       className={`flex h-full flex-col justify-between rounded-2xl border ${
         paused
-          ? "border-warn-line bg-warn-surface/25"
+          ? "border-warn-ink/25 bg-warn-surface dark:bg-amber-950/30 dark:border-amber-500/40 text-ink"
           : "border-line bg-surface"
       } p-6 shadow-xs transition hover:border-line-strong`}
     >
       <div className="flex flex-col gap-3">
         {/* Header Row */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
           <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${state.badgeStyle}`}
           >
@@ -228,13 +228,13 @@ export function NextActionCard({
         )}
       </div>
 
-      <div className="mt-5 pt-3 border-t border-line-soft">
+      <div className={`mt-5 pt-3 border-t ${paused ? "border-warn-ink/15 dark:border-amber-500/20" : "border-line-soft"}`}>
         <Link
           href={state.actionHref}
           className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
         >
           <span>{state.actionLabel}</span>
-          <Icon name="chevronRight" className="h-3 w-3" />
+          <span className="text-base leading-none">›</span>
         </Link>
       </div>
     </div>

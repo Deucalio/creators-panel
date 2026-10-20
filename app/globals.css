@@ -84,6 +84,24 @@
   --m-line: var(--brand-line);
   --m-ink: var(--brand-text);
   --m-ring: color-mix(in srgb, var(--brand) 22%, transparent);
+
+  /* Illustration palette (warm, vibrant spot-art tokens) */
+  --il-line: #1f2347;
+  --il-paper: #ffffff;
+  --il-cream: #fff3d2;
+  --il-yellow: #ffd467;
+  --il-orange: #f7a35c;
+  --il-coral: #ff7b72;
+  --il-pink: #ffc6d4;
+  --il-rose: #ff9fb8;
+  --il-blue: #bfd4ff;
+  --il-indigo: #4f46e5;
+  --il-lilac: #d4d9ff;
+  --il-mint: #aeead0;
+  --il-skin: #ffcfa8;
+  --il-hair: #2a2d55;
+  --il-grey: #e4e7ef;
+  --il-shadow: rgba(31, 35, 71, 0.10);
 }
 
 /* System dark preference */
@@ -134,6 +152,24 @@
     --jc: #f0434a;  --jc-strong: #d62a33;  --jc-tint: #34141a;  --jc-line: #6d2832;  --jc-ink: #ff9ca1;
     --bk: #8392b5;  --bk-strong: #55648a;  --bk-tint: #1b2133;  --bk-line: #38425e;  --bk-ink: #b9c4e3;
     --m-ring: color-mix(in srgb, var(--brand) 30%, transparent);
+
+    /* Dark illustration tokens */
+    --il-line: #cbd5e1;
+    --il-paper: #1e2235;
+    --il-cream: #362f22;
+    --il-yellow: #f59e0b;
+    --il-orange: #ea580c;
+    --il-coral: #f43f5e;
+    --il-pink: #4c1d2e;
+    --il-rose: #831843;
+    --il-blue: #1e3a8a;
+    --il-indigo: #818cf8;
+    --il-lilac: #312e81;
+    --il-mint: #064e3b;
+    --il-skin: #78350f;
+    --il-hair: #0f172a;
+    --il-grey: #334155;
+    --il-shadow: rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -183,6 +219,24 @@
   --jc: #f0434a;  --jc-strong: #d62a33;  --jc-tint: #34141a;  --jc-line: #6d2832;  --jc-ink: #ff9ca1;
   --bk: #8392b5;  --bk-strong: #55648a;  --bk-tint: #1b2133;  --bk-line: #38425e;  --bk-ink: #b9c4e3;
   --m-ring: color-mix(in srgb, var(--brand) 30%, transparent);
+
+  /* Dark illustration tokens */
+  --il-line: #cbd5e1;
+  --il-paper: #1e2235;
+  --il-cream: #362f22;
+  --il-yellow: #f59e0b;
+  --il-orange: #ea580c;
+  --il-coral: #f43f5e;
+  --il-pink: #4c1d2e;
+  --il-rose: #831843;
+  --il-blue: #1e3a8a;
+  --il-indigo: #818cf8;
+  --il-lilac: #312e81;
+  --il-mint: #064e3b;
+  --il-skin: #78350f;
+  --il-hair: #0f172a;
+  --il-grey: #334155;
+  --il-shadow: rgba(0, 0, 0, 0.35);
 }
 
 /* Method brand styling */
@@ -342,6 +396,51 @@
   animation: drawer-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ---------- Illustration system ---------- */
+.il {
+  fill: none;
+  stroke: var(--il-line);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.il .ns { stroke: none; }
+.il .th { stroke-width: 1.5; }
+.il .f-paper  { fill: var(--il-paper); }
+.il .f-cream  { fill: var(--il-cream); }
+.il .f-yellow { fill: var(--il-yellow); }
+.il .f-orange { fill: var(--il-orange); }
+.il .f-coral  { fill: var(--il-coral); }
+.il .f-pink   { fill: var(--il-pink); }
+.il .f-rose   { fill: var(--il-rose); }
+.il .f-blue   { fill: var(--il-blue); }
+.il .f-indigo { fill: var(--il-indigo); }
+.il .f-lilac  { fill: var(--il-lilac); }
+.il .f-mint   { fill: var(--il-mint); }
+.il .f-skin   { fill: var(--il-skin); }
+.il .f-hair   { fill: var(--il-hair); }
+.il .f-line   { fill: var(--il-line); }
+.il .f-grey   { fill: var(--il-grey); }
+.il .fl-shadow { fill: var(--il-shadow); stroke: none; }
+.il .st-yellow { stroke: var(--il-yellow); }
+.il .st-orange { stroke: var(--il-orange); }
+.il .st-indigo { stroke: var(--il-indigo); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .il .float   { animation: il-float 3.4s ease-in-out infinite; }
+  .il .d2      { animation-delay: .5s; }
+  .il .d3      { animation-delay: 1s; }
+  .il .twinkle { transform-box: fill-box; transform-origin: center; animation: il-twinkle 2.8s ease-in-out infinite; }
+  .il .drip    { animation: il-drip 1.9s ease-in infinite; }
+  .il .pulse   { transform-box: fill-box; transform-origin: center; animation: il-pulse 2.2s ease-out infinite; }
+  .il .plane   { animation: il-glide 4s ease-in-out infinite; }
+}
+@keyframes il-float   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes il-twinkle { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.7); opacity: .65; } }
+@keyframes il-drip    { 0% { transform: translateY(-4px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(9px); opacity: 0; } }
+@keyframes il-pulse   { 0% { transform: scale(.6); opacity: .8; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes il-glide   { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(3px, -4px); } }
+
 /* Reduced motion preference support (AX-4) */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -353,4 +452,5 @@
     scroll-behavior: auto !important;
   }
 }
+
 

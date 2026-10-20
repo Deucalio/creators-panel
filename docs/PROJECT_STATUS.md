@@ -14,7 +14,7 @@ The product spans **two separate applications** that share one Postgres database
 |                 |                                                                                                                                                                                                                                                                                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Features        | Phases 1–18 built. Open: password reset (B1) and email verification (F2), both blocked on a sending domain.                                                                                                                                                                                                                                                         |
-| Automated tests | `npm test` in each app — 56 merchant, 37 portal, no database needed. See "Automated review — 2026-10-13".                                                                                                                                                                                                                                                        |
+| Automated tests | `npm test` in each app — 56 merchant, 40 portal, no database needed. See "Automated review — 2026-10-13".                                                                                                                                                                                                                                                        |
 | Database        | Schema in sync: `Commission.terms`, `Store.primaryDomain` and `Store.name` were pushed on 2026-10-14.                                                                                                                                                                                                                                                          |
 | Creator portal  | Reviewed screen by screen on 2026-10-14 — see "Creator portal review — 2026-10-14". Roughly 85% feature-complete; the gaps are password reset, email, and creator-facing privacy terms and account deletion.                                                                                                                                                       |
 | Portal redesign | In progress (sidebar shell, new Overview, filters, payouts grouping). UI/UX audit: [PartnerLoop Creator Portal — UI/UX Audit](https://claude.ai/code/artifact/f332c46f-9fda-4ffd-a867-e3de5353f8a5). Reviewed again on 2026-10-14 after the latest redesign commits — see "Redesign review — 2026-10-14". Issues: `tests.md`, "Found in testing, not fixed yet". |
@@ -1668,6 +1668,12 @@ testing, not fixed yet". The headlines:
   - Every creator-portal item from that list is fixed and checked in a browser (see `tests.md`,
     "Fixed").
   - The Shopify app items are written up for the colleague in [PartnerLoop Shopify App — Fix List](https://claude.ai/code/artifact/674c8afc-8d07-4476-90b5-b6a5e0d1265c).
+  - **Creators in several stores:** reviewed against the code.
+    - One account with a membership per program is the design, and it holds.
+    - Fixed: deleting a program with sales is refused; an uninstalled store is flagged in the portal;
+      the sidebar and page agree on stale links; the uninstall clean-up is scoped to its own store.
+    - New tests F1–F8 in `tests.md` need a second dev store. Open decision H15 covers what creators lose
+      when a store leaves.
 
 ---
 

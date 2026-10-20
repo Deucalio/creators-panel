@@ -10,6 +10,7 @@ import { membershipLabel, membershipTone } from "@/lib/earning-status";
 import { EmptyState } from "@/components/empty-state";
 import { NoProgramsArt, PausedProgramArt } from "@/components/illustration";
 import { storeDisplayName } from "@/lib/store-name";
+import { isStoreConnected } from "@/lib/store-connection";
 
 // Explicit `ok` discriminant rather than testing `screen` for truthiness:
 // React.ReactNode legitimately includes null and "", so a truthiness check
@@ -96,6 +97,22 @@ export async function resolveMembership(
     };
   }
 
+  // The merchant uninstalled PartnerLoop. Nothing is tracked from here on, and
+  // the store's data is erased 48 hours after uninstalling, so say both.
+  if (!(await isStoreConnected(membership.program.store.shop))) {
+    return {
+      ok: true,
+      account,
+      membership,
+      notice: (
+        <StoreDisconnectedNotice
+          storeName={storeName}
+          supportEmail={membership.program.store.supportEmail}
+        />
+      ),
+    };
+  }
+
   return {
     ok: true,
     account,
@@ -161,14 +178,42 @@ function ProgramPausedNotice({
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 rounded-2xl border border-warn-ink/25 bg-warn-surface px-6 py-4 shadow-xs">
       <div className="space-y-1 max-w-2xl">
-        <p className="text-sm font-bold text-warn-ink">{programName} is paused</p>
+        <p className="text-sm font-bold text-warn-ink">{programName} is inactive</p>
         <p className="text-xs sm:text-sm leading-relaxed text-ink">
-          {storeName} has paused this program, so new orders through your link or code
-          won&apos;t be credited to you until they turn it back on. Everything you&apos;ve already
+          {storeName} has set this program to inactive, so new orders through your link or code
+          won&apos;t be credited to you until it becomes active again. Everything you&apos;ve already
           earned is unaffected.
         </p>
       </div>
       <PausedProgramArt className="h-16 sm:h-18 w-auto shrink-0 select-none" />
+    </div>
+  );
+}
+
+/** Above every page for a store that has uninstalled PartnerLoop. */
+function StoreDisconnectedNotice({
+  storeName,
+  supportEmail,
+}: {
+  storeName: string;
+  supportEmail: string | null;
+}) {
+  return (
+    <div className="rounded-2xl border border-warn-ink/25 bg-warn-surface px-6 py-4 shadow-xs">
+      <p className="text-sm font-bold text-warn-ink">{storeName} has removed PartnerLoop</p>
+      <p className="mt-1 max-w-2xl text-xs leading-relaxed text-ink sm:text-sm">
+        Clicks and orders through your link or code aren&apos;t tracked any more. What you&apos;ve
+        already earned is still between you and {storeName}. This program and its records leave
+        your dashboard 48 hours after they uninstalled, so note anything you need now.
+        {supportEmail ? (
+          <>
+            {" "}Questions:{" "}
+            <a href={`mailto:${supportEmail}`} className="font-semibold text-brand-text hover:underline">
+              {supportEmail}
+            </a>
+          </>
+        ) : null}
+      </p>
     </div>
   );
 }

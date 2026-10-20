@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { requireCreatorAccount, selectMembership } from "@/lib/auth";
+import { requireCreatorAccount } from "@/lib/auth";
 import { signOut } from "@/lib/auth-actions";
 import { DashboardShell, type ShellMembership } from "./dashboard-shell";
 
@@ -7,7 +7,6 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
   // `getCreatorAccount` is React-cached, so the page inside reuses this result
   // rather than issuing the same query again.
   const account = await requireCreatorAccount();
-  const fallback = selectMembership(account, undefined);
 
   const memberships: ShellMembership[] = account.memberships.map((m) => ({
     id: m.id,
@@ -33,7 +32,6 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
           email: account.email,
         }}
         memberships={memberships}
-        defaultMembershipId={fallback?.id ?? null}
         signOutAction={signOut}
       >
         {children}
